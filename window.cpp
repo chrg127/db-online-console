@@ -5,6 +5,8 @@
 #include <QStatusBar>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include <QFont>
+#include <QFontDatabase>
 #include <fmt/core.h>
 
 Window::Window(QWidget *parent)
@@ -23,6 +25,38 @@ Window::Window(QWidget *parent)
     create_menu();
     create_statusbar();
 
+}
+
+void Window::create_widgets(QWidget *center)
+{
+    QHBoxLayout *hlt = new QHBoxLayout;
+    QVBoxLayout *vlt = new QVBoxLayout(center);
+    query_button = new QPushButton("Execute a query", center);
+    java_label = new QLabel("java fa schifo!", center);
+    result_tab = new QTableView(center);
+
+    create_editor(center);
+    hlt->addWidget(query_editor);
+    hlt->addWidget(result_tab);
+    vlt->addWidget(java_label);
+    vlt->addLayout(hlt);
+    vlt->addWidget(query_button);
+
+    // button->resize(200, 50);
+    // tabview->move(25, 200);
+    result_tab->setModel(&result_model);
+    // tabview->resize(400, 150);
+
+    connect(query_button, &QPushButton::clicked, this, &Window::filltab);
+}
+
+void Window::create_editor(QWidget *parent)
+{
+    query_editor = new QTextEdit(parent);
+    QFont font("Monospace");
+    font.setStyleHint(QFont::TypeWriter);
+    query_editor->setFont(font);
+    highlighter = new SQLHighlighter(query_editor->document());
 }
 
 void Window::create_menu()
@@ -55,27 +89,5 @@ void Window::create_statusbar()
 void Window::filltab(bool b)
 {
     result_model.setQuery(query_editor->toPlainText());
-}
-
-void Window::create_widgets(QWidget *center)
-{
-    QHBoxLayout *hlt = new QHBoxLayout;
-    QVBoxLayout *vlt = new QVBoxLayout(center);
-    query_button = new QPushButton("Execute a query", center);
-    java_label = new QLabel("java fa schifo!", center);
-    result_tab = new QTableView(center);
-    query_editor = new QTextEdit(center);
-
-    hlt->addWidget(query_editor);
-    hlt->addWidget(result_tab);
-    vlt->addWidget(java_label);
-    vlt->addLayout(hlt);
-    vlt->addWidget(query_button);
-
-    // button->resize(200, 50);
-    // tabview->move(25, 200);
-    result_tab->setModel(&result_model);
-    // tabview->resize(400, 150);
-    connect(query_button, &QPushButton::clicked, this, &Window::filltab);
 }
 

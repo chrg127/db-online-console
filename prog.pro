@@ -10,6 +10,6 @@ Release:OBJECTS_DIR = release/obj
 Debug:DESTDIR = debug
 Debug:OBJECTS_DIR = debug/obj
 
-SOURCES += main.cpp window.cpp
-HEADERS += window.hpp debug.hpp
+SOURCES += main.cpp window.cpp sqlhighlighter.cpp
+HEADERS += window.hpp debug.hpp sqlhighlighter.hpp
 LIBS += -lfmt
