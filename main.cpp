@@ -15,37 +15,6 @@
 #include "window.hpp"
 #include "debug.hpp"
 
-/*
-void run_query(mysqlpp::Connection &conn, const char *qstr)
-{
-    fmt::print("running: {}\n", qstr);
-    mysqlpp::Query query = conn.query(qstr);
-    mysqlpp::StoreQueryResult res = query.store();
-    if (res) {
-        for (const auto &row : res)
-            fmt::print("\t{} {} {}\n", row[0], row[1], row[2]);
-    } else
-        fmt::print("query failed\n");
-}
-
-void run_query_games(mysqlpp::Connection &conn, const char *qstr)
-{
-    mysqlpp::Query query = conn.query(qstr);
-    mysqlpp::StoreQueryResult res = query.store();
-    if (!res) {
-        fmt::print(stderr, "query failed\n");
-        return;
-    }
-    fmt::print("{:30} {:30} {:30}\n", "name", "genre", "console");
-    for (size_t i = 0; i < res.num_rows(); i++) {
-        fmt::print("{:30} {:30} {:30}\n",
-                res[i]["name"],
-                res[i]["genre"],
-                res[i]["console"]);
-    }
-}
-*/
-
 void test_query()
 {
     QSqlQuery query;
@@ -80,18 +49,6 @@ void test_table()
     }
 }
 
-void db_test()
-{
-    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
-    db.setHostName("");
-    db.setDatabaseName("test");
-    db.setUserName("");
-    db.setPassword("");
-    bool ok = db.open();
-    if (!ok)
-        error("{}\n", db.lastError().text().toStdString());
-}
-
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
@@ -100,6 +57,17 @@ int main(int argc, char *argv[])
     window.adjustSize();
     window.move(QGuiApplication::primaryScreen()->availableGeometry().center() - window.rect().center());
     window.show();
+
+    QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
+    db.setHostName("");
+    db.setDatabaseName("test");
+    db.setUserName("");
+    db.setPassword("");
+    bool ok = db.open();
+    if (!ok) {
+        error("{}\n", db.lastError().text().toStdString());
+        return 1;
+    }
 
     return app.exec();
 }

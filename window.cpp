@@ -2,6 +2,9 @@
 
 #include <QAction>
 #include <QMenuBar>
+#include <QStatusBar>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
 #include <fmt/core.h>
 
 Window::Window(QWidget *parent)
@@ -11,20 +14,15 @@ Window::Window(QWidget *parent)
     setMinimumHeight(400);
     setWindowTitle(QStringLiteral("Database project"));
 
-    QWidget *center = new QWidget(this);
-    create_menu();
 
-    /*
-    button = new QPushButton("execute ur shtty query", this);
-    javafaschifo_label = new QLabel("java fa schifo!", this);
-    button->move(100, 0);
-    button->resize(200, 50);
-    tabview = new QTableView(this);
-    tabview->move(25, 200);
-    tabview->setModel(&tabmodel);
-    tabview->resize(400, 150);
-    connect(button, &QPushButton::clicked, this, &Window::filltab);
-    */
+    QWidget *center = new QWidget(this);
+    center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
+    setCentralWidget(center);
+
+    create_widgets(center);
+    create_menu();
+    create_statusbar();
+
 }
 
 void Window::create_menu()
@@ -47,8 +45,37 @@ void Window::create_menu()
     add_item(MENU_FILE, "&Open", true, []() { fmt::print("dinosauri\n"); });
 }
 
+void Window::create_statusbar()
+{
+    QLabel *status_label = new QLabel(this);
+    statusBar()->addPermanentWidget(status_label);
+    statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
+}
+
 void Window::filltab(bool b)
 {
-    tabmodel.setQuery("select * from games");
+    result_model.setQuery(query_editor->toPlainText());
+}
+
+void Window::create_widgets(QWidget *center)
+{
+    QHBoxLayout *hlt = new QHBoxLayout;
+    QVBoxLayout *vlt = new QVBoxLayout(center);
+    query_button = new QPushButton("Execute a query", center);
+    java_label = new QLabel("java fa schifo!", center);
+    result_tab = new QTableView(center);
+    query_editor = new QTextEdit(center);
+
+    hlt->addWidget(query_editor);
+    hlt->addWidget(result_tab);
+    vlt->addWidget(java_label);
+    vlt->addLayout(hlt);
+    vlt->addWidget(query_button);
+
+    // button->resize(200, 50);
+    // tabview->move(25, 200);
+    result_tab->setModel(&result_model);
+    // tabview->resize(400, 150);
+    connect(query_button, &QPushButton::clicked, this, &Window::filltab);
 }
 
