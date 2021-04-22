@@ -1,5 +1,7 @@
 #include "sqlhighlighter.hpp"
 
+#include <QString>
+
 #define raw(word) QStringLiteral("\\b" word "\\b")
 
 static const QString keywords[] = {
@@ -24,7 +26,11 @@ static const QString keywords[] = {
 };
 
 static const QString operators[] = {
-    raw("\\="), raw("true"), raw("false"), raw("\\."), raw("null")
+    raw("\\="), raw("true"), raw("false"), raw("\\."), raw("null"),
+    raw("not"), raw("and"), raw("or"), raw("in"), raw("any"), raw("some"),
+    raw("all"), raw("between"), raw("exists"), raw("like"), raw("escape"),
+    raw("union"), raw("intersect"), raw("minus"), raw("prior"), raw("distinct"),
+    raw("sysdate"), raw("out")
 };
 
 static const QString types[] = {
@@ -61,13 +67,14 @@ SQLHighlighter::SQLHighlighter(QTextDocument *parent)
     };
 
     add_multi(keywords,  Qt::darkBlue, true);
-    add_multi(operators, Qt::darkRed,  false);
-    add_multi(types,     Qt::darkCyan, false);
+    add_multi(operators, Qt::darkRed,  true);
+    add_multi(types,     Qt::darkCyan, true);
 
+    // from top to bottom: numbers, strings, comments
+    // for string regex: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
 #define regex(word) QRegularExpression(QStringLiteral(word))
-    rules.append({ .pattern = regex("\".*\""),   .format  = create_format(Qt::darkGreen, false)  });
-    rules.append({ .pattern = regex("'.*'"),     .format  = create_format(Qt::darkGreen, false)  });
-    rules.append({ .pattern = regex("[0-9]"),    .format  = create_format(Qt::darkMagenta, true) });
+    rules.append({ .pattern = regex("[0-9]"), .format  = create_format(Qt::darkMagenta, true) });
+    rules.append({ .pattern = regex(R"((["'])(?:(?=(\\?))\2.)*?\1)"), .format = create_format(Qt::darkGreen, false) });
     rules.append({ .pattern = regex("--[^\n]*"), .format  = create_format(Qt::darkGray, false)   });
 #undef regex
 }

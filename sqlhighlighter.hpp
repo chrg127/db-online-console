@@ -1,12 +1,16 @@
+#ifndef SQLHIGHLIGHTER_HPP_INCLUDED
+#define SQLHIGHLIGHTER_HPP_INCLUDED
+
 #include <QSyntaxHighlighter>
-#include <QString>
-#include <QTextDocument>
 #include <QRegularExpression>
 #include <QTextCharFormat>
 #include <QVector>
 
-/* this thing only highlights keywords */
+class QString;
+class QTextDocument;
 
+/* Simple SQL highlighter. Highlights only keywords,
+ * numbers, strings and comments. */
 class SQLHighlighter : public QSyntaxHighlighter {
     Q_OBJECT
 
@@ -24,3 +28,4 @@ protected:
     void highlightBlock(const QString &text);
 };
 
+#endif
