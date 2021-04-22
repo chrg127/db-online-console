@@ -1,5 +1,8 @@
 #include "window.hpp"
 
+#include <QPushButton>
+#include <QLabel>
+#include <QStackedWidget>
 #include <QAction>
 #include <QMenuBar>
 #include <QStatusBar>
@@ -8,55 +11,18 @@
 #include <QFont>
 #include <QFontDatabase>
 #include <fmt/core.h>
+#include "screens.hpp"
 
 Window::Window(QWidget *parent)
     : QMainWindow(parent)
 {
-    setMinimumWidth(400);
-    setMinimumHeight(400);
+    // setMinimumWidth(400);
+    // setMinimumHeight(400);
     setWindowTitle(QStringLiteral("Database project"));
 
-
-    QWidget *center = new QWidget(this);
-    center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
-    setCentralWidget(center);
-
-    create_widgets(center);
     create_menu();
     create_statusbar();
-
-}
-
-void Window::create_widgets(QWidget *center)
-{
-    QHBoxLayout *hlt = new QHBoxLayout;
-    QVBoxLayout *vlt = new QVBoxLayout(center);
-    query_button = new QPushButton("Execute a query", center);
-    java_label = new QLabel("java fa schifo!", center);
-    result_tab = new QTableView(center);
-
-    create_editor(center);
-    hlt->addWidget(query_editor);
-    hlt->addWidget(result_tab);
-    vlt->addWidget(java_label);
-    vlt->addLayout(hlt);
-    vlt->addWidget(query_button);
-
-    // button->resize(200, 50);
-    // tabview->move(25, 200);
-    result_tab->setModel(&result_model);
-    // tabview->resize(400, 150);
-
-    connect(query_button, &QPushButton::clicked, this, &Window::filltab);
-}
-
-void Window::create_editor(QWidget *parent)
-{
-    query_editor = new QTextEdit(parent);
-    QFont font("Monospace");
-    font.setStyleHint(QFont::TypeWriter);
-    query_editor->setFont(font);
-    highlighter = new SQLHighlighter(query_editor->document());
+    create_widgets();
 }
 
 void Window::create_menu()
@@ -86,8 +52,34 @@ void Window::create_statusbar()
     statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
 }
 
-void Window::filltab(bool b)
+void Window::create_widgets()
 {
-    result_model.setQuery(query_editor->toPlainText());
+    QWidget *center = new QWidget(this);
+    center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
+    setCentralWidget(center);
+
+    java_label = new QLabel("java fa schifo!", center);
+
+    login_screen = new LoginScreen(this, center);
+    admin_screen = new AdminScreen(this, center);
+    user_screen  = new UserScreen(this, center);
+
+    stack_widget = new QStackedWidget;
+    stack_widget->addWidget(login_screen);
+    stack_widget->addWidget(admin_screen);
+    stack_widget->addWidget(user_screen);
+
+    QVBoxLayout *lt = new QVBoxLayout(center);
+    lt->addWidget(java_label);
+    lt->addWidget(stack_widget);
+}
+
+void Window::show_screen(Screen screen)
+{
+    switch (screen) {
+    case Screen::LOGIN: stack_widget->setCurrentIndex(0); break;
+    case Screen::ADMIN: stack_widget->setCurrentIndex(1); break;
+    case Screen::USER:  stack_widget->setCurrentIndex(2); break;
+    }
 }
 

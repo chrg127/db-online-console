@@ -2,35 +2,36 @@
 #define WINDOW_HPP_INCLUDED
 
 #include <QMainWindow>
-#include <QTextEdit>
-#include <QPushButton>
-#include <QLabel>
-#include <QTableView>
-#include <QSqlQueryModel>
-#include "sqlhighlighter.hpp"
+
+class QLabel;
+class QPushButton;
+class QStackedWidget;
+class LoginScreen;
+class AdminScreen;
+class UserScreen;
 
 class Window : public QMainWindow {
     Q_OBJECT
 
 private:
     QLabel *java_label;
-    QPushButton *query_button;
-    QTableView *result_tab;
-    QSqlQueryModel result_model;
-    QTextEdit *query_editor;
-    SQLHighlighter *highlighter;
+    QStackedWidget *stack_widget;
+    LoginScreen *login_screen;
+    AdminScreen *admin_screen;
+    UserScreen  *user_screen;
 
 public:
-    explicit Window(QWidget *parent = nullptr);
+    enum class Screen {
+        LOGIN, ADMIN, USER,
+    };
 
-public slots:
-    void filltab(bool);
+    explicit Window(QWidget *parent = nullptr);
+    void show_screen(Screen screen);
 
 private:
-    void create_widgets(QWidget *center);
-    void create_editor(QWidget *parent);
     void create_menu();
     void create_statusbar();
+    void create_widgets();
 };
 
 #endif
