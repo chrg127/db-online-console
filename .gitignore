@@ -2,3 +2,4 @@ Makefile*
 debug
 release
 *.pdf
+.idea
