@@ -39,6 +39,27 @@ static const QString types[] = {
     raw("nclob"), raw("number"), raw("numeric"), raw("nvarchar2"), raw("precision"), raw("raw"), raw("rowid"), raw("smallint"),
     raw("real"), raw("timestamp"), raw("urowid"), raw("varchar"), raw("varchar2"), raw("varray"),
 };
+
+static const QString funcs[] = {
+    raw("avg"), raw("collect"), raw("corr"), raw("count"), raw("covar_pop"), raw("covar_samp"), raw("cume_dist"), raw("dense_rank"), raw("first"),
+    raw("group_id"), raw("grouping"), raw("grouping_id"), raw("last"), raw("max"), raw("median"), raw("min"), raw("percentile_cont"), raw("percentile_disc"),
+    raw("percent_rank"), raw("rank"), raw("regr_slope"), raw("regr_intercept"), raw("regr_count"), raw("regr_r2"), raw("regr_avgx"), raw("regr_avgy"),
+    raw("regr_sxx"), raw("regr_syy"), raw("regr_sxy"), raw("stats_binomial_test"), raw("stats_crosstab"), raw("stats_f_test"), raw("stats_ks_test"),
+    raw("stats_mode"), raw("stats_mw_test"), raw("stats_one_way_anova"), raw("stats_t_test_one"), raw("stats_t_test_paired"), raw("stats_t_test_indep"),
+    raw("stats_t_test_indepu"), raw("stats_wsr_test"), raw("stddev"), raw("stddev_pop"), raw("stddev_samp"), raw("sum"), raw("sys_xmlagg"), raw("var_pop"),
+    raw("var_samp"), raw("variance"), raw("xmlagg"), raw("greatest"), raw("least"), raw("add_months"), raw("current_date"), raw("current_timestamp"),
+    raw("dbtimezone"), raw("extract"), raw("from_tz"), raw("last_day"), raw("localtimestamp"), raw("months_between"), raw("new_time"), raw("next_day"),
+    raw("numtodsinterval"), raw("numtoyminterval"), raw("round"), raw("sessiontimezone"), raw("sys_extract_utc"), raw("sysdate"), raw("systimestamp"),
+    raw("to_char"), raw("to_timestamp"), raw("to_timestamp_tz"), raw("to_dsinterval"), raw("to_yminterval"), raw("trunc"), raw("tz_offset"), raw("asciistr"),
+    raw("bin_to_num"), raw("cast"), raw("chartorowid"), raw("compose"), raw("convert"), raw("decompose"), raw("hextoraw"), raw("numtodsinterval"),
+    raw("numtoyminterval"), raw("rawtohex"), raw("rawtonhex"), raw("rowidtochar"), raw("rowidtonchar"), raw("scn_to_timestamp"), raw("timestamp_to_scn"),
+    raw("to_binary_double"), raw("to_binary_float"), raw("to_char"), raw("to_char"), raw("to_char"), raw("to_clob"), raw("to_date"), raw("to_dsinterval"),
+    raw("to_lob"), raw("to_multi_byte"), raw("to_nchar"), raw("to_nchar"), raw("to_nchar"), raw("to_nclob"), raw("to_number"), raw("to_dsinterval"),
+    raw("to_single_byte"), raw("to_timestamp"), raw("to_timestamp_tz"), raw("to_yminterval"), raw("to_yminterval"), raw("translate"), raw("unistr"),
+    raw("abs"), raw("acos"), raw("asin"), raw("atan"), raw("atan2"), raw("bitand"), raw("ceil"), raw("cos"), raw("cosh"), raw("exp"), raw("floor"),
+    raw("ln"), raw("log"), raw("mod"), raw("nanvl"), raw("power"), raw("remainder"), raw("round"), raw("sign"), raw("sin"), raw("sinh"), raw("sqrt"),
+    raw("tan"), raw("tanh"), raw("trunc"), raw("width_bucket"),
+};
 #undef raw
 
 SQLHighlighter::SQLHighlighter(QTextDocument *parent)
@@ -68,7 +89,8 @@ SQLHighlighter::SQLHighlighter(QTextDocument *parent)
 
     add_multi(keywords,  Qt::darkBlue, true);
     add_multi(operators, Qt::darkRed,  true);
-    add_multi(types,     Qt::darkCyan, true);
+    add_multi(types,     Qt::darkYellow, true);
+    add_multi(funcs,     Qt::darkCyan, true);
 
     // from top to bottom: numbers, strings, comments
     // for string regex: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
