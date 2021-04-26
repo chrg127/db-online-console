@@ -3,7 +3,6 @@
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QLabel>
 #include <QTableView>
 #include <QTextEdit>
 #include <QGroupBox>
@@ -12,10 +11,10 @@
 #include <QVBoxLayout>
 #include <QGridLayout>
 #include <QFont>
-#include <QFontDatabase>
 #include <QPixmap>
 #include <QSqlError>
 #include <QMessageBox>
+#include <QSizePolicy>
 #include <fmt/core.h>
 #include "window.hpp"
 #include "sqlhighlighter.hpp"
@@ -23,17 +22,20 @@
 LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
 {
-    image      = new QLabel;
+    image = new QLabel;
     image->setPixmap(QPixmap("face.png"));
     image->setAlignment(Qt::AlignCenter);
 
     name_label = new QLabel("Username: ");
+
     pass_label = new QLabel("Password: ");
-    name_box   = new QLineEdit;
-    pass_box   = new QLineEdit;
+
+    name_box = new QLineEdit;
+
+    pass_box = new QLineEdit;
     pass_box->setEchoMode(QLineEdit::EchoMode::Password);
 
-    QGridLayout *grid = new QGridLayout;
+    auto *grid = new QGridLayout;
     grid->addWidget(name_label, 0, 0);
     grid->addWidget(name_box, 0, 1);
     grid->addWidget(pass_label, 1, 0);
@@ -41,6 +43,7 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
 
     login_box = new QGroupBox("Login");
     login_box->setLayout(grid);
+    login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     admin_button = new QPushButton("Login as admin");
     connect(admin_button, &QPushButton::released,
@@ -50,11 +53,11 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     connect(user_button, &QPushButton::released,
             [mainwnd]() { mainwnd->show_screen(Window::Screen::USER); });
 
-    QHBoxLayout *buttonlt = new QHBoxLayout;
+    auto *buttonlt = new QHBoxLayout;
     buttonlt->addWidget(admin_button);
     buttonlt->addWidget(user_button);
 
-    QVBoxLayout *mainlt = new QVBoxLayout(this);
+    auto *mainlt = new QVBoxLayout(this);
     mainlt->addWidget(image);
     mainlt->addWidget(login_box);
     mainlt->addLayout(buttonlt);
@@ -68,7 +71,7 @@ UserScreen::UserScreen(Window *wnd, QWidget *parent)
     exit_button = new QPushButton("Exit");
     connect(exit_button, &QPushButton::released,
             [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
-    QVBoxLayout *mainlt = new QVBoxLayout(this);
+    auto *mainlt = new QVBoxLayout(this);
     mainlt->addWidget(label);
     mainlt->addWidget(exit_button);
 }
@@ -85,7 +88,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     font.setStyleHint(QFont::TypeWriter);
     query_editor->setFont(font);
 
-    QHBoxLayout *hlt = new QHBoxLayout;
+    auto *hlt = new QHBoxLayout;
     hlt->addWidget(query_editor);
     hlt->addWidget(result_tab);
 
@@ -96,7 +99,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     connect(exit_button, &QPushButton::released,
             [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
 
-    QVBoxLayout *vlt = new QVBoxLayout(this);
+    auto *vlt = new QVBoxLayout(this);
     vlt->addLayout(hlt);
     vlt->addWidget(query_button);
     vlt->addWidget(exit_button);

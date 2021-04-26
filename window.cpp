@@ -7,19 +7,13 @@
 #include <QMenuBar>
 #include <QStatusBar>
 #include <QHBoxLayout>
-#include <QVBoxLayout>
-#include <QFont>
-#include <QFontDatabase>
 #include <fmt/core.h>
 #include "screens.hpp"
 
 Window::Window(QWidget *parent)
     : QMainWindow(parent)
 {
-    // setMinimumWidth(400);
-    // setMinimumHeight(400);
     setWindowTitle(QStringLiteral("Database project"));
-
     create_menu();
     create_statusbar();
     create_widgets();
@@ -35,7 +29,7 @@ void Window::create_menu()
 
     const auto add_item = [&, this](MenuIndex idx, const QString &text, bool enable, auto &&func)
     {
-        QAction *act = new QAction(text, this);
+        auto *act = new QAction(text, this);
         connect(act, &QAction::triggered, this, func);
         menus[idx]->addAction(act);
         act->setEnabled(enable);
@@ -47,14 +41,14 @@ void Window::create_menu()
 
 void Window::create_statusbar()
 {
-    QLabel *status_label = new QLabel(this);
+    auto *status_label = new QLabel(this);
     statusBar()->addPermanentWidget(status_label);
     statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
 }
 
 void Window::create_widgets()
 {
-    QWidget *center = new QWidget(this);
+    auto *center = new QWidget(this);
     center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
     setCentralWidget(center);
 
@@ -69,7 +63,7 @@ void Window::create_widgets()
     stack_widget->addWidget(admin_screen);
     stack_widget->addWidget(user_screen);
 
-    QVBoxLayout *lt = new QVBoxLayout(center);
+    auto *lt = new QVBoxLayout(center);
     lt->addWidget(java_label);
     lt->addWidget(stack_widget);
 }
