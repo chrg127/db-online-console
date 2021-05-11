@@ -26,11 +26,8 @@ static const QString keywords[] = {
 };
 
 static const QString operators[] = {
-    raw("\\="), raw("true"), raw("false"), raw("\\."), raw("null"),
-    raw("not"), raw("and"), raw("or"), raw("in"), raw("any"), raw("some"),
-    raw("all"), raw("between"), raw("exists"), raw("like"), raw("escape"),
-    raw("union"), raw("intersect"), raw("minus"), raw("prior"), raw("distinct"),
-    raw("sysdate"), raw("out")
+    raw("true"), raw("false"), raw("null"), raw("not"), raw("and"), raw("or"), raw("in"), raw("any"), raw("some"), raw("all"), raw("between"),
+    raw("exists"), raw("like"), raw("escape"), raw("union"), raw("intersect"), raw("minus"), raw("prior"), raw("distinct"), raw("sysdate"), raw("out")
 };
 
 static const QString types[] = {
@@ -88,7 +85,7 @@ SQLHighlighter::SQLHighlighter(QTextDocument *parent)
     };
 
     add_multi(keywords,  Qt::darkBlue, true);
-    add_multi(operators, Qt::darkRed,  true);
+    add_multi(operators, Qt::darkBlue,  true);
     add_multi(types,     Qt::darkYellow, true);
     add_multi(funcs,     Qt::darkCyan, true);
 

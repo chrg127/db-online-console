@@ -23,7 +23,7 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
 {
     image = new QLabel;
-    image->setPixmap(QPixmap("face.png"));
+    image->setPixmap(QPixmap("logo.png"));
     image->setAlignment(Qt::AlignCenter);
 
     name_label = new QLabel("Username: ");
