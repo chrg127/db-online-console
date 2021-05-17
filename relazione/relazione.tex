@@ -1,0 +1,55 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage{alltt, fancyvrb, url}
+\usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage{hyperref}
+\usepackage[italian]{babel}
+\usepackage[italian]{cleveref}
+\usepackage[margin=0.5in]{geometry}
+\usepackage{scrextend}
+\title{Progetto di Database}
+\author{Christian Ricci}
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+
+\chapter{Introduzione}
+
+
+
+\chapter{Analisi dei requisiti}
+
+Si vuole realizzare un database per gestire un servizio online di videogiochi. Il database dovrà immagazzinare dati relativi ai videogiochi, agli utenti, alle iscrizioni. I direttori del servizio potranno aggiungere nuovi videogiochi, consultare alcune statistiche, etc.
+
+\section{Definizione delle specifiche in linguaggio naturale}
+
+Il testo ottenuto dall'intervista con l'azienda è il seguente:
+
+\begin{addmargin}[4em]{4em}
+La casa produttrice di videogiochi GameSoft vuole realizzare un servizio online per tutti i videogiochi che ha pubblicato in passato. Gli utenti che si registreranno a questo nuovo servizio potranno accedere ad un catalogo di videogiochi e potranno giocare liberamente a qualunque gioco nel catalogo senza ulteriori costi. Degli utenti si vuole tener traccia del nome utente, della password, dell'email, dell'età e anche di un numero di telefono (opzionale).
+
+Al momento della registrazione l'utente potrà scegliere tra tre piani: il primo prevede un periodo gratuito di un mese, che non si potrà rinnovare; a quel punto l'utente deve decidere tra gli altri due piani. Il secondo piano prevede un costo e comporta l'iscrizione al servizio per un mese. Il terzo piano, invece, comporta l'iscrizione per un anno. Si vuole anche memorizzare lo storico delle iscrizioni per ogni utente.
+
+Per ogni videogioco si vuole memorizzare il titolo, il genere, l'anno di rilascio, l'azienda sviluppatrice e il produttore esecutivo. Per ogni utente del servizio si vuole anche dare la possibilità di acquistare una copia fisica di qualunque videogioco, che, però, potrebbe anche non essere disponibile.
+
+Per ogni utente si vuole anche memorizzare alcune particolare statistiche: il numero di ore trascorso su un videogioco, il numero di ore trascorse in totale a giocare, una lista dei giochi più giocati, una lista dei giochi preferiti (a scelta dell'utente). Queste statistiche potranno essere viste dai direttori del servizio.
+
+Infine, si vuole anche immagazzinare anche alcune informazioni relative al multiplayer. Gli utenti del servizio possono iniziare una sessione di gioco con altri utenti e scegliere un videogioco da giocare: si vuole memorizzare i dati di ogni sessione, che includeranno gli utenti partecipanti, il videogioco scelto e altre statistiche quali il tempo trascorso. Si vuole anche mantenere uno storico delle sessioni per ogni utente.
+
+\end{addmargin}
+
+\chapter{Progetto dello schema concettuale}
+
+\chapter{Specifiche funzionali}
+
+\chapter{Progetto logico}
+
+\chapter{Progetto fisico}
+
+\chapter{Interfaccia utente}
+
+\chapter{Glossario}
+
+\end{document}

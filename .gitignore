@@ -3,3 +3,9 @@ debug
 release
 pdf
 .idea
+relazione/*.aux
+relazione/*.log
+relazione/*.out
+relazione/*.synctex.gz
+relazione/*.pdf
+relazione/*.toc
