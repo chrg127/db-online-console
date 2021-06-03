@@ -1,0 +1,80 @@
+(entity (name utente)
+    (attr nome)
+    (attr cognome)
+    (attr password)
+    (attr email)
+    (attr eta)
+    (attr telefono))
+
+(entity (name piano))
+(entity (name piano-gratuito))
+(entity (name piano-mensile))
+(entity (name piano-annuale))
+
+(gerarchy (name gerarchy-piano)
+    (type total overlapping)
+    (father piano)
+    (child piano-gratuito)
+    (child piano-mensile)
+    (child piano-annuale))
+
+(entity (name stipulazione)
+    (attr data-inizio))
+
+(association (name assoc-stipulazione-utente)
+    (between utente stipulazione)
+    (card utente 0-n)
+    (card stipulation 1-1))
+
+(association (name assoc-stipulazione-piano)
+    (between stipulazione piano)
+    (card stipulazione 0-n)
+    (card piano 1-1))
+
+(entity (name videogioco)
+    (attr titolo)
+    (attr genere)
+    (attr anno)
+    (attr azienda)
+    (attr produttore))
+
+(entity (name copia-videogioco))
+
+(association (name assoc-videogioco-copia)
+    (between videogioco copia-videogioco)
+    (card videogioco 0-n)
+    (card copia-videogioco 1-1))
+
+(association (name assoc-utente-copia)
+    (between utente copia-videogioco)
+    (card utente 0-n)
+    (card copia-videogioco 0-1))
+
+(entity (name statistiche-singolo)
+    (attr ore)
+    (attr preferito))
+
+(association (name assoc-utente-statistiche-singolo)
+    (between utente statistiche-singolo)
+    (card utente 0-1)
+    (card statistiche-singolo 0-1))
+
+(association (name assoc-statistiche-singolo-videogioco)
+    (between statistiche-singolo videogioco)
+    (card statistiche-singolo 1-1)
+    (card videogioco 0-n))
+
+(entity (name sessione)
+    (attr data)
+    (attr tempo-trascorso))
+
+(association (name assoc-utente-sessione)
+    (between utente sessione)
+    (card utente 0-n)
+    (card sessione 2-n))
+
+(association (name assoc-videogioco-sessione)
+    (between videogioco sessione)
+    (card videogioco 0-n)
+    (card sessione 1-1))
+

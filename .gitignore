@@ -9,3 +9,4 @@ relazione/*.out
 relazione/*.synctex.gz
 relazione/*.pdf
 relazione/*.toc
+.qmake.stash
