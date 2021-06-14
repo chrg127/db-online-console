@@ -1,80 +1,120 @@
-(entity (name utente)
+(entity utente
+    (attr id)
     (attr nome)
     (attr cognome)
     (attr password)
     (attr email)
     (attr eta)
-    (attr telefono))
+    (attr telefono)
+    (pk id))
 
-(entity (name piano))
-(entity (name piano-gratuito))
-(entity (name piano-mensile))
-(entity (name piano-annuale))
+(entity piano
+    (attr id)
+    (pk id))
 
-(gerarchy (name gerarchy-piano)
-    (type total overlapping)
+(entity piano-gratuito)
+(entity piano-mensile (attr costo))
+(entity piano-annuale (attr costo))
+
+(gerarchy ger-piano
+    (type total exclusive)
     (father piano)
     (child piano-gratuito)
     (child piano-mensile)
     (child piano-annuale))
 
-(entity (name stipulazione)
+; storico dei piani
+(entity stipulazione
     (attr data-inizio))
 
-(association (name assoc-stipulazione-utente)
+(assoc assoc-stipulazione-utente
     (between utente stipulazione)
-    (card utente 0-n)
-    (card stipulation 1-1))
+    (card utente 0 N)
+    (card stipulazione 1 1))
 
-(association (name assoc-stipulazione-piano)
+(assoc assoc-stipulazione-piano
     (between stipulazione piano)
-    (card stipulazione 0-n)
-    (card piano 1-1))
+    (card stipulazione 1 N)
+    (card piano 1 1))
 
-(entity (name videogioco)
+; lo storico è identificato dall'utente, dal piano e dalla data di inizio
+(fk (attr data-inizio stipulazione)
+    (assoc assoc-stipulazione-piano)
+    (assoc assoc-stipulazione-utente))
+
+(entity videogioco
+    (attr id)
+    (pk id)
     (attr titolo)
     (attr genere)
     (attr anno)
     (attr azienda)
     (attr produttore))
 
-(entity (name copia-videogioco))
+(entity copia-videogioco
+    (attr id))
 
-(association (name assoc-videogioco-copia)
+(association copia
     (between videogioco copia-videogioco)
-    (card videogioco 0-n)
-    (card copia-videogioco 1-1))
+    (card videogioco 0 N)
+    (card copia-videogioco 1 1))
 
-(association (name assoc-utente-copia)
+; una copia del videogioco è associata al videogioco in sè e all'associazione
+(fk (attr id copia-videogioco)
+    (assoc copia))
+
+; un'utente acquista più copie di un videogioco,
+; una copia è venduta ad un solo utente
+; tracciamo anche la data
+(assoc acquisto
     (between utente copia-videogioco)
     (card utente 0-n)
-    (card copia-videogioco 0-1))
+    (card copia-videogioco 0-1)
+    (attr data))
 
-(entity (name statistiche-singolo)
+; preferito è un valore booleano. se true, all'utente piace il videogioco.
+; al lato applicazione, una lista dei giochi preferiti guardando i giochi
+; preferiti dell'utente e mettendoli in ordine di ore.
+(entity statistiche
     (attr ore)
     (attr preferito))
 
-(association (name assoc-utente-statistiche-singolo)
-    (between utente statistiche-singolo)
-    (card utente 0-1)
-    (card statistiche-singolo 0-1))
+(assoc assoc-utente-statistiche
+    (between utente statistiche)
+    (card utente 0 1)
+    (card statistiche 0 1))
 
-(association (name assoc-statistiche-singolo-videogioco)
-    (between statistiche-singolo videogioco)
-    (card statistiche-singolo 1-1)
-    (card videogioco 0-n))
+(assoc assoc-statistiche-videogioco
+    (between statistiche videogioco)
+    (card statistiche 1 1)
+    (card videogioco 0 N))
 
-(entity (name sessione)
+(fk (entity statistiche)
+    (assoc-utente-statistiche)
+    (assoc-statistiche-videogioco))
+
+(entity videogioco-multiplayer
+    (attr numero-minimo-giocatori)
+    (attr numero-massimo-giocatori))
+
+(gerarchy ger-vgmult)
+    (type subset)
+    (father videogioco)
+    (child videogioco-multiplayer))
+
+(entity sessione
+    (attr id)
     (attr data)
-    (attr tempo-trascorso))
+    (attr tempo-trascorso)
+    (pk id))
 
-(association (name assoc-utente-sessione)
+(assoc partecipazione
     (between utente sessione)
     (card utente 0-n)
     (card sessione 2-n))
 
-(association (name assoc-videogioco-sessione)
-    (between videogioco sessione)
+(assoc scelta
+    (between videogioco-multiplayer sessione)
     (card videogioco 0-n)
     (card sessione 1-1))
 
