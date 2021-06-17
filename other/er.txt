@@ -51,8 +51,7 @@
     (attr azienda)
     (attr produttore))
 
-(entity copia-videogioco
-    (attr id))
+(entity copia-videogioco)
 
 (association copia
     (between videogioco copia-videogioco)
@@ -60,7 +59,7 @@
     (card copia-videogioco 1 1))
 
 ; una copia del videogioco è associata al videogioco in sè e all'associazione
-(fk (attr id copia-videogioco)
+(fk (attr id videogioco)
     (assoc copia))
 
 ; un'utente acquista più copie di un videogioco,

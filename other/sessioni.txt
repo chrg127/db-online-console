@@ -1,0 +1,55 @@
+(entity utente
+    (attr id)
+    (pk id)
+    (attr nome)
+    (attr cognome)
+    (attr password)
+    (attr email)
+    (attr eta)
+    (attr telefono
+        (card 0 1))
+
+(entity videogioco
+    (attr id)
+    (pk id)
+    (attr titolo)
+    (attr genere)
+    (attr anno)
+    (attr azienda)
+    (attr produttore)
+    (attr prezzo-copia))
+
+(entity videogioco-multiplayer
+    (attr numero-giocatori
+        (attr minimo)
+        (attr massimo)))
+
+(gerarchy ger-vgmult
+    (type subset)
+    (parent videogioco)
+    (child videogioco-multiplayer))
+
+(entity sessione-di-gioco
+    (attr id)
+    (pk id)
+    (attr data)
+    (attr tempo-trascorso))
+
+(assoc scelta
+    (between videogioco-multiplayer sessione-di-gioco)
+    (card videogioco-multiplayer 0:N)
+    (card sessione-di-gioco 1:1))
+
+(fk (attr id sessione-di-gioco)
+    (assoc scelta))
+
+(assoc creazione
+    (between sessione-di-gioco utente)
+    (card sessione-di-gioco 1:1)
+    (card utente 0:N))
+
+(assoc partecipazione
+    (between sessione-di-gioco utente)
+    (card sessione-di-gioco 2:N)
+    (card utente 0:N))
+

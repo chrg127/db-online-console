@@ -1,0 +1,64 @@
+(entity utente
+    (attr id)
+    (pk id)
+    (attr nome)
+    (attr cognome)
+    (attr password)
+    (attr email)
+    (attr eta)
+    (attr telefono
+        (card 0 1))
+
+(entity videogioco
+    (attr id)
+    (pk id)
+    (attr titolo)
+    (attr genere)
+    (attr anno)
+    (attr azienda)
+    (attr produttore)
+    (attr prezzo-copia))
+
+(entity copia-videogioco
+    (attr id)
+    (pk id))
+
+(association copia
+    (between videogioco copia-videogioco)
+    (card videogioco 0:N)
+    (card copia-videogioco 1:1))
+
+; una copia del videogioco è associata al videogioco in sè e all'associazione
+(fk (attr id copia-videogioco)
+    (assoc copia))
+
+; un'utente acquista più copie di un videogioco,
+; una copia è venduta ad un solo utente
+; tracciamo anche la data
+(assoc acquisto
+    (between utente copia-videogioco)
+    (card utente 0:N)
+    (card copia-videogioco 0:1)
+    (attr data))
+
+; preferito è un valore booleano. se true, all'utente piace il videogioco.
+; al lato applicazione, una lista dei giochi preferiti guardando i giochi
+; preferiti dell'utente e mettendoli in ordine di ore.
+(entity statistiche
+    (attr ore)
+    (attr preferito))
+
+(assoc detiene
+    (between utente statistiche)
+    (card utente 0:1)
+    (card statistiche 0:1))
+
+(assoc riguarda
+    (between statistiche videogioco)
+    (card statistiche 1:1)
+    (card videogioco 0:N))
+
+(fk (entity statistiche)
+    (assoc-utente-statistiche)
+    (assoc-statistiche-videogioco))
+

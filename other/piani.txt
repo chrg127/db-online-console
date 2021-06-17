@@ -1,36 +1,43 @@
 (entity utente
     (attr id)
+    (pk id)
     (attr nome)
     (attr cognome)
     (attr password)
     (attr email)
     (attr eta)
-    (attr telefono (card 0 1))
+    (attr telefono
+        (card 0 1))
 
 (entity piano
     (attr id))
 
 (entity stipulazione
-    (attr data-inizio))
+    (attr data-inizio)
+    (pk data-inizio))
 
-(assoc aus
+(assoc creazione
     (between utente stipulazione)
-    (card utente 0 N)
-    (card stipulazione 1 1))
+    (card utente 0:N)
+    (card stipulazione 1:1))
 
-(assoc asp
+(assoc sottoscrittura
     (between stipulazione piano)
-    (card stipulazione 1 N)
-    (card piano 1 1))
+    (card stipulazione 1:N)
+    (card piano 1:1))
 
 (entity piano-gratuito)
 (entity piano-mensile (attr costo))
 (entity piano-annuale (attr costo))
 
-(gerarchy gpiano
+(gerarchy gerarchy-piano
     (type total exclusive)
     (parent piano)
     (child piano-gratuito)
     (child piano-mensile)
     (child piano-annuale))
+
+(fk (assoc creazione)
+    (assoc sottoscrittura)
+    (attr data-inizio stipulazione))
 

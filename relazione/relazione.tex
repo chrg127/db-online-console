@@ -1,15 +1,28 @@
 \documentclass[a4paper,12pt]{report}
-\usepackage{alltt, fancyvrb, url}
-\usepackage{graphicx}
-\usepackage[utf8]{inputenc}
-\usepackage{hyperref}
-\usepackage[italian]{babel}
-\usepackage[italian]{cleveref}
-\usepackage[margin=0.5in]{geometry}
-\usepackage{scrextend}
+\usepackage{graphicx} 		% images
+\usepackage[utf8]{inputenc}	% encoding: UTF-8
+\usepackage[italian]{babel}	% language
+\usepackage[margin=0.5in, includefoot]{geometry}	% margin
+\usepackage{scrextend}		% KOMA scripts?
+\usepackage{array}			% table width
+\usepackage[table]{xcolor}	% table colors
+\usepackage{tocloft}			% table of contents
+\usepackage{hyperref}			% hyperlinks inside document
+\usepackage[italian]{cleveref}	% ^
+
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\newcommand\chap[1]{
+    \chapter*{#1}
+    \addcontentsline{toc}{chapter}{#1}
+    \markboth{#1}{#1}}
+    
+\newcommand\sect[1]{
+    \section*{#1}
+    \addcontentsline{toc}{section}{#1}
+    \markboth{#1}{#1}}
 
 \title{
-\Huge Elaborato per il corso di Basi di Dati \\
+\Huge \textbf{Elaborato per il corso di Basi di Dati} \\
 [4mm]
 \large A.A. 2020/2021 \\
 \large Progetto di una base di dati per la gestione di un servizio online
@@ -19,27 +32,15 @@ christian.ricci3@studio.unibo.it \\
 0000915693}
 
 \begin{document}
-%\begin{titlepage}
-	%\begin{center}
-	%\line(1,0){300} \\
-	%[0.25in]
-	%\huge{\bfseries Elaborato per il corso di Basi di Dati} \\
-	%[2mm]
-	%\Large{A.A 2020/2021} \\
-	%Progetto di una base di dati per la gestione di un servizio online \\
-	%\line(1,0){200} \\
-	%\
-	%\end{center}
-%\end{titlepage}
 
 \maketitle
 \tableofcontents
 
-\chapter{Analisi dei requisiti}
+\chap{Analisi dei requisiti}
 
 Si vuole realizzare un database per gestire un servizio online di videogiochi. Il database dovrà immagazzinare dati relativi ai videogiochi, agli utenti, alle iscrizioni. Gli utenti potranno {giocare} accedendo al servizio e potranno partecipare in sessioni multiplayer. I direttori del servizio potranno aggiungere nuovi videogiochi, consultare statistiche riguardanti gli utenti, etc.
 
-\section{Definizione delle specifiche in linguaggio naturale}
+\sect{Definizione delle specifiche in linguaggio naturale}
 
 Il testo ottenuto dall'intervista con l'azienda è il seguente:\\\\
 
@@ -56,17 +57,19 @@ Infine, si vuole anche immagazzinare anche alcune informazioni relative al multi
 
 \end{addmargin}
 
-\section{Estrazione dei concetti fondamentali}
+\sect{Estrazione dei concetti fondamentali}
 
 I concetti principali sono riassunti in questa tabella.
 
+\renewcommand{\arraystretch}{1.8}
+\arrayrulecolor[HTML]{a7acb1}
+\begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ |c|c|c| }
-	\hline
-	Termine & Breve descrizione & Eventuali sinonimi \\
-	\hline
+	\begin{tabular}{ m{6cm} m{6cm} m{6cm} }
+	\rowcolor[HTML]{deecdc}
+	\textbf{Termine} & \textbf{Breve descrizione} & \textbf{Eventuali sinonimi} \\
 	Utente & Colui che accede al servizio e interagisce con i giochi presenti. & Nessuno \\
-	\hline	
+	\hline
 	Videogioco & TODO & TODO \\
 	\hline
 	Piano & TODO & Abbonamento \\
@@ -79,6 +82,8 @@ I concetti principali sono riassunti in questa tabella.
 	\hline
 	\end{tabular}
 \end{center}
+\caption{La tabella dei concetti principali.}
+\end{table}
 
 A seguito della lettura e comprensione dei requisiti richiesti dal cliente, si procede sviluppando un testo che
 ne riassuma tutti i concetti e in particolare ne estragga quelli principali, risultando essere in questo modo
@@ -111,11 +116,11 @@ Da questo testo si può anche evincere le principali azioni richieste:
 \item Partecipazione di un utente ad una sessione di gioco;
 \end{itemize}
 
-\chapter{Progetto dello schema concettuale}
+\chap{Progetto dello schema concettuale}
 
 La strategia adottata per creare lo schema concettuale è una strategia mista, orientata al bottom-up. Il database è composto da più ambiti, che verranno analizzati e raffinati uno ad uno, per poi creare uno schema finale che comprenda tutto il database.
 
-\section{Schema scheletro}
+\sect{Schema scheletro}
 
 L'associazione tra utente e piano è abbastanza evidente. Per rappresentare i tre tipi di piano, si è scelto di usare specializzazioni per la più generica entità piano. Per rappresentare lo storico dei piani, si è deciso di fare una reificazione dell'associazione tra utente e piano: quest'entità conterrà inoltre la data di inizio. La data di scadenza di un piano non deve necessariamente essere memorizzata, dato che si può evincere subito dal tipo di piano. Per identificare le varie entità, si è scelto di identificare sia utenti che piani con un ID unico, mentre le stipulazioni sono identificate dall'utente, dal piano e dalla data di inizio. Un'utente non può stipulare un piano se ha già un piano in corso: questo vincolo non si può esprimere con facilità nello schema concettuale, perciò sarà inserito come business rule.
 
@@ -123,19 +128,96 @@ L'associazione tra utente e piano è abbastanza evidente. Per rappresentare i tr
 \centering{}
 \includegraphics[width=\textwidth]{piani.png}
 \caption{Lo schema Entity-Relationship relativo at utenti e piani.}
-\label{img:mainuml}
+\label{img:schema_piano}
 \end{figure}
 
+Riguardo alle relazioni tra Utente e Videogioco, abbiamo sia una relazione che riguarda le statistiche, sia una che riguarda l'acquisto di copie fisiche di un videogioco da parte dell'utente. Dato che occorre immagazzinare le statistiche riguardo coppie utente-videogioco, l'associazione statistiche viene convertita in entità. Questa entità riguarda i singoli videogiochi: per ottenere statistiche quali i giochi preferiti di un utente basterà creare una query a lato software. L'entità statistiche è identificata tramite l'utente e il videogioco in questione.
 
+La conversione a entità accade anche per Copia Videogioco, dato che per un videogioco ci possono essere più copie fisiche. Il prezzo di ogni copia non riguarda le singole copie, bensì riguarda il gioco in sè, e si suppone inoltre che questo dato rimanga costante nel tempo, per cui è stato messo come attributo di videogioco. Una copia può anche rimanere invenduta, quindi si è pensato di immagazzinare il dato relativo alla data di acquisto come attributo dell'associazione Acquisto. Ogni copia è identificata tramite un codice univoco e l'associazione al videogioco di cui è copia.
 
-\chapter{Specifiche funzionali}
+\begin{figure}[h]
+\centering{}
+\includegraphics[width=\textwidth]{vg.png}
+\caption{Lo schema Entity-Relationship relativo agli utenti, videogiochi, copie e statistiche.}
+\label{img:schema_vg}
+\end{figure}
 
-\chapter{Progetto logico}
+L'ambito relativo alle sessioni di gioco multiplayer è il più semplice. Un Videogioco Multiplayer è una specializzazione di Videogioco ed aggiunge gli attributi di numero minimo e massimo di giocatori. Le due entità Utente e Videogioco Multiplayer sono associate all'entità Sessione, che raccoglie dati relativi alla specifica sessione. Una sessione è identificata dall'attributo ID di Sessione e dall'associazione con Videogioco Multiplayer. Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, mentre più utenti possono parteciparvi, si è optato per due associazioni, Creazione e Partecipazione, tra Utente e Sessione. Rimane un vincolo inespresso: in una sessione, il numero minimo e massimo di giocatori dipende dal videogioco, cosa difficile da esprimere usando il modello ER.
 
-\chapter{Progetto fisico}
+\begin{figure}[h!]
+\centering{}
+\includegraphics[width=\textwidth]{session.png}
+\caption{Lo schema Entity-Relationship relativo alle sessioni.}
+\label{img:schema_sessione}
+\end{figure}
 
-\chapter{Interfaccia utente}
+\section*{Schema finale}
 
-\chapter{Glossario}
+\begin{figure}[h!]
+\centering{}
+\includegraphics[width=\textwidth]{er.png}
+\caption{Lo schema Entity-Relationship finale.}
+\label{img:schema_sessione}
+\end{figure}
+
+\chap{Progettazione logica}
+
+\sect{Stima del volume dei dati.}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ l l l }
+	\rowcolor[HTML]{deecdc}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
+	Utente & E & 10.000 \\
+	Videogioco & E & 1000 \\
+	\hline
+	\end{tabular}
+\end{center}
+\caption{La tabella dei volumi.}
+\end{table}
+
+\sect{Descrizione delle operazioni principali e stima della loro frequenza}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ l l }
+	\rowcolor[HTML]{deecdc}
+	\textbf{Operazione} & \textbf{Frequenza} \\
+	Giocare ai videogiochi & 10000 al giorno \\
+	\hline
+	\end{tabular}
+\end{center}
+\caption{La tabella dei volumi.}
+\end{table}
+
+\sect{Schemi di navigazione e tabelle degli accessi}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ l l l l }
+	\rowcolor[HTML]{deecdc}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & S \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\sect{Raffinamento dello schema}
+
+\sect{Analisi delle ridondanze}
+
+\sect{Traduzione di entità e associazioni in relazioni}
+
+\sect{Schema relazionale finale}
+
+\sect{Costruzione delle tabelle in linguaggio SQL}
+
+\sect{Traduzione delle operazioni in query SQL}
+
+\chap{Progettazione dell'applicazione}
+
+\sect{Descrizione dell'architettura dell'applicazione}
 
 \end{document}
