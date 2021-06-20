@@ -1,9 +1,8 @@
 #include "opengl.hpp"
 
-#include <QRect>
+#ifdef _CATPRISM
+
 #include <QTimer>
-#include <QDebug>
-// #include <fmt/core.h>
 
 const char *vertcode = R"(
 #version 330 core
@@ -124,3 +123,4 @@ void GLWidget::resizeGL(int width, int height)
     glViewport((width - side) / 2, (height - side) / 2, side, side);
 }
 
+#endif // _CATPRISM

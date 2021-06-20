@@ -19,7 +19,9 @@
 #include <fmt/core.h>
 #include "window.hpp"
 #include "sqlhighlighter.hpp"
+#ifdef _CATPRISM
 #include "opengl.hpp"
+#endif
 
 LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
@@ -47,22 +49,24 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     login_box->setLayout(grid);
     login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
+    auto *buttonlt = new QHBoxLayout;
+
     admin_button = new QPushButton("Login as admin");
+    buttonlt->addWidget(admin_button);
     connect(admin_button, &QPushButton::released,
             [mainwnd]() { mainwnd->show_screen(Window::Screen::ADMIN); });
 
     user_button = new QPushButton("Login as user");
+    buttonlt->addWidget(user_button);
     connect(user_button, &QPushButton::released,
             [mainwnd]() { mainwnd->show_screen(Window::Screen::USER); });
 
+#ifdef _CATPRISM
     prism_button = new QPushButton("View the cat prism");
+    buttonlt->addWidget(prism_button);
     connect(prism_button, &QPushButton::released,
             [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
-
-    auto *buttonlt = new QHBoxLayout;
-    buttonlt->addWidget(admin_button);
-    buttonlt->addWidget(user_button);
-    buttonlt->addWidget(prism_button);
+#endif
 
     auto *mainlt = new QVBoxLayout(this);
     mainlt->addWidget(image);
@@ -132,6 +136,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     vlt->addWidget(exit_button);
 }
 
+#ifdef _CATPRISM
 CatPrismScreen::CatPrismScreen(QWidget *parent)
     : QWidget(parent)
 {
@@ -139,4 +144,4 @@ CatPrismScreen::CatPrismScreen(QWidget *parent)
     glwidget = new GLWidget(this);
     lt->addWidget(glwidget);
 }
-
+#endif

@@ -1,6 +1,8 @@
 #ifndef OPENGL_HPP_INCLUDED
 #define OPENGL_HPP_INCLUDED
 
+#ifdef _CATPRISM
+
 #include <QOpenGLWidget>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
@@ -22,5 +24,7 @@ public:
     void resizeGL(int width, int height) override;
     void update_gl();
 };
+
+#endif // _CATPRISM
 
 #endif
