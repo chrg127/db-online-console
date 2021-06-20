@@ -1,5 +1,6 @@
 #include "screens.hpp"
 
+#include <optional>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
@@ -18,6 +19,7 @@
 #include <fmt/core.h>
 #include "window.hpp"
 #include "sqlhighlighter.hpp"
+#include "opengl.hpp"
 
 LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
@@ -53,9 +55,14 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     connect(user_button, &QPushButton::released,
             [mainwnd]() { mainwnd->show_screen(Window::Screen::USER); });
 
+    prism_button = new QPushButton("View the cat prism");
+    connect(prism_button, &QPushButton::released,
+            [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
+
     auto *buttonlt = new QHBoxLayout;
     buttonlt->addWidget(admin_button);
     buttonlt->addWidget(user_button);
+    buttonlt->addWidget(prism_button);
 
     auto *mainlt = new QVBoxLayout(this);
     mainlt->addWidget(image);
@@ -76,6 +83,18 @@ UserScreen::UserScreen(Window *wnd, QWidget *parent)
     mainlt->addWidget(exit_button);
 }
 
+template <typename T>
+std::optional<QString> run_query(T &model, const QString &query)
+{
+    model.setQuery(query);
+    QSqlError error = model.lastError();
+    if (!error.isValid())
+        return std::nullopt;
+    return QString("Error found while executing the query:\n%1\n%2")
+            .arg(error.driverText())
+            .arg(error.databaseText());
+}
+
 AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
@@ -93,7 +112,15 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     hlt->addWidget(result_tab);
 
     query_button = new QPushButton("Execute a query", this);
-    connect(query_button, &QPushButton::released, this, &AdminScreen::run_query);
+    connect(query_button, &QPushButton::released, this, [this]()
+            {
+                auto errmsg = run_query(result_model, query_editor->toPlainText());
+                if (errmsg) {
+                    QMessageBox box;
+                    box.setText(*errmsg);
+                    box.exec();
+                }
+            });
 
     exit_button = new QPushButton("Exit", this);
     connect(exit_button, &QPushButton::released,
@@ -105,18 +132,11 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     vlt->addWidget(exit_button);
 }
 
-void AdminScreen::run_query()
+CatPrismScreen::CatPrismScreen(QWidget *parent)
+    : QWidget(parent)
 {
-    result_model.setQuery(query_editor->toPlainText());
-    QSqlError error = result_model.lastError();
-    if (!error.isValid())
-        return;
-    QMessageBox msg;
-    msg.setText(
-        QString("Error found while executing the query:\n%1\n%2")
-        .arg(error.driverText())
-        .arg(error.databaseText())
-    );
-    msg.exec();
+    QVBoxLayout *lt = new QVBoxLayout(this);
+    glwidget = new GLWidget(this);
+    lt->addWidget(glwidget);
 }
 

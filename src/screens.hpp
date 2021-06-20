@@ -13,6 +13,7 @@ class QTextEdit;
 class QGroupBox;
 class SQLHighlighter;
 class Window;
+class GLWidget;
 
 class LoginScreen : public QWidget {
     Q_OBJECT
@@ -21,7 +22,7 @@ private:
     QGroupBox *login_box;
     QLabel *name_label, *pass_label;
     QLineEdit *name_box, *pass_box;
-    QPushButton *admin_button, *user_button;
+    QPushButton *admin_button, *user_button, *prism_button;
 public:
     explicit LoginScreen(Window *mainwnd, QWidget *parent = nullptr);
 };
@@ -46,8 +47,14 @@ private:
     SQLHighlighter *highlighter;
 public:
     explicit AdminScreen(Window *wnd, QWidget *parent = nullptr);
-public slots:
-    void run_query();
+};
+
+class CatPrismScreen : public QWidget {
+    Q_OBJECT
+private:
+    GLWidget *glwidget;
+public:
+    explicit CatPrismScreen(QWidget *parent = nullptr);
 };
 
 #endif

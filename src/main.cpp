@@ -5,6 +5,7 @@
 #include <QScreen>
 #include <QSqlDatabase>
 #include <QSqlError>
+#include <QSurfaceFormat>
 #include "window.hpp"
 #include "debug.hpp"
 
@@ -28,9 +29,19 @@ bool connect_db(const QString &table)
     return ok;
 }
 
+void set_surface_format()
+{
+    QSurfaceFormat format;
+    format.setSamples(16);
+    format.setDepthBufferSize(16);
+    QSurfaceFormat::setDefaultFormat(format);
+}
+
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+    set_surface_format();
 
     Window window;
     window.adjustSize();
@@ -41,3 +52,4 @@ int main(int argc, char *argv[])
 
     return app.exec();
 }
+

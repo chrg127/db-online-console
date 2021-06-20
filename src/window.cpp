@@ -57,11 +57,13 @@ void Window::create_widgets()
     login_screen = new LoginScreen(this, center);
     admin_screen = new AdminScreen(this, center);
     user_screen  = new UserScreen(this, center);
+    prism_screen = new CatPrismScreen(center);
 
     stack_widget = new QStackedWidget;
     stack_widget->addWidget(login_screen);
     stack_widget->addWidget(admin_screen);
     stack_widget->addWidget(user_screen);
+    stack_widget->addWidget(prism_screen);
 
     auto *lt = new QVBoxLayout(center);
     lt->addWidget(java_label);
@@ -74,6 +76,7 @@ void Window::show_screen(Screen screen)
     case Screen::LOGIN: stack_widget->setCurrentIndex(0); break;
     case Screen::ADMIN: stack_widget->setCurrentIndex(1); break;
     case Screen::USER:  stack_widget->setCurrentIndex(2); break;
+    case Screen::CATPRISM: stack_widget->setCurrentIndex(3); break;
     }
 }
 
