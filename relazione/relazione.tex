@@ -9,13 +9,16 @@
 \usepackage{tocloft}			% table of contents
 \usepackage{hyperref}			% hyperlinks inside document
 \usepackage[italian]{cleveref}	% ^
+\usepackage[section]{placeins}
 
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+% this command makes a chapter without number and adds it to the toc
 \newcommand\chap[1]{
     \chapter*{#1}
     \addcontentsline{toc}{chapter}{#1}
     \markboth{#1}{#1}}
-    
+
+% same as above, but for sections
 \newcommand\sect[1]{
     \section*{#1}
     \addcontentsline{toc}{section}{#1}
@@ -122,55 +125,79 @@ La strategia adottata per creare lo schema concettuale è una strategia mista, o
 
 \sect{Schema scheletro}
 
-L'associazione tra utente e piano è abbastanza evidente. Per rappresentare i tre tipi di piano, si è scelto di usare specializzazioni per la più generica entità piano. Per rappresentare lo storico dei piani, si è deciso di fare una reificazione dell'associazione tra utente e piano: quest'entità conterrà inoltre la data di inizio. La data di scadenza di un piano non deve necessariamente essere memorizzata, dato che si può evincere subito dal tipo di piano. Per identificare le varie entità, si è scelto di identificare sia utenti che piani con un ID unico, mentre le stipulazioni sono identificate dall'utente, dal piano e dalla data di inizio. Un'utente non può stipulare un piano se ha già un piano in corso: questo vincolo non si può esprimere con facilità nello schema concettuale, perciò sarà inserito come business rule.
+L'associazione tra \textbf{Utente} e piano è abbastanza evidente: un utente può sottoscrivere più piani, ed ogni piano può avere una diversa tipologia. Inoltre, un piano può essere cancellato in qualunque momento dall'utente. Si è pensato che per rappresentare questa relazione bastasse un'entità \textbf{Piano}, che memorizza un valore booleano cancellato per capire se è stato cancellato. Piano servirà inoltre per rappresentare lo storico dei piani, dato che l'intervista non ha posto particolari requisiti sullo storico. Ogni piano memorizza anche la data e l'ora di acquisto: avere anche l'ora preverrà il problema che un utente non riesca a sottoscrivere un nuovo piano nello stesso giorno (si pensi al caso in cui un utente sottoscriva un piano, poi lo cancelli e ne sottoscriva un altro nello stesso giorno).
+
+L'entità Piano non memorizza alcuna data finale. Per capire il vero stato del piano (in corso, finito o cancellato) e la fine, occorrerà guardare anche la sua tipologia. Dato che ci sono tre diverse tipologie, ognuna con diverse proprietà, si è pensato di reificare la tipologia nell'entità \textbf{Tipologia piano}. Per rappresentare i tre tipi di piano, si è scelto di usare specializzazioni per la più generica Tipologia piano. Riguardo agli identificatori, sia Utente che Piano hanno identificatori univoci, mentre la tipologia piano sarà identificata dal piano in sè.
+
+Un'utente non può stipulare un piano se ha già un piano in corso: questo vincolo non si può esprimere con facilità nello schema concettuale, perciò sarà inserito come \textit{business rule}.
 
 \begin{figure}[h]
 \centering{}
-\includegraphics[width=\textwidth]{piani.png}
+\includegraphics[width=\textwidth]{piano.png}
 \caption{Lo schema Entity-Relationship relativo at utenti e piani.}
 \label{img:schema_piano}
 \end{figure}
 
-Riguardo alle relazioni tra Utente e Videogioco, abbiamo sia una relazione che riguarda le statistiche, sia una che riguarda l'acquisto di copie fisiche di un videogioco da parte dell'utente. Dato che occorre immagazzinare le statistiche riguardo coppie utente-videogioco, l'associazione statistiche viene convertita in entità. Questa entità riguarda i singoli videogiochi: per ottenere statistiche quali i giochi preferiti di un utente basterà creare una query a lato software. L'entità statistiche è identificata tramite l'utente e il videogioco in questione.
+Riguardo alle relazioni tra Utente e Videogioco, abbiamo una relazione che riguarda ogni partita creata dall'utente quando inizia a giocare ad un videogioco, una che riguarda il i giochi preferiti da un utente ed una che riguarda l'acquisto di copie fisiche di un videogioco da parte dell'utente.
 
-La conversione a entità accade anche per Copia Videogioco, dato che per un videogioco ci possono essere più copie fisiche. Il prezzo di ogni copia non riguarda le singole copie, bensì riguarda il gioco in sè, e si suppone inoltre che questo dato rimanga costante nel tempo, per cui è stato messo come attributo di videogioco. Una copia può anche rimanere invenduta, quindi si è pensato di immagazzinare il dato relativo alla data di acquisto come attributo dell'associazione Acquisto. Ogni copia è identificata tramite un codice univoco e l'associazione al videogioco di cui è copia.
+Dato che occorre immagazzinare dati riguardo ogni partita per ogni coppia utente-videogioco, l'associazione \textbf{Partita} viene convertita in entità. L'entità Partita è identificata tramite l'utente e il videogioco in questione.
 
-\begin{figure}[h]
+La conversione a entità accade anche per \textbf{Copia Videogioco}, dato che per un videogioco ci possono essere più copie fisiche. Il prezzo di ogni copia non riguarda le singole copie, bensì riguarda il gioco in sè, e si suppone inoltre che questo dato rimanga costante nel tempo, per cui è stato messo come attributo di videogioco. Una copia può anche rimanere invenduta, quindi si è pensato di immagazzinare il dato relativo alla data di acquisto come attributo dell'associazione Acquisto. Ogni copia è identificata tramite un codice univoco e l'associazione al videogioco di cui è copia.
+
+L'associazione \textbf{Preferenza} non ha bisogno di essere reificata.
+
+\begin{figure}[!htb]
 \centering{}
 \includegraphics[width=\textwidth]{vg.png}
 \caption{Lo schema Entity-Relationship relativo agli utenti, videogiochi, copie e statistiche.}
 \label{img:schema_vg}
 \end{figure}
 
-L'ambito relativo alle sessioni di gioco multiplayer è il più semplice. Un Videogioco Multiplayer è una specializzazione di Videogioco ed aggiunge gli attributi di numero minimo e massimo di giocatori. Le due entità Utente e Videogioco Multiplayer sono associate all'entità Sessione, che raccoglie dati relativi alla specifica sessione. Una sessione è identificata dall'attributo ID di Sessione e dall'associazione con Videogioco Multiplayer. Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, mentre più utenti possono parteciparvi, si è optato per due associazioni, Creazione e Partecipazione, tra Utente e Sessione. Rimane un vincolo inespresso: in una sessione, il numero minimo e massimo di giocatori dipende dal videogioco, cosa difficile da esprimere usando il modello ER.
+L'ambito relativo alle sessioni di gioco multiplayer è il più semplice.
 
-\begin{figure}[h!]
+Un \textbf{Videogioco multiplayer} è una specializzazione di Videogioco ed aggiunge gli attributi di numero minimo e massimo di giocatori. Le due entità Utente e Videogioco Multiplayer sono associate all'entità \textbf{Sessione}, che raccoglie dati relativi alla specifica sessione. Una sessione è identificata dall'attributo ID di Sessione e dall'associazione con Videogioco Multiplayer.
+
+Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, mentre più utenti possono parteciparvi, si è optato per due associazioni, \textbf{Creazione} e \textbf{Partecipazione}, tra Utente e Sessione. Rimane un vincolo inespresso: in una sessione, il numero minimo e massimo di giocatori dipende dal videogioco, cosa difficile da esprimere usando il modello ER.
+
+\begin{figure}[!htb]
 \centering{}
 \includegraphics[width=\textwidth]{session.png}
 \caption{Lo schema Entity-Relationship relativo alle sessioni.}
 \label{img:schema_sessione}
 \end{figure}
 
-\section*{Schema finale}
+\newpage
 
-\begin{figure}[h!]
+\sect{Schema finale}
+
+\begin{figure}[!htb]
 \centering{}
-\includegraphics[width=\textwidth]{er.png}
+\includegraphics[width=\textwidth]{er_full.png}
 \caption{Lo schema Entity-Relationship finale.}
-\label{img:schema_sessione}
+\label{img:schema_finale}
 \end{figure}
+
+\newpage
 
 \chap{Progettazione logica}
 
-\sect{Stima del volume dei dati.}
+\sect{Stima del volume dei dati}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ l l l }
 	\rowcolor[HTML]{deecdc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
-	Utente & E & 10.000 \\
-	Videogioco & E & 1000 \\
+	Utente & Entità & 10.000 \\
+	Videogioco & Entità & 1000 \\
+	Piano & Entità & 0 \\
+	Copia Videogioco & Entità & 0 \\
+	Acquisto & Relazione & 0 \\
+	Statistiche & Entita & 0 \\
+	Videogioco Multiplayer & Entità & 0 \\
+	Sessione di gioco & Entità & 0 \\
+	Creazione & Relazione & 0 \\
+	Partecipazione & Relazione & 0 \\
 	\hline
 	\end{tabular}
 \end{center}
@@ -206,11 +233,74 @@ L'ambito relativo alle sessioni di gioco multiplayer è il più semplice. Un Vid
 
 \sect{Raffinamento dello schema}
 
+\begin{itemize}
+
+\item \textbf{Eliminazione delle gerarchie} \\
+Nello schema concettuale compaiono due gerarchie:
+	\begin{itemize}
+	\item La gerarchia riguardante la tipologia dei piani, che descrive ogni tipologia esistente;
+	\item la gerarchia dei videogiochi multiplayer, che è un semplice sottoinsieme della più generica entità videogioco. 
+	\end{itemize}
+
+Per la gerarchia dei piano, si è deciso di fare un collasso verso l'alto: un unica tabella \textbf{Tipologia piano} conterrà le tre tipologie, contenendo inoltre il costo e la durata (per il piano gratuito, si metterà semplicemente un costo uguale a zero).
+
+Per il videogioco multiplayer, la decisione invece è stata di fare un collasso verso il figlio: si crea una tabella \textbf{Videogioco multiplayer} che avrà un campo ID, chiave esterna alla tabella videogioco.
+
+\item \textbf{Eliminazione degli attributi composti} \\
+L'unico attributo composto presente nello schema è dentro videogioco multiplayer: questo attributo riguarda il numero massimo e minimo di giocatori per il videogioco ed è molto facile scomporlo in due attributi (numero massimo giocatori e numero minimo giocatori).
+
+\item \textbf{Scelta delle chiavi primarie}
+Nello schema sono già evidenziate le chiavi primarie per ogni entità principale (Utente, Videogioco, Piano, Sessione); 
+\end{itemize}
+
+
 \sect{Analisi delle ridondanze}
 
 \sect{Traduzione di entità e associazioni in relazioni}
 
+\begin{itemize}
+
+\item \textbf{Utente}(\underline{ID}, Nome, Cognome, Password, E-Mail, Telefono*)
+\item \textbf{Videogioco}(\underline{ID}, Titolo, Genere, Anno, Azienda produttrice, Produttore esecutivo, Prezzo copia fisica)
+\item \textbf{Copia videogioco}(\underline{ID}, \underline{ID videogioco}, ID utente, Data acquisto*) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID videogioco REFERENCES \textbf{Videogioco}
+\item \textbf{Preferito}(\underline{ID utente}, \underline{ID videogioco}, Preferito) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID videogioco REFERENCES \textbf{Videogioco}
+\item \textbf{Partita}(\underline{ID utente}, \underline{ID videogioco}, Ore di gioco, Data, Ora) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID videogioco REFERENCES \textbf{Videogioco}
+\item \textbf{Piano}(\underline{ID}, Tipologia, Costo, ID utente) \\
+FK: Tipologia REFERENCES \textbf{Tipologia piano} \\
+FK: ID utente REFERENCES \textbf{Utente}
+\item \textbf{Tipologia piano}(\underline{Tipologia}, Costo)
+\item \textbf{Piano cancellato}(\underline{ID}, Data cancellazione)
+\item \textbf{Videogioco multiplayer}(\underline{ID videogioco}, Numero minimo giocatori, Numero massimo giocatori) \\
+FK: ID videogico REFERENCES \textbf{Videogioco}
+\item \textbf{Sessione}(\underline{ID}, \underline{ID videogioco}, Data, Tempo trascorso) \\
+FK: ID videogioco REFERENCES \textbf{Videogioco}
+\item \textbf{Partecipazione}(\underline{ID utente}, \underline{ID sessione}) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID sessione REFERENCES \textbf{Sessione}
+\item \textbf{Creazione}(\underline{ID utente}, \underline{ID sessione}) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID sessione REFERENCES \textbf{Sessione} \\
+
+\end{itemize}
+
+\newpage
+
 \sect{Schema relazionale finale}
+
+\begin{figure}[!htb]
+\centering{}
+\includegraphics[width=\textwidth]{logical.png}
+\caption{Lo schema logico finale.}
+\label{img:schema_logico_finale}
+\end{figure}
+
+\newpage
 
 \sect{Costruzione delle tabelle in linguaggio SQL}
 

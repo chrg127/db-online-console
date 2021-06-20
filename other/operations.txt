@@ -1,0 +1,21 @@
+dato il nome di un videogioco, sapere la media giornaliera di ore sprecate
+a giocare (per tutti gli utenti/per un solo utente)
+
+dato un utente, sapere i suoi primi 10 giochi preferiti
+
+dato un utente, sapere la media giornaliera di ore sprecate a giocare
+
+dato un utente, sapere quante sessione ha creato
+
+sapere la proporzione tra creazione di una sessione e semplice partecipazione
+
+sapere quanti utenti scelgono il piano mensile e quanti il piano annuale
+
+sapere la proporzione tra utenti che hanno scelto solo il piano gratis e
+quelli che hanno sborsato
+
+sapere quante copie di un gioco rimangono invendute
+
+sapere qual'è il gioco con più copie vendute
+
+sapere qual'è il gioco più giocato

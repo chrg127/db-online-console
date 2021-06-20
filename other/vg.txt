@@ -41,24 +41,24 @@
     (card copia-videogioco 0:1)
     (attr data))
 
-; preferito è un valore booleano. se true, all'utente piace il videogioco.
-; al lato applicazione, una lista dei giochi preferiti guardando i giochi
-; preferiti dell'utente e mettendoli in ordine di ore.
-(entity statistiche
+(assoc preferito
+    (entity utente 0:N)
+    (entity videogioco 0:N))
+
+(entity partita
     (attr ore)
-    (attr preferito))
+    (attr data)
+    (attr ora))
 
 (assoc detiene
-    (between utente statistiche)
-    (card utente 0:1)
-    (card statistiche 0:1))
+    (entity utente 0:1)
+    (entity partita 1:1))
 
 (assoc riguarda
-    (between statistiche videogioco)
-    (card statistiche 1:1)
-    (card videogioco 0:N))
+    (entity videogioco 0:N)
+    (entity partita 1:1)
 
-(fk (entity statistiche)
-    (assoc-utente-statistiche)
-    (assoc-statistiche-videogioco))
+(fk (entity partita)
+    (assoc detiene)
+    (assoc riguarda))
 
