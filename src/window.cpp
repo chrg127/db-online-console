@@ -54,16 +54,20 @@ void Window::create_widgets()
 
     java_label = new QLabel("java fa schifo!", center);
 
-    login_screen = new LoginScreen(this, center);
-    admin_screen = new AdminScreen(this, center);
-    user_screen  = new UserScreen(this, center);
-    prism_screen = new CatPrismScreen(center);
-
     stack_widget = new QStackedWidget;
+    login_screen = new LoginScreen(this, center);
     stack_widget->addWidget(login_screen);
+
+    admin_screen = new AdminScreen(this, center);
     stack_widget->addWidget(admin_screen);
+
+    user_screen  = new UserScreen(this, center);
     stack_widget->addWidget(user_screen);
+
+#ifdef _CATPRISM
+    prism_screen = new CatPrismScreen(center);
     stack_widget->addWidget(prism_screen);
+#endif
 
     auto *lt = new QVBoxLayout(center);
     lt->addWidget(java_label);
@@ -76,7 +80,9 @@ void Window::show_screen(Screen screen)
     case Screen::LOGIN: stack_widget->setCurrentIndex(0); break;
     case Screen::ADMIN: stack_widget->setCurrentIndex(1); break;
     case Screen::USER:  stack_widget->setCurrentIndex(2); break;
+#ifdef _CATPRISM
     case Screen::CATPRISM: stack_widget->setCurrentIndex(3); break;
+#endif
     }
 }
 

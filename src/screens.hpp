@@ -49,6 +49,7 @@ public:
     explicit AdminScreen(Window *wnd, QWidget *parent = nullptr);
 };
 
+#ifdef _CATPRISM
 class CatPrismScreen : public QWidget {
     Q_OBJECT
 private:
@@ -56,5 +57,6 @@ private:
 public:
     explicit CatPrismScreen(QWidget *parent = nullptr);
 };
+#endif
 
 #endif

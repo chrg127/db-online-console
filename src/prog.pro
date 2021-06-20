@@ -13,3 +13,6 @@ Debug:OBJECTS_DIR = debug/obj
 SOURCES += main.cpp window.cpp sqlhighlighter.cpp screens.cpp opengl.cpp
 HEADERS += window.hpp debug.hpp sqlhighlighter.hpp screens.hpp opengl.hpp
 LIBS += -lfmt
+
+# Uncomment this to add a cat prism screen to the application.
+#DEFINES += _CATPRISM

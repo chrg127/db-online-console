@@ -9,7 +9,9 @@ class QStackedWidget;
 class LoginScreen;
 class AdminScreen;
 class UserScreen;
+#ifdef _CATPRISM
 class CatPrismScreen;
+#endif
 
 class Window : public QMainWindow {
     Q_OBJECT
@@ -20,12 +22,16 @@ private:
     LoginScreen *login_screen;
     AdminScreen *admin_screen;
     UserScreen  *user_screen;
+#ifdef _CATPRISM
     CatPrismScreen *prism_screen;
+#endif
 
 public:
     enum class Screen {
         LOGIN, ADMIN, USER,
+#ifdef _CATPRISM
         CATPRISM,
+#endif
     };
 
     explicit Window(QWidget *parent = nullptr);
