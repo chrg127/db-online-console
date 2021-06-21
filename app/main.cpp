@@ -6,6 +6,7 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSurfaceFormat>
+#include <QMessageBox>
 #include "window.hpp"
 #include "debug.hpp"
 
@@ -21,11 +22,13 @@ bool connect_db(const QString &table)
     bool ok = db.open();
     if (!ok)
         error("{}\n", s(db.lastError().text()));
-    fmt::print("connection name: {}\n", s(db.connectionName()));
-    fmt::print("connection opts: {}\n", s(db.connectOptions()));
-    fmt::print("hostname: {}\n", s(db.hostName()));
-    fmt::print("username: {}\n", s(db.userName()));
-    fmt::print("password: {}\n", s(db.password()));
+    else {
+        fmt::print("connection name: {}\n", s(db.connectionName()));
+        fmt::print("connection opts: {}\n", s(db.connectOptions()));
+        fmt::print("hostname: {}\n", s(db.hostName()));
+        fmt::print("username: {}\n", s(db.userName()));
+        fmt::print("password: {}\n", s(db.password()));
+    }
     return ok;
 }
 
@@ -48,7 +51,12 @@ int main(int argc, char *argv[])
     window.move(QGuiApplication::primaryScreen()->availableGeometry().center() - window.rect().center());
     window.show();
 
-    connect_db("test");
+    if (!connect_db("test")) {
+        QMessageBox box;
+        box.setText("Couldn't connect to the database. Quitting.");
+        box.exec();
+        return 1;
+    }
 
     return app.exec();
 }
