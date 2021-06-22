@@ -10,6 +10,8 @@
 \usepackage{hyperref}			% hyperlinks inside document
 \usepackage[italian]{cleveref}	% ^
 \usepackage[section]{placeins}
+\usepackage{float}
+\usepackage{minted}
 
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 % this command makes a chapter without number and adds it to the toc
@@ -23,6 +25,10 @@
     \section*{#1}
     \addcontentsline{toc}{section}{#1}
     \markboth{#1}{#1}}
+
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+\renewcommand{\arraystretch}{1.8}
+\arrayrulecolor[HTML]{999da1} % table lines color
 
 \title{
 \Huge \textbf{Elaborato per il corso di Basi di Dati} \\
@@ -52,7 +58,7 @@ La casa produttrice di videogiochi GameSoft vuole realizzare un servizio online 
 
 Al momento della registrazione l'utente potrà scegliere tra tre piani: il primo prevede un periodo gratuito di un mese, che non si potrà rinnovare; a quel punto l'utente deve decidere tra gli altri due piani. Il secondo piano prevede un costo e comporta l'iscrizione al servizio per un mese. Il terzo piano, invece, comporta l'iscrizione per un anno. Si vuole anche memorizzare lo storico delle iscrizioni per ogni utente.
 
-Per ogni videogioco si vuole memorizzare il titolo, il genere, l'anno di rilascio, l'azienda sviluppatrice e il produttore esecutivo. Per ogni utente del servizio si vuole anche dare la possibilità di acquistare una copia fisica di qualunque videogioco, che, però, potrebbe anche non essere disponibile. Ogni videogioco ha un prezzo fisso per la copia. Si vuole anche memorizzare lo storico degli acquisti per ogni utente.
+Per ogni videogioco si vuole memorizzare il titolo, il genere, l'anno di rilascio, l'azienda sviluppatrice e il produttore esecutivo. Per ogni utente del servizio si vuole anche dare la possibilità di acquistare una copia fisica di qualunque videogioco, che, però, potrebbe anche non essere disponibile. Ogni videogioco può avere più copie fisiche, ma il prezzo di ogni copia del videogioco è la stessa. Si vuole anche memorizzare lo storico degli acquisti per ogni utente.
 
 Per ogni utente si vuole anche memorizzare alcune particolare statistiche: il numero di ore trascorso su un videogioco, il numero di ore trascorse in totale a giocare, una lista dei giochi più giocati, una lista dei giochi preferiti (a scelta dell'utente). Queste statistiche potranno essere viste dai direttori del servizio.
 
@@ -64,24 +70,22 @@ Infine, si vuole anche immagazzinare anche alcune informazioni relative al multi
 
 I concetti principali sono riassunti in questa tabella.
 
-\renewcommand{\arraystretch}{1.8}
-\arrayrulecolor[HTML]{a7acb1}
 \begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ m{6cm} m{6cm} m{6cm} }
-	\rowcolor[HTML]{deecdc}
+	\begin{tabular}{ | m{4cm} m{8cm} m{5cm} | }
+	\rowcolor[HTML]{abc3f5}
 	\textbf{Termine} & \textbf{Breve descrizione} & \textbf{Eventuali sinonimi} \\
-	Utente & Colui che accede al servizio e interagisce con i giochi presenti. & Nessuno \\
+	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo \\
 	\hline
-	Videogioco & TODO & TODO \\
+	Videogioco & Indica un videogioco del catalogo. & Titolo \\
 	\hline
-	Piano & TODO & Abbonamento \\
+	Copia Videogioco & Indica una copia fisica di un videogioco. Ogni videogioco può avere più copie fisiche. & Copia \\
 	\hline
-	Copia Videogioco & TODO & Copia \\
+	Statistiche & Le statistiche riguardanti un utente e un videogioco. Ce ne sono due principali: le ore di gioco e la preferenza. & \\
 	\hline
-	Statistiche & TODO & TODO \\
+	Piano & Ogni utente deve sottoscrivere un piano per accedere al servizio. & Abbonamento, Iscrizione\\
 	\hline
-	Sessione di gioco & TODO & Sessione, \\
+	Sessione di gioco & Una partita di un videogioco multiplayer, creata inizialmente da un utente. & Sessione \\
 	\hline
 	\end{tabular}
 \end{center}
@@ -99,7 +103,7 @@ Un utente può stipulare più \textbf{\textit{piani}}: un piano gratuito è atti
 
 Per ogni \textbf{\textit{videogioco}} si deve memorizzare titolo, genere, anno di rilascio, azienda sviluppatrice e produttore esecutivo. Si devono anche memorizzare prezzo e quantità di copie per ogni videogioco. Per ogni copia, invece, si deve memorizzare la data di acquisto.
 
-Occorre memorizzare le \textbf{\textit{statistiche}} per ogni coppia utente-videogioco e per ogni coppia si memorizzano le ore giocate. Non occorre memorizzare statistiche come la lista dei giochi più giocati: queste possono essere trovate partendo da altri attributi.
+Occorre memorizzare in qualche modo le ore di gioco di un utente.
 
 Infine, per ogni \textbf{\textit{sessione}} occorre memorizzare gli utenti partecipanti e il gioco scelto. Dato che non tutti i giochi permettono di giocare in multiplayer, bisogna fare una distinzione tra \textbf{\textit{gioco single player}} e \textbf{\textit{gioco multiplayer}}. Si suppone, inoltre, che un videogioco multiplayer abbia un numero minimo e massimo di giocatori. \\\\
 
@@ -125,29 +129,27 @@ La strategia adottata per creare lo schema concettuale è una strategia mista, o
 
 \sect{Schema scheletro}
 
-L'associazione tra \textbf{Utente} e piano è abbastanza evidente: un utente può sottoscrivere più piani, ed ogni piano può avere una diversa tipologia. Inoltre, un piano può essere cancellato in qualunque momento dall'utente. Si è pensato che per rappresentare questa relazione bastasse un'entità \textbf{Piano}, che memorizza un valore booleano cancellato per capire se è stato cancellato. Piano servirà inoltre per rappresentare lo storico dei piani, dato che l'intervista non ha posto particolari requisiti sullo storico. Ogni piano memorizza anche la data e l'ora di acquisto: avere anche l'ora preverrà il problema che un utente non riesca a sottoscrivere un nuovo piano nello stesso giorno (si pensi al caso in cui un utente sottoscriva un piano, poi lo cancelli e ne sottoscriva un altro nello stesso giorno).
+L'associazione tra \textbf{Utente} e \textbf{Piano} è abbastanza evidente: un utente può sottoscrivere più piani, ed ogni piano può avere una diversa tipologia. Inoltre, un piano può essere cancellato in qualunque momento dall'utente: per rappresentare questa relazione, si è pensato di creare una gerarchia di tipo \textit{Subset}: \textbf{Piano Cancellato} specializza Piano. L'entità Piano servirà inoltre per rappresentare lo storico dei piani, dato che l'intervista non ha posto particolari requisiti sullo storico. Ogni piano memorizza anche la data e l'ora di acquisto: avere anche l'ora preverrà il problema che un utente non riesca a sottoscrivere un nuovo piano nello stesso giorno (si pensi al caso in cui un utente sottoscriva un piano, poi lo cancelli e ne sottoscriva un altro nello stesso giorno).
 
-L'entità Piano non memorizza alcuna data finale. Per capire il vero stato del piano (in corso, finito o cancellato) e la fine, occorrerà guardare anche la sua tipologia. Dato che ci sono tre diverse tipologie, ognuna con diverse proprietà, si è pensato di reificare la tipologia nell'entità \textbf{Tipologia piano}. Per rappresentare i tre tipi di piano, si è scelto di usare specializzazioni per la più generica Tipologia piano. Riguardo agli identificatori, sia Utente che Piano hanno identificatori univoci, mentre la tipologia piano sarà identificata dal piano in sè.
+L'entità Piano non memorizza alcuna data finale. Per capire il vero stato del piano (in corso, finito o cancellato) e la fine, occorrerà guardare anche la sua tipologia. Dato che ci sono tre diverse tipologie, ognuna con diverse proprietà, si è pensato di reificare la tipologia nell'entità \textbf{Tipologia piano}. Per rappresentare i tre tipi di piano, si è scelto di usare specializzazioni per la più generica Tipologia piano. Riguardo agli identificatori, sia Utente che Piano hanno identificatori univoci, mentre la tipologia piano sarà identificata dal piano in sé.
 
 Un'utente non può stipulare un piano se ha già un piano in corso: questo vincolo non si può esprimere con facilità nello schema concettuale, perciò sarà inserito come \textit{business rule}.
 
-\begin{figure}[h]
-\centering{}
+\begin{figure}[!htb]
 \includegraphics[width=\textwidth]{piano.png}
 \caption{Lo schema Entity-Relationship relativo at utenti e piani.}
 \label{img:schema_piano}
 \end{figure}
 
-Riguardo alle relazioni tra Utente e Videogioco, abbiamo una relazione che riguarda ogni partita creata dall'utente quando inizia a giocare ad un videogioco, una che riguarda il i giochi preferiti da un utente ed una che riguarda l'acquisto di copie fisiche di un videogioco da parte dell'utente.
+Riguardo alle relazioni tra Utente e Videogioco, abbiamo una relazione che riguarda le statistiche dell'utente ed una che riguarda l'acquisto di copie fisiche di un videogioco da parte degli utenti.
 
-Dato che occorre immagazzinare dati riguardo ogni partita per ogni coppia utente-videogioco, l'associazione \textbf{Partita} viene convertita in entità. L'entità Partita è identificata tramite l'utente e il videogioco in questione.
+Le statistiche di cui si vuole tener traccia sono principalmente due: le ore di gioco dell'utente e i giochi preferiti dell'utente. Per le ore di gioco, si è deciso di rappresentarle tramite un'entità partita: ogni partita di un utente deve essere comunque tracciata per sapere le ore di gioco, quindi ogni partita è rappresentata dall'ID dell'utente, dall'ID del videogioco e dalla data e l'ora di quando è stata iniziata.
 
-La conversione a entità accade anche per \textbf{Copia Videogioco}, dato che per un videogioco ci possono essere più copie fisiche. Il prezzo di ogni copia non riguarda le singole copie, bensì riguarda il gioco in sè, e si suppone inoltre che questo dato rimanga costante nel tempo, per cui è stato messo come attributo di videogioco. Una copia può anche rimanere invenduta, quindi si è pensato di immagazzinare il dato relativo alla data di acquisto come attributo dell'associazione Acquisto. Ogni copia è identificata tramite un codice univoco e l'associazione al videogioco di cui è copia.
+Per i giochi preferiti dell'utente, basta avere un'associazione tra Utente e Videogioco che indica la preferenza di un utente per quel videogioco. Mediante operazioni a lato software si potranno estrapolare le altre statistiche richieste, ad esempio la lista dei giochi preferiti e la lista dei giochi più giocati.
 
-L'associazione \textbf{Preferenza} non ha bisogno di essere reificata.
+Dato che per un videogioco ci possono essere più copie fisiche, si è scelto di creare un entità anche per Copia Videogioco. Il prezzo di ogni copia non riguarda le singole copie, bensì riguarda il gioco in sé, e si suppone inoltre che questo dato rimanga costante nel tempo, per cui è stato messo come attributo di videogioco. Una copia può anche rimanere invenduta, quindi si è pensato di immagazzinare il dato relativo alla data di acquisto come attributo dell'associazione Acquisto. Ogni copia è identificata tramite un codice univoco e l'associazione al videogioco di cui è copia.
 
 \begin{figure}[!htb]
-\centering{}
 \includegraphics[width=\textwidth]{vg.png}
 \caption{Lo schema Entity-Relationship relativo agli utenti, videogiochi, copie e statistiche.}
 \label{img:schema_vg}
@@ -159,7 +161,7 @@ Un \textbf{Videogioco multiplayer} è una specializzazione di Videogioco ed aggi
 
 Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, mentre più utenti possono parteciparvi, si è optato per due associazioni, \textbf{Creazione} e \textbf{Partecipazione}, tra Utente e Sessione. Rimane un vincolo inespresso: in una sessione, il numero minimo e massimo di giocatori dipende dal videogioco, cosa difficile da esprimere usando il modello ER.
 
-\begin{figure}[!htb]
+\begin{figure}[H]
 \centering{}
 \includegraphics[width=\textwidth]{session.png}
 \caption{Lo schema Entity-Relationship relativo alle sessioni.}
@@ -171,7 +173,6 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 \sect{Schema finale}
 
 \begin{figure}[!htb]
-\centering{}
 \includegraphics[width=\textwidth]{er_full.png}
 \caption{Lo schema Entity-Relationship finale.}
 \label{img:schema_finale}
@@ -185,19 +186,45 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 
 \begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ l l l }
-	\rowcolor[HTML]{deecdc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
-	Utente & Entità & 10.000 \\
-	Videogioco & Entità & 1000 \\
-	Piano & Entità & 0 \\
-	Copia Videogioco & Entità & 0 \\
-	Acquisto & Relazione & 0 \\
-	Statistiche & Entita & 0 \\
-	Videogioco Multiplayer & Entità & 0 \\
-	Sessione di gioco & Entità & 0 \\
-	Creazione & Relazione & 0 \\
-	Partecipazione & Relazione & 0 \\
+	\begin{tabular}{ | P{6cm} P{5cm} P{5cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\hline
+    \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
+	Utente & E & 10.000 \\
+	\hline
+	Piano & E & 30.000 \\
+	\hline
+	Sottoscrittura & R & 30.000 \\
+	\hline
+	Tipologia piano & E & 3 \\
+	\hline
+	Piano Cancellato & E & 3000 \\
+	\hline
+	Videogioco & E & 1000 \\
+	\hline
+	Copia Videogioco & E & 10.000 \\
+	\hline
+	Copia & R & 10.000 \\
+	\hline
+	Acquisto & R & 5000 \\
+	\hline
+	Partita & E & 300.000 \\
+	\hline
+	Gioca & R & 300.000 \\
+	\hline
+	Riguarda & R & 300.000 \\
+	\hline
+	Preferenza & R & 7000 \\
+	\hline
+	Videogioco Multiplayer & E & 600 \\
+	\hline
+	Sessione di gioco & E & 100.000 \\
+	\hline
+	Scelta & R & 100.000 \\
+	\hline
+	Creazione & R & 100.000 \\
+	\hline
+	Partecipazione & R & 500.000 \\
 	\hline
 	\end{tabular}
 \end{center}
@@ -239,18 +266,41 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 Nello schema concettuale compaiono due gerarchie:
 	\begin{itemize}
 	\item La gerarchia riguardante la tipologia dei piani, che descrive ogni tipologia esistente;
-	\item la gerarchia dei videogiochi multiplayer, che è un semplice sottoinsieme della più generica entità videogioco. 
+	\item La gerarchia dei videogiochi multiplayer, che è un semplice sottoinsieme della più generica entità videogioco;
+	\item La gerarchia dei piani, anch'essa un semplice sottoinsieme;
 	\end{itemize}
 
-Per la gerarchia dei piano, si è deciso di fare un collasso verso l'alto: un unica tabella \textbf{Tipologia piano} conterrà le tre tipologie, contenendo inoltre il costo e la durata (per il piano gratuito, si metterà semplicemente un costo uguale a zero).
+Per la gerarchia delle tipologie, si è deciso di fare un collasso verso l'alto: un unica tabella \textbf{Tipologia piano} conterrà le tre tipologie, contenendo inoltre il costo e la durata (per il piano gratuito, si metterà semplicemente un costo uguale a zero).
 
-Per il videogioco multiplayer, la decisione invece è stata di fare un collasso verso il figlio: si crea una tabella \textbf{Videogioco multiplayer} che avrà un campo ID, chiave esterna alla tabella videogioco.
+Per i videogiochi multiplayer, la decisione invece è stata di fare un collasso verso il figlio: si crea una tabella \textbf{Videogioco multiplayer} che avrà un campo ID, chiave esterna alla tabella videogioco.
+
+La stessa decisione che si è presa per i videogiochi multiplayer è stata presa anche per i piani: avremo anche una tabella per \textbf{Piano cancellato}, che avrà una chiave esterna ID Piano, corrispondente al Piano.
 
 \item \textbf{Eliminazione degli attributi composti} \\
 L'unico attributo composto presente nello schema è dentro videogioco multiplayer: questo attributo riguarda il numero massimo e minimo di giocatori per il videogioco ed è molto facile scomporlo in due attributi (numero massimo giocatori e numero minimo giocatori).
 
 \item \textbf{Scelta delle chiavi primarie}
-Nello schema sono già evidenziate le chiavi primarie per ogni entità principale (Utente, Videogioco, Piano, Sessione); 
+Nello schema sono già evidenziate le chiavi primarie per ogni entità principale (Utente, Videogioco, Piano, Sessione); Per le altre entità, le chiavi esterne evidenziate nello schema concettuale possono essere tradotte senza ambiguità in chiavi primarie (ad esempio, l'entità Partita ha come chiave primaria le due chiavi esterne alle tabelle Utente e Videogioco; molte altre entità seguiranno questo stesso pattern).
+
+Una nota particolare riguarda l'entità Tipologia piano: per la tabella corrispondente è stata usata la colonna tipologia come chiave primaria; inoltre è la tabella Piano che referenzia Tipologia piano.
+
+Un'altra nota particolare riguarda l'associazione Preferito, che nella conversione a tabella ha acquisito come chiave primaria la tupla ID Utente - ID Videogioco.
+
+\item \textbf{Eliminazione degli identificatori esterni}
+
+Nel passaggio da schema ER a schema logico, sono state eliminate le seguenti relazioni:
+
+\begin{itemize}
+\item Sottoscrittura, importando ID Utente in Piano;
+\item Tipologia, importando l'attributo tipologia in Piano;
+\item Gioca, importando ID Utente in Partita;
+\item Riguarda, importando ID Videogioco in Partita;
+\item Acquisto, importando ID Utente in Copia videogioco e aggiungendo un attributo Data acquisto;
+\item Copia, importando ID Videogioco in Copia videogioco;
+\item Scelta, importando ID Videogioco in Sessione;
+\item Creazione, importando ID Utente in Sessione e rinominandolo in ID Utente Creatore;
+\end{itemize}
+
 \end{itemize}
 
 
@@ -261,32 +311,33 @@ Nello schema sono già evidenziate le chiavi primarie per ogni entità principal
 \begin{itemize}
 
 \item \textbf{Utente}(\underline{ID}, Nome, Cognome, Password, E-Mail, Telefono*)
-\item \textbf{Videogioco}(\underline{ID}, Titolo, Genere, Anno, Azienda produttrice, Produttore esecutivo, Prezzo copia fisica)
-\item \textbf{Copia videogioco}(\underline{ID}, \underline{ID videogioco}, ID utente, Data acquisto*) \\
+\item \textbf{Videogioco}(\underline{ID}, Titolo, Genere, Anno, Azienda produttrice, Direttore principale, Prezzo copia fisica)
+\item \textbf{Copia videogioco}(\underline{ID}, \underline{ID videogioco}, ID utente*, Data acquisto*) \\
 FK: ID utente REFERENCES \textbf{Utente} \\
 FK: ID videogioco REFERENCES \textbf{Videogioco}
-\item \textbf{Preferito}(\underline{ID utente}, \underline{ID videogioco}, Preferito) \\
+\item \textbf{Acquisto}(\underline{ID copia}, \underline{ID utente}, Data acquisto) \\
+FK: ID utente REFERENCES \textbf{Utente} \\
+FK: ID copia REFERENCES \textbf{Copia Videogioco}
+\item \textbf{Partita}(\underline{ID utente}, \underline{ID videogioco}, \underline{Data}, \underline{Ora}, Ore di gioco) \\
 FK: ID utente REFERENCES \textbf{Utente} \\
 FK: ID videogioco REFERENCES \textbf{Videogioco}
-\item \textbf{Partita}(\underline{ID utente}, \underline{ID videogioco}, Ore di gioco, Data, Ora) \\
+\item \textbf{Preferenza}(\underline{ID utente}, \underline{ID videogioco}) \\
 FK: ID utente REFERENCES \textbf{Utente} \\
 FK: ID videogioco REFERENCES \textbf{Videogioco}
-\item \textbf{Piano}(\underline{ID}, Tipologia, Costo, ID utente) \\
+\item \textbf{Videogioco multiplayer}(\underline{ID videogioco}, Numero minimo giocatori, Numero massimo giocatori) \\
+FK: ID videogico REFERENCES \textbf{Videogioco}
+\item \textbf{Piano}(\underline{ID}, ID utente, Tipologia, Data acquisto, Ora acquisto) \\
 FK: Tipologia REFERENCES \textbf{Tipologia piano} \\
 FK: ID utente REFERENCES \textbf{Utente}
 \item \textbf{Tipologia piano}(\underline{Tipologia}, Costo)
-\item \textbf{Piano cancellato}(\underline{ID}, Data cancellazione)
-\item \textbf{Videogioco multiplayer}(\underline{ID videogioco}, Numero minimo giocatori, Numero massimo giocatori) \\
-FK: ID videogico REFERENCES \textbf{Videogioco}
-\item \textbf{Sessione}(\underline{ID}, \underline{ID videogioco}, Data, Tempo trascorso) \\
-FK: ID videogioco REFERENCES \textbf{Videogioco}
+\item \textbf{Piano cancellato}(\underline{ID}, Data cancellazione, Ora cancellazione) \\
+FK: ID REFERENCES \textbf{Piano}
+\item \textbf{Sessione}(\underline{ID}, ID videogioco, ID creatore, Data, Tempo trascorso) \\
+FK: ID videogioco REFERENCES \textbf{Videogioco} \\
+FK: ID creatore REFERENCES \textbf{Utente}
 \item \textbf{Partecipazione}(\underline{ID utente}, \underline{ID sessione}) \\
 FK: ID utente REFERENCES \textbf{Utente} \\
 FK: ID sessione REFERENCES \textbf{Sessione}
-\item \textbf{Creazione}(\underline{ID utente}, \underline{ID sessione}) \\
-FK: ID utente REFERENCES \textbf{Utente} \\
-FK: ID sessione REFERENCES \textbf{Sessione} \\
-
 \end{itemize}
 
 \newpage
@@ -303,6 +354,99 @@ FK: ID sessione REFERENCES \textbf{Sessione} \\
 \newpage
 
 \sect{Costruzione delle tabelle in linguaggio SQL}
+
+\usemintedstyle{borland}
+\begin{minted}[framesep=10cm]{sql}
+
+create table Utente (
+    id              int                 primary key auto_increment,
+    nome            varchar(255)        not null,
+    cognome         varchar(255)        not null,
+    password        varchar(255)        not null,
+    email           varchar(255)        not null,
+    telefono        int
+);
+
+create table Videogioco (
+    id              int                 primary key auto_increment,
+    titolo          varchar(255)        not null,
+    genere          varchar(255),
+    anno            year,
+    azienda         varchar(255),
+    produttore      varchar(255),
+    prezzo          int
+);
+
+create table CopiaVideogioco (
+    id              int                 primary key auto_increment,
+    id_vg           int                 not null references Videogioco(id)
+);
+
+create table Acquisto (
+    id_copia        int                 not null references CopiaVideogioco(id),
+    id_usr          int                 not null references Utente(id),
+    data_acquisto   datetime,
+    unique (id_copia, id_usr)
+);
+
+create table Partita (
+    id_usr          int                 not null references Utente(id),
+    id_vg           int                 not null references Videogioco(id),
+    data            datetime            not null,
+    ore_gioco       int,
+    unique (id_usr, id_vg, data)
+);
+
+create table Preferenza (
+    id_usr          int                 not null references Utente(id),
+    id_vg           int                 not null references Videogioco(id),
+    unique (id_usr, id_vg)
+);
+
+create table VideogiocoMultiplayer (
+    id_vg           int                 primary key references Videogioco(id),
+    min_giocatori   int                 default 1,
+    max_giocatori   int
+);
+
+create table TipologiaPiano (
+    tipologia       enum('Gratuito',
+                         'Mensile',
+                         'Annuale')     primary key,
+    costo           int                 not null
+);
+
+create table Piano (
+    id              int                 primary key auto_increment,
+    id_usr          int                 not null references Utente(id),
+    tipologia       enum('Gratuito',
+                         'Mensile',
+                         'Annuale')     not null references TipologiaPiano(tipologia),
+    data_acquisto   date                not null,
+    ora_acquisto    time                not null
+);
+
+create table PianoCancellato (
+    id              int                 primary key references Piano(id),
+    data_canc       date                not null,
+    ora_canc        time                not null
+);
+
+create table Sessione (
+    id              int                 primary key,
+    id_vg           int                 not null references VideogiocoMultiplayer(id_vg),
+    id_creatore     int                 not null references Utente(id),
+    data            date,
+    tempo_trascorso int
+);
+
+create table Partecipazione (
+    id_usr          int                 not null references Utente(id),
+    id_session      int                 not null references Sessione(id),
+    unique(id_usr, id_session)
+);
+
+\end{minted}
 
 \sect{Traduzione delle operazioni in query SQL}
 

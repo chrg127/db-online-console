@@ -10,3 +10,4 @@ relazione/*.synctex.gz
 relazione/*.pdf
 relazione/*.toc
 .qmake.stash
+_minted*

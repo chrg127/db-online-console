@@ -45,6 +45,8 @@ pref_query = "insert into Preferenza values"
 canc_query = "insert into PianoCancellato values"
 sess_query = "insert into Sessione(id, id_vg, id_creatore, data, tempo_trascorso) values"
 partecip_query = "insert into Partecipazione(id_usr, id_session) values"
+copy_query = "insert into CopiaVideogioco values"
+acquisto_query = "insert into Acquisto values"
 id_piano = 1
 
 def add_piano(name, date):
@@ -80,11 +82,17 @@ for vg in multiplayers:
         sessions.append([session_id, vg, rand_datetime_def(), rand(1, 5), []])
         session_id += 1
 
+copies = []
+id_copy = 1
+for vg in range(1, NUM_GAMES): # skip krunkerio, it is not buyable
+    for i in range(1, rand(1, 20)):
+        print("{}({}, {});".format(copy_query, id_copy, vg))
+        copies.append([id_copy, vg, False])
+        id_copy += 1
+
 for u in range(1, NUM_USR+1):
     start_date = rand_datetime_def()
     end_date = add_piano("Gratuito", start_date)
-    # print("{}({}, 'Gratuito', '{}', '{}');".format(piano_query, u, dt_date(start_date), dt_hour(start_date)))
-    # end_date = time_add_month(start_date)
     end_date = add_piano("Mensile", end_date)
     end_date = add_piano("Annuale", end_date)
     end_date = add_piano("Mensile", end_date)
@@ -97,9 +105,20 @@ for u in range(1, NUM_USR+1):
         # add preference
         if boolrand():
             print("{}({}, {});".format(pref_query, u, vg))
-        # search for sessions for this game
+        # generate some buys
+        if boolrand():
+            vg_copies = list(filter(lambda c: c[1] == vg, copies))
+            if len(vg_copies) == 0:
+                continue
+            id_copy = 0
+            while id_copy < len(vg_copies) and vg_copies[id_copy][2]:
+                id_copy += 1
+            if id_copy < len(vg_copies):
+                vg_copies[id_copy][2] = True
+                print("{}({}, {}, '{}');".format(acquisto_query, vg_copies[id_copy][0], u, dt_str(rand_datetime(start_date, end_date))))
         if vg not in multiplayers:
             continue
+        # search for sessions for this game
         good_sessions = list(filter(lambda s: s[1] == vg and start_date <= s[2] and end_date >= s[2], sessions))
         for session in good_sessions:
             session[4].append(u)
