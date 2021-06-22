@@ -60,9 +60,9 @@ Al momento della registrazione l'utente potrà scegliere tra tre piani: il primo
 
 Per ogni videogioco si vuole memorizzare il titolo, il genere, l'anno di rilascio, l'azienda sviluppatrice e il produttore esecutivo. Per ogni utente del servizio si vuole anche dare la possibilità di acquistare una copia fisica di qualunque videogioco, che, però, potrebbe anche non essere disponibile. Ogni videogioco può avere più copie fisiche, ma il prezzo di ogni copia del videogioco è la stessa. Si vuole anche memorizzare lo storico degli acquisti per ogni utente.
 
-Per ogni utente si vuole anche memorizzare alcune particolare statistiche: il numero di ore trascorso su un videogioco, il numero di ore trascorse in totale a giocare, una lista dei giochi più giocati, una lista dei giochi preferiti (a scelta dell'utente). Queste statistiche potranno essere viste dai direttori del servizio.
+Ogni utente inoltre dovrebbe essere in grado di visualizzare il profilo di altri utenti, e di sapere alcune statistiche su quell'utente: le ore di gioco, sia giornaliere che totali; una lista dei giochi più giocati dall'utente; una lista dei giochi preferiti dall'utente. Altre statistiche appaiono per i videogiochi: una lista dei videogiochi più giocati da ogni utente e una lista dei giochi più amati.
 
-Infine, si vuole anche immagazzinare anche alcune informazioni relative al multiplayer. Gli utenti del servizio possono iniziare una sessione di gioco con altri utenti e scegliere un videogioco da giocare: si vuole memorizzare i dati di ogni sessione, che includeranno gli utenti partecipanti, il videogioco scelto e altre statistiche quali il tempo trascorso. Si vuole anche mantenere uno storico delle sessioni per ogni utente. Ovviamente, si dovrebbe tener conto che il gioco scelto sia effettivamente un gioco multiplayer. \\\\
+Infine, si vuole anche immagazzinare anche alcune informazioni relative al multiplayer. Gli utenti del servizio possono iniziare una sessione di gioco con altri utenti e scegliere un videogioco da giocare: si vuole memorizzare i dati di ogni sessione, che includeranno gli utenti partecipanti, il videogioco scelto e il tempo trascorso a giocare in multiplayer. Si vuole anche mantenere uno storico delle sessioni per ogni utente. Ovviamente, si dovrebbe tener conto che il gioco scelto sia effettivamente un gioco multiplayer. \\\\
 
 \end{addmargin}
 
@@ -75,18 +75,12 @@ I concetti principali sono riassunti in questa tabella.
 	\begin{tabular}{ | m{4cm} m{8cm} m{5cm} | }
 	\rowcolor[HTML]{abc3f5}
 	\textbf{Termine} & \textbf{Breve descrizione} & \textbf{Eventuali sinonimi} \\
-	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo \\
-	\hline
-	Videogioco & Indica un videogioco del catalogo. & Titolo \\
-	\hline
-	Copia Videogioco & Indica una copia fisica di un videogioco. Ogni videogioco può avere più copie fisiche. & Copia \\
-	\hline
-	Statistiche & Le statistiche riguardanti un utente e un videogioco. Ce ne sono due principali: le ore di gioco e la preferenza. & \\
-	\hline
-	Piano & Ogni utente deve sottoscrivere un piano per accedere al servizio. & Abbonamento, Iscrizione\\
-	\hline
-	Sessione di gioco & Una partita di un videogioco multiplayer, creata inizialmente da un utente. & Sessione \\
-	\hline
+	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo \\ \hline
+	Videogioco & Indica un videogioco del catalogo. & Titolo \\ \hline
+	Copia Videogioco & Indica una copia fisica di un videogioco. Ogni videogioco può avere più copie fisiche. & Copia \\ \hline
+	Statistiche & Le statistiche riguardanti un utente e un videogioco. Ce ne sono due principali: le ore di gioco e la preferenza. & \\ \hline
+	Piano & Ogni utente deve sottoscrivere un piano per accedere al servizio. & Abbonamento, Iscrizione\\ \hline
+	Sessione di gioco & Una partita di un videogioco multiplayer, creata inizialmente da un utente. & Sessione \\ \hline
 	\end{tabular}
 \end{center}
 \caption{La tabella dei concetti principali.}
@@ -103,7 +97,7 @@ Un utente può stipulare più \textbf{\textit{piani}}: un piano gratuito è atti
 
 Per ogni \textbf{\textit{videogioco}} si deve memorizzare titolo, genere, anno di rilascio, azienda sviluppatrice e produttore esecutivo. Si devono anche memorizzare prezzo e quantità di copie per ogni videogioco. Per ogni copia, invece, si deve memorizzare la data di acquisto.
 
-Occorre memorizzare in qualche modo le ore di gioco di un utente.
+% Occorre memorizzare in qualche modo le ore di gioco di un utente.
 
 Infine, per ogni \textbf{\textit{sessione}} occorre memorizzare gli utenti partecipanti e il gioco scelto. Dato che non tutti i giochi permettono di giocare in multiplayer, bisogna fare una distinzione tra \textbf{\textit{gioco single player}} e \textbf{\textit{gioco multiplayer}}. Si suppone, inoltre, che un videogioco multiplayer abbia un numero minimo e massimo di giocatori. \\\\
 
@@ -112,16 +106,25 @@ Infine, per ogni \textbf{\textit{sessione}} occorre memorizzare gli utenti parte
 Da questo testo si può anche evincere le principali azioni richieste:
 
 \begin{itemize}
-\item Registrazione di un utente;
-\item Sottoscrittura di un tipo di piano da parte di un utente;
-\item Visualizzazione dei piani da parte di utente;
-\item Visualizzazione dei giochi disponibili nel catalogo;
-\item Acquisto di una copia di un videogioco;
-\item Visualizzazione di un profilo utente, con tutte le relative statistiche;
-\item Visualizzazione di dati specifici per un videogioco;
-\item Creazione di nuove sessioni di gioco da parte di un utente;
-\item Partecipazione di un utente ad una sessione di gioco;
+\item Sottoscrivere un nuovo piano per un utente;
+\item Visualizzare i piani creati da un utente;
+\item Registrare la cancellazione di un piano da parte di un utente;
+\item Visualizzare i giochi disponibili nel catalogo;
+\item Visualizzare il numero di copie fisiche di un videogioco;
+\item Registrare l'acquisto di una copia di un videogioco;
+\item Visualizzare il numero di ore di gioco giornaliero e totale di un utente;
+\item Visualizzare i giochi preferiti di un utente;
+\item Visualizzare i giochi più giocati e quelli più preferiti;
+\item Registrare la creazione di una nuova sessione di gioco;
+\item Registrare la partecipazione di un utente ad una sessione di gioco;
+\item Visualizzare quante sessioni un utente ha creato o ha partecipato;
 \end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% schema concettuale
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \chap{Progetto dello schema concettuale}
 
@@ -180,52 +183,40 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 
 \newpage
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% progettazione logica
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
 \chap{Progettazione logica}
 
 \sect{Stima del volume dei dati}
 
 \begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ | P{6cm} P{5cm} P{5cm} | }
+	\begin{tabular}{ | m{5cm} P{5cm} P{5cm} | }
 	\rowcolor[HTML]{abc3f5}
 	\hline
     \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
-	Utente & E & 10.000 \\
-	\hline
-	Piano & E & 30.000 \\
-	\hline
-	Sottoscrittura & R & 30.000 \\
-	\hline
-	Tipologia piano & E & 3 \\
-	\hline
-	Piano Cancellato & E & 3000 \\
-	\hline
-	Videogioco & E & 1000 \\
-	\hline
-	Copia Videogioco & E & 10.000 \\
-	\hline
-	Copia & R & 10.000 \\
-	\hline
-	Acquisto & R & 5000 \\
-	\hline
-	Partita & E & 300.000 \\
-	\hline
-	Gioca & R & 300.000 \\
-	\hline
-	Riguarda & R & 300.000 \\
-	\hline
-	Preferenza & R & 7000 \\
-	\hline
-	Videogioco Multiplayer & E & 600 \\
-	\hline
-	Sessione di gioco & E & 100.000 \\
-	\hline
-	Scelta & R & 100.000 \\
-	\hline
-	Creazione & R & 100.000 \\
-	\hline
-	Partecipazione & R & 500.000 \\
-	\hline
+	Utente & E & 10.000 \\ \hline
+	Piano & E & 30.000 \\ \hline
+	Sottoscrittura & R & 30.000 \\ \hline
+	Tipologia piano & E & 3 \\ \hline
+	Piano Cancellato & E & 3000 \\ \hline
+	Videogioco & E & 1000 \\ \hline
+	Copia Videogioco & E & 10.000 \\ \hline
+	Copia & R & 10.000 \\ \hline
+	Acquisto & R & 5000 \\ \hline
+	Partita & E & 300.000 \\ \hline
+	Gioca & R & 300.000 \\ \hline
+	Riguarda & R & 300.000 \\ \hline
+	Preferenza & R & 7000 \\ \hline
+	Videogioco Multiplayer & E & 600 \\ \hline
+	Sessione di gioco & E & 100.000 \\ \hline
+	Scelta & R & 100.000 \\ \hline
+	Creazione & R & 100.000 \\ \hline
+	Partecipazione & R & 500.000 \\ \hline
 	\end{tabular}
 \end{center}
 \caption{La tabella dei volumi.}
@@ -233,26 +224,221 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 
 \sect{Descrizione delle operazioni principali e stima della loro frequenza}
 
+Le operazioni principali sono elencate nella fase di analisi. Segue una tabella delle stime della frequenza per ogni operazione:
+
 \begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ l l }
-	\rowcolor[HTML]{deecdc}
-	\textbf{Operazione} & \textbf{Frequenza} \\
-	Giocare ai videogiochi & 10000 al giorno \\
+	\begin{tabular}{ | P{2cm} m{10cm} m{4cm} | }
+	\rowcolor[HTML]{abc3f5}
 	\hline
+	\textbf{Codice} & \textbf{Operazione} & \textbf{Frequenza} \\
+	1 & Sottoscrivere un nuovo piano per un utente & 10 al mese \\ \hline
+	1 & Visualizzare i piani creati da un utente & 100 al mese \\ \hline
+	1 & Registrare la cancellazione di un piano da parte di un utente & 5 al mese \\ \hline
+	1 & Visualizzare i giochi disponibili nel catalogo & 1000 al giorno \\ \hline
+	1 & Visualizzare il numero di copie fisiche di un videogioco & 100 al giorno \\ \hline
+	1 & Registrare l'acquisto di una copia di un videogioco & 100 al giorno \\ \hline
+	1 & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 5000 al giorno \\ \hline
+	1 & Visualizzare i giochi preferiti di un utente & 5000 al giorno \\ \hline
+	1 & Visualizzare i giochi più giocati e quelli più preferiti & 5000 al giorno \\ \hline
+	1 & Registrare la creazione di una nuova sessione di gioco & 50 al giorno \\ \hline
+	1 & Registrare la partecipazione di un utente ad una sessione di gioco & 50 al giorno \\ \hline
+	1 & Visualizzare quante sessioni un utente ha creato o ha partecipato & 500 al giorno \\ \hline
 	\end{tabular}
 \end{center}
-\caption{La tabella dei volumi.}
+\caption{Tabella delle stime delle frequenze.}
 \end{table}
 
 \sect{Schemi di navigazione e tabelle degli accessi}
 
+\subsection*{Sottoscrivere un nuovo piano per un utente}
+
+Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già un piano in corso (leggendo da Piano), poi scriverlo.
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & L \\ \hline
+	Piano & E & 1 & L \\ \hline
+	Piano & E & 1 & S \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 2L + 1S - 10 al mese & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare i piani creati da un utente}
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & L \\ \hline
+	Piano & E & 1 & L \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 2 L - 100 al mese & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Registrare la cancellazione di un piano da parte di un utente}
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & L \\ \hline
+	Piano & E & 1 & L \\ \hline
+	Piano Cancellato & E & 1 & S \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 2L + 1S - 5 al mese & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare i giochi disponibili nel catalogo}
+
 \begin{table}[h!]
 \begin{center}
-	\begin{tabular}{ l l l l }
-	\rowcolor[HTML]{deecdc}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & S \\
+	Videogioco & E & 1 & L \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 1L - 1000 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare il numero di copie fisiche di un videogioco}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco & E & 1 & L \\ \hline
+	Copia Videogioco & E & 1 & L \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 2L - 100 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Registrare l'acquisto di una copia di un videogioco}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco & E & 1 & L \\ \hline
+	Copia Videogioco & 1 & S \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 1L + 1S - 100 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & L \\ \hline
+	Videogioco & E & 1 & L \\ \hline
+	Partita & E & 2 & L \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 4L - 5000 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare i giochi preferiti di un utente}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & 1 & L \\ \hline
+	Videogioco & E & 1 & L \\ \hline
+	Preferenza & R & 1 & L \\ \hline
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 3L - 5000 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare i giochi più giocati e quelli più preferiti}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco & E & 1 L
+	Utente & E & 1 & L
+	Partita & E & 1 & L
+	Preferenza & E & 1 & L	
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: 4L - 5000 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Registrare la creazione di una nuova sessione di gioco}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Registrare la partecipazione di un utente ad una sessione di gioco}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato}
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	\rowcolor[HTML]{abc3f5}
+	\textbf{Totale}: & & & \\
 	\hline
 	\end{tabular}
 \end{center}
@@ -280,7 +466,7 @@ La stessa decisione che si è presa per i videogiochi multiplayer è stata presa
 L'unico attributo composto presente nello schema è dentro videogioco multiplayer: questo attributo riguarda il numero massimo e minimo di giocatori per il videogioco ed è molto facile scomporlo in due attributi (numero massimo giocatori e numero minimo giocatori).
 
 \item \textbf{Scelta delle chiavi primarie}
-Nello schema sono già evidenziate le chiavi primarie per ogni entità principale (Utente, Videogioco, Piano, Sessione); Per le altre entità, le chiavi esterne evidenziate nello schema concettuale possono essere tradotte senza ambiguità in chiavi primarie (ad esempio, l'entità Partita ha come chiave primaria le due chiavi esterne alle tabelle Utente e Videogioco; molte altre entità seguiranno questo stesso pattern).
+Nello schema sono già evidenziate le chiavi primarie per ogni entità principale (Utente, Videogioco, Copia Videogioco, Piano, Sessione); Per le altre entità, le chiavi esterne evidenziate nello schema concettuale possono essere tradotte senza ambiguità in chiavi primarie (ad esempio, l'entità Partita ha come chiave primaria le due chiavi esterne alle tabelle Utente e Videogioco; molte altre entità seguiranno questo stesso pattern).
 
 Una nota particolare riguarda l'entità Tipologia piano: per la tabella corrispondente è stata usata la colonna tipologia come chiave primaria; inoltre è la tabella Piano che referenzia Tipologia piano.
 
