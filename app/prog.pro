@@ -2,6 +2,7 @@ TEMPLATE = app
 TARGET = prog
 CONFIG += debug_and_release
 CONFIG += c++20
+QMAKE_CXXFLAGS += -fconcepts-ts
 QT = core gui sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -10,8 +11,10 @@ Release:OBJECTS_DIR = release/obj
 Debug:DESTDIR = debug
 Debug:OBJECTS_DIR = debug/obj
 
-SOURCES += main.cpp window.cpp sqlhighlighter.cpp screens.cpp opengl.cpp
-HEADERS += window.hpp debug.hpp sqlhighlighter.hpp screens.hpp opengl.hpp
+SOURCES += main.cpp window.cpp sqlhighlighter.cpp screens.cpp \
+           opengl.cpp
+HEADERS += window.hpp debug.hpp sqlhighlighter.hpp screens.hpp qthelpers.hpp \
+           opengl.hpp
 LIBS += -lfmt
 
 # Uncomment this to add a cat prism screen to the application.

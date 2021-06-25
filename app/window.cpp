@@ -8,6 +8,7 @@
 #include <QStatusBar>
 #include <QHBoxLayout>
 #include <fmt/core.h>
+#include "qthelpers.hpp"
 #include "screens.hpp"
 
 Window::Window(QWidget *parent)
@@ -21,22 +22,19 @@ Window::Window(QWidget *parent)
 
 void Window::create_menu()
 {
-    enum MenuIndex {
-        MENU_FILE,
-        MENU_COUNT,
-    };
-    QMenu *menus[MENU_COUNT];
+    // enum MenuIndex { MENU_FILE, MENU_COUNT, };
+    // QMenu *menus[MENU_COUNT];
 
-    const auto add_item = [&, this](MenuIndex idx, const QString &text, bool enable, auto &&func)
-    {
-        auto *act = new QAction(text, this);
-        connect(act, &QAction::triggered, this, func);
-        menus[idx]->addAction(act);
-        act->setEnabled(enable);
-    };
+    // const auto add_item = [&, this](MenuIndex idx, const QString &text, bool enable, auto &&func)
+    // {
+    //     auto *act = new QAction(text, this);
+    //     connect(act, &QAction::triggered, this, func);
+    //     menus[idx]->addAction(act);
+    //     act->setEnabled(enable);
+    // };
 
-    menus[MENU_FILE] = menuBar()->addMenu("&File");
-    add_item(MENU_FILE, "&Open", true, []() { fmt::print("dinosauri\n"); });
+    // menus[MENU_FILE] = menuBar()->addMenu("&File");
+    // add_item(MENU_FILE, "&Open", true, []() { fmt::print("dinosauri\n"); });
 }
 
 void Window::create_statusbar()
@@ -52,26 +50,19 @@ void Window::create_widgets()
     center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
     setCentralWidget(center);
 
-    java_label = new QLabel("java fa schifo!", center);
-
-    stack_widget = new QStackedWidget;
-    login_screen = new LoginScreen(this, center);
-    stack_widget->addWidget(login_screen);
-
-    admin_screen = new AdminScreen(this, center);
-    stack_widget->addWidget(admin_screen);
-
-    user_screen  = new UserScreen(this, center);
-    stack_widget->addWidget(user_screen);
-
+    stack_widget = make_layout<QStackedWidget>(
+        new LoginScreen(this, center),
+        new AdminScreen(this, center),
+        new UserScreen(this, center)
 #ifdef _CATPRISM
-    prism_screen = new CatPrismScreen(center);
-    stack_widget->addWidget(prism_screen);
+        new CatPrismScreen(center);
 #endif
-
-    auto *lt = new QVBoxLayout(center);
-    lt->addWidget(java_label);
-    lt->addWidget(stack_widget);
+    );
+    auto lt = make_layout<QVBoxLayout>(
+        new QLabel("java fa schifo!", center),
+        stack_widget
+    );
+    center->setLayout(lt);
 }
 
 void Window::show_screen(Screen screen)

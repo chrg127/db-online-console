@@ -7,6 +7,8 @@
 #include <QSqlError>
 #include <QSurfaceFormat>
 #include <QMessageBox>
+#include <QPushButton>
+#include "qthelpers.hpp"
 #include "window.hpp"
 #include "debug.hpp"
 
@@ -43,6 +45,18 @@ void set_surface_format()
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
+
+//     QDialog d;
+//     auto *lt = make_layout<QVBoxLayout>(
+//         new QPushButton("button 1"),
+//         new QPushButton("button 2"),
+//         make_layout<QHBoxLayout>(
+//             new QPushButton("button 3"),
+//             new QPushButton("button 4")
+//         )
+//     );
+//     d.setLayout(lt);
+//     d.show();
 
     set_surface_format();
 

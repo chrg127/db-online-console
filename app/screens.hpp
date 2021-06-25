@@ -20,7 +20,6 @@ class LoginScreen : public QWidget {
 private:
     QLabel *image;
     QGroupBox *login_box;
-    QLabel *name_label, *pass_label;
     QLineEdit *name_box, *pass_box;
     QPushButton *admin_button, *user_button, *prism_button;
 public:

@@ -17,6 +17,7 @@
 #include <QMessageBox>
 #include <QSizePolicy>
 #include <fmt/core.h>
+#include "qthelpers.hpp"
 #include "window.hpp"
 #include "sqlhighlighter.hpp"
 #ifdef _CATPRISM
@@ -30,61 +31,40 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     image->setPixmap(QPixmap("logo.png"));
     image->setAlignment(Qt::AlignCenter);
 
-    name_label = new QLabel("Username: ");
-
-    pass_label = new QLabel("Password: ");
-
     name_box = new QLineEdit;
-
     pass_box = new QLineEdit;
     pass_box->setEchoMode(QLineEdit::EchoMode::Password);
-
-    auto *grid = new QGridLayout;
-    grid->addWidget(name_label, 0, 0);
-    grid->addWidget(name_box, 0, 1);
-    grid->addWidget(pass_label, 1, 0);
-    grid->addWidget(pass_box, 1, 1);
-
     login_box = new QGroupBox("Login");
-    login_box->setLayout(grid);
+    login_box->setLayout(make_grid_layout(
+        std::tuple{ new QLabel("Username: "), 0, 0 },
+        std::tuple{ name_box,   0, 1 },
+        std::tuple{ new QLabel("Password: "), 1, 0 },
+        std::tuple{ pass_box,   1, 1 }
+    ));
     login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
-    auto *buttonlt = new QHBoxLayout;
-
     admin_button = new QPushButton("Login as admin");
-    buttonlt->addWidget(admin_button);
-    connect(admin_button, &QPushButton::released,
-            [mainwnd]() { mainwnd->show_screen(Window::Screen::ADMIN); });
-
     user_button = new QPushButton("Login as user");
-    buttonlt->addWidget(user_button);
-    connect(user_button, &QPushButton::released,
-            [mainwnd]() { mainwnd->show_screen(Window::Screen::USER); });
+    connect(admin_button, &QPushButton::released, [mainwnd]() { mainwnd->show_screen(Window::Screen::ADMIN); });
+    connect(user_button, &QPushButton::released,  [mainwnd]() { mainwnd->show_screen(Window::Screen::USER); });
 
 #ifdef _CATPRISM
     prism_button = new QPushButton("View the cat prism");
-    buttonlt->addWidget(prism_button);
-    connect(prism_button, &QPushButton::released,
-            [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
+    connect(prism_button, &QPushButton::released, [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
 #endif
 
-    auto *mainlt = new QVBoxLayout(this);
-    mainlt->addWidget(image);
-    mainlt->addWidget(login_box);
-    mainlt->addLayout(buttonlt);
+    auto *buttonlt = make_layout<QHBoxLayout>(admin_button, user_button);
+    auto *mainlt = make_layout<QVBoxLayout>(image, login_box, buttonlt);
+    this->setLayout(mainlt);
     mainlt->setContentsMargins(100, 10, 100, 10);
 }
 
 UserScreen::UserScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
-    label = new QLabel("duke");
     exit_button = new QPushButton("Exit");
-    connect(exit_button, &QPushButton::released,
-            [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
-    auto *mainlt = new QVBoxLayout(this);
-    mainlt->addWidget(label);
-    mainlt->addWidget(exit_button);
+    connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
+    setLayout(make_layout<QVBoxLayout>(new QLabel("duke"), exit_button));
 }
 
 template <typename T>
@@ -107,33 +87,29 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
 
     query_editor = new QTextEdit(this);
     highlighter  = new SQLHighlighter(query_editor->document());
-    QFont font("Monospace");
-    font.setStyleHint(QFont::TypeWriter);
-    query_editor->setFont(font);
-
-    auto *hlt = new QHBoxLayout;
-    hlt->addWidget(query_editor);
-    hlt->addWidget(result_tab);
+    query_editor->setFont(make_font("Monospace", QFont::TypeWriter));
 
     query_button = new QPushButton("Execute a query", this);
     connect(query_button, &QPushButton::released, this, [this]()
-            {
-                auto errmsg = run_query(result_model, query_editor->toPlainText());
-                if (errmsg) {
-                    QMessageBox box;
-                    box.setText(*errmsg);
-                    box.exec();
-                }
-            });
+    {
+        auto errmsg = run_query(result_model, query_editor->toPlainText());
+        if (errmsg) {
+            QMessageBox box;
+            box.setText(*errmsg);
+            box.exec();
+        }
+    });
 
     exit_button = new QPushButton("Exit", this);
-    connect(exit_button, &QPushButton::released,
-            [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
+    connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
 
-    auto *vlt = new QVBoxLayout(this);
-    vlt->addLayout(hlt);
-    vlt->addWidget(query_button);
-    vlt->addWidget(exit_button);
+    setLayout(
+        make_layout<QVBoxLayout>(
+            make_layout<QHBoxLayout>(query_editor, result_tab),
+            query_button,
+            exit_button
+        )
+    );
 }
 
 #ifdef _CATPRISM
@@ -145,3 +121,4 @@ CatPrismScreen::CatPrismScreen(QWidget *parent)
     lt->addWidget(glwidget);
 }
 #endif
+
