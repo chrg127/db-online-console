@@ -12,6 +12,8 @@
 \usepackage[section]{placeins}
 \usepackage{float}
 \usepackage{minted}
+\usepackage{listings}
+\usepackage{color}
 
 \renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
 % this command makes a chapter without number and adds it to the toc
@@ -26,9 +28,35 @@
     \addcontentsline{toc}{section}{#1}
     \markboth{#1}{#1}}
 
+% colors used in tables and code listings
+\definecolor{keywordcolor}{HTML}{2e5abd}
+\definecolor{morekwcolor}{HTML}{ff1a8d}
+\definecolor{strcolor}{rgb}{0.58,0,0.82}
+\definecolor{tablinecolor}{HTML}{999da1}
+\definecolor{rowc}{HTML}{abc3f5}
+
 \newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
 \renewcommand{\arraystretch}{1.8}
-\arrayrulecolor[HTML]{999da1} % table lines color
+\arrayrulecolor{tablinecolor} % table lines color
+
+\renewcommand\lstlistingname{Quelltext} % change language of section name
+% general setup for listings
+\lstset{
+    language=SQL,
+    basicstyle=\ttfamily\footnotesize,
+	breakatwhitespace=false,
+	breaklines=true,
+    tabsize=4,
+    columns=fixed,
+    showstringspaces=false,
+    commentstyle=\color{keywordcolor},
+    keywordstyle=\color{blue},
+    numberstyle=\color{strcolor},
+    stringstyle=\color{strcolor},
+    classoffset=3,
+    morekeywords={now, datediff},
+    keywordstyle=\color{morekwcolor}
+}
 
 \title{
 \Huge \textbf{Elaborato per il corso di Basi di Dati} \\
@@ -73,7 +101,7 @@ I concetti principali sono riassunti in questa tabella.
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} m{8cm} m{5cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Termine} & \textbf{Breve descrizione} & \textbf{Eventuali sinonimi} \\
 	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo \\ \hline
 	Videogioco & Indica un videogioco del catalogo. & Titolo \\ \hline
@@ -110,14 +138,13 @@ Da questo testo si può anche evincere le principali azioni richieste:
 \item Visualizzare i piani creati da un utente;
 \item Registrare la cancellazione di un piano da parte di un utente;
 \item Visualizzare i giochi disponibili nel catalogo;
-\item Visualizzare il numero di copie fisiche di un videogioco;
+\item Visualizzare il numero di copie fisiche disponibili di un videogioco;
 \item Registrare l'acquisto di una copia di un videogioco;
 \item Visualizzare il numero di ore di gioco giornaliero e totale di un utente;
 \item Visualizzare i giochi preferiti di un utente;
 \item Visualizzare i giochi più giocati e quelli più preferiti;
 \item Registrare la creazione di una nuova sessione di gioco;
-\item Registrare la partecipazione di un utente ad una sessione di gioco;
-\item Visualizzare quante sessioni un utente ha creato o ha partecipato;
+\item Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco;
 \end{itemize}
 
 
@@ -196,7 +223,7 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{5cm} P{5cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\hline
     \textbf{Concetto} & \textbf{Costrutto} & \textbf{Volume} \\
 	Utente & E & 10.000 \\ \hline
@@ -229,74 +256,103 @@ Le operazioni principali sono elencate nella fase di analisi. Segue una tabella 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | P{2cm} m{10cm} m{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\hline
 	\textbf{Codice} & \textbf{Operazione} & \textbf{Frequenza} \\
 	1 & Sottoscrivere un nuovo piano per un utente & 10 al mese \\ \hline
 	1 & Visualizzare i piani creati da un utente & 100 al mese \\ \hline
 	1 & Registrare la cancellazione di un piano da parte di un utente & 5 al mese \\ \hline
 	1 & Visualizzare i giochi disponibili nel catalogo & 1000 al giorno \\ \hline
-	1 & Visualizzare il numero di copie fisiche di un videogioco & 100 al giorno \\ \hline
+	1 & Visualizzare il numero di copie fisiche disponibili di un videogioco & 100 al giorno \\ \hline
 	1 & Registrare l'acquisto di una copia di un videogioco & 100 al giorno \\ \hline
 	1 & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 5000 al giorno \\ \hline
 	1 & Visualizzare i giochi preferiti di un utente & 5000 al giorno \\ \hline
 	1 & Visualizzare i giochi più giocati e quelli più preferiti & 5000 al giorno \\ \hline
 	1 & Registrare la creazione di una nuova sessione di gioco & 50 al giorno \\ \hline
-	1 & Registrare la partecipazione di un utente ad una sessione di gioco & 50 al giorno \\ \hline
-	1 & Visualizzare quante sessioni un utente ha creato o ha partecipato & 500 al giorno \\ \hline
+	1 & Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco & 500 al giorno \\ \hline
 	\end{tabular}
 \end{center}
 \caption{Tabella delle stime delle frequenze.}
 \end{table}
 
+\newpage
+
 \sect{Schemi di navigazione e tabelle degli accessi}
 
-\subsection*{Sottoscrivere un nuovo piano per un utente}
-
-Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già un piano in corso (leggendo da Piano), poi scriverlo.
+\subsection*{Login e ricerca di un utente}
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & L \\ \hline
-	Piano & E & 1 & L \\ \hline
-	Piano & E & 1 & S \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Utente         & E & 1 & L \\ \hline
+	\rowcolor{rowc}
+	\textbf{Totale}: 1L - 9000 al giorno & & & \\
+	\hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{Sottoscrivere un nuovo piano per un utente}
+
+Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già un piano in corso (leggendo da Piano e Tipologia piano), poi scriverlo.
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc}
+	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente         & E & 1 & L \\ \hline
+	Sottoscrittura & R & 1 & L \\ \hline
+	Piano          & E & 1 & L \\ \hline
+	Tipologia      & R & 1 & L \\ \hline
+	Sottoscrittura & R & 1 & S \\ \hline
+	Piano          & E & 1 & S \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 2L + 1S - 10 al mese & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare i piani creati da un utente}
+\subsection*{Visualizzare i piani creati e cancellati da un utente}
+
+Per questa operazione basta prelevare l'ID dell'utente e andare a controllare i piani creati.
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & L \\ \hline
-	Piano & E & 1 & L \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Utente         & E & 1 & L \\ \hline
+	Sottoscrittura & E & 1 & L \\ \hline
+	Piano 		 & E & 1 & L \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 2 L - 100 al mese & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
+\newpage
+
 \subsection*{Registrare la cancellazione di un piano da parte di un utente}
+
+Prima bisogna guardare il piano in corso di un utente, poi si registra la cancellazione.
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & L \\ \hline
-	Piano & E & 1 & L \\ \hline
+	Utente           & E & 1 & L \\ \hline
+	Piano    		   & E & 1 & L \\ \hline
+	Tipologia		   & R & 1 & L \\ \hline
+	Tipologia piano  & E & 1 & L \\ \hline
+	Sottoscrittura   & R & 1 & L \\ \hline
 	Piano Cancellato & E & 1 & S \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Totale}: 2L + 1S - 5 al mese & & & \\
 	\hline
 	\end{tabular}
@@ -305,45 +361,59 @@ Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già
 
 \subsection*{Visualizzare i giochi disponibili nel catalogo}
 
+Un utente, per poter visualizzare il catalogo, deve avere almeno un piano in corso.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & 1 & L \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Utente 		   & E & 1 & L \\ \hline
+	Sottoscrittura   & R & 1 & L \\ \hline
+	Piano 		   & E & 1 & L \\ \hline
+	Tipologia		   & R & 1 & L \\ \hline
+	Tipologia piano  & E & 1 & L \\ \hline
+	Videogioco       & E & 1 & L \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 1L - 1000 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare il numero di copie fisiche di un videogioco}
+\subsection*{Visualizzare il numero di copie fisiche disponibili di un videogioco}
+
+L'input è il nome di un videogioco. Per vedere se una copia è disponibile, bisogna guardare anche gli acquisti.
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & 1 & L \\ \hline
+	Videogioco       & E & 1 & L \\ \hline
+	Copia		   & R & 1 & L \\ \hline
 	Copia Videogioco & E & 1 & L \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Acquisto 		   & R & 1 & L \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 2L - 100 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
+\newpage
+
 \subsection*{Registrare l'acquisto di una copia di un videogioco}
+
+Basta aggiungere un nuovo acquisto.
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & 1 & L \\ \hline
-	Copia Videogioco & 1 & S \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Acquisto & R & 1 & S \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 1L + 1S - 100 al giorno & & & \\
 	\hline
 	\end{tabular}
@@ -352,32 +422,36 @@ Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già
 
 \subsection*{Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
 
+Basta guardare solo partita.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & L \\ \hline
-	Videogioco & E & 1 & L \\ \hline
+	Utente  & E & 1 & L \\ \hline
+	Gioca   & R & 2 & L \\ \hline
 	Partita & E & 2 & L \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Totale}: 4L - 5000 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
+\newpage
+
 \subsection*{Visualizzare i giochi preferiti di un utente}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & 1 & L \\ \hline
-	Videogioco & E & 1 & L \\ \hline
+	Utente     & E & 1 & L \\ \hline
 	Preferenza & R & 1 & L \\ \hline
-	\rowcolor[HTML]{abc3f5}
+	Videogioco & E & 1 & L \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 3L - 5000 al giorno & & & \\
 	\hline
 	\end{tabular}
@@ -386,63 +460,90 @@ Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già
 
 \subsection*{Visualizzare i giochi più giocati e quelli più preferiti}
 
+Per visualizzare quelli più giocati, occorre guardare Partita. Per visualizzare quelli preferiti, occorre guardare Preferenza.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & 1 L
-	Utente & E & 1 & L
-	Partita & E & 1 & L
-	Preferenza & E & 1 & L	
-	\rowcolor[HTML]{abc3f5}
+	Videogioco & E & 1 & L \\ \hline
+	Riguarda	  & R & 1 & L \\ \hline
+	Partita    & E & 1 & L \\ \hline
+	Preferenza & R & 1 & L \\ \hline
+	\rowcolor{rowc}
 	\textbf{Totale}: 4L - 5000 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
+\newpage
+
 \subsection*{Registrare la creazione di una nuova sessione di gioco}
 
+Questo comporta avere l'utente creatore, gli utenti partecipanti e il videogioco scelto e comporta anche aggiornare la creazione e la partecipazione da parte di un utente. Si suppone che in media avremo 5 partecipanti.
+Prima di registrare bisogna vedere il numero massimo e minimo di utenti.
+Questa query registra solo l'inizio di una sessione, quindi il tempo trascorso bisognerà metterlo in un secondo momento.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	\rowcolor[HTML]{abc3f5}
-	\textbf{Totale}: & & & \\
+	Sessione		         & E & 1 & S \\ \hline
+	Scelta		         & R & 2 & S \\ \hline
+	Videogioco multiplayer & E & 2 & L \\ \hline
+	Creazione              & R & 1 & S \\ \hline
+	Partecipazione         & R & 5 & S \\ \hline
+	Utente                 & E & 6 & L \\ \hline
+	\rowcolor{rowc}
+	\textbf{Totale}: - 50 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Registrare la partecipazione di un utente ad una sessione di gioco}
+\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	\rowcolor[HTML]{abc3f5}
-	\textbf{Totale}: & & & \\
+	Utente         & E & 1 & L \\ \hline
+	Partecipazione & R & 1 & L \\ \hline
+	Creazione      & R & 1 & L \\ \hline
+	Sessione       & E & 1 & L \\ \hline
+	Scelta		   & R & 1 & L \\ \hline
+	Videogioco     & E & 1 & L \\ \hline
+	\rowcolor{rowc}
+	\textbf{Totale}: 500 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato}
+\subsection*{Profitto mensile del servizio}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor[HTML]{abc3f5}
+	\rowcolor{rowc}
 	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	\rowcolor[HTML]{abc3f5}
-	\textbf{Totale}: & & & \\
+	Piano		& E & 1 & L \\ \hline
+	\rowcolor{rowc}
+	\textbf{Totale}: 500 al giorno & & & \\
 	\hline
 	\end{tabular}
 \end{center}
 \end{table}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% schema logico
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 \sect{Raffinamento dello schema}
 
@@ -488,7 +589,6 @@ Nel passaggio da schema ER a schema logico, sono state eliminate le seguenti rel
 \end{itemize}
 
 \end{itemize}
-
 
 \sect{Analisi delle ridondanze}
 
@@ -542,7 +642,7 @@ FK: ID sessione REFERENCES \textbf{Sessione}
 \sect{Costruzione delle tabelle in linguaggio SQL}
 
 \usemintedstyle{borland}
-\begin{minted}[framesep=10cm]{sql}
+\begin{lstlisting}
 
 create table Utente (
     id              int                 primary key auto_increment,
@@ -632,9 +732,135 @@ create table Partecipazione (
     unique(id_usr, id_session)
 );
 
-\end{minted}
+\end{lstlisting}
 
 \sect{Traduzione delle operazioni in query SQL}
+
+% used when user clicks on 'login as user' button
+\subsection*{Login e ricerca di un utente}
+\begin{lstlisting}
+select *
+from Utente u
+where u.nome = nome_utente and u.password = password
+\end{lstlisting}
+
+% Login e ricerca di un utente                                                          login button, or searching for user
+% Sottoscrivere un nuovo piano per un utente                                            create new plan button
+% Visualizzare i piani creati e cancellati da un utente admin side                      admin side
+% Registrare la cancellazione di un piano da parte di un utente                         delete plan button
+% Visualizzare i giochi disponibili nel catalogo                                        obvious
+% Visualizzare il numero di copie fisiche disponibili di un videogioco                  when clicking on a videogame
+% Registrare l'acquisto di una copia di un videogioco                                   buy copy button
+% Visualizzare il numero di ore di gioco giornaliero e totale di un utente              user profile
+% Visualizzare i giochi preferiti di un utente                                          user profile
+% Visualizzare i giochi più giocati e quelli più preferiti                              user/admin side
+% Registrare la creazione di una nuova sessione di gioco                                starting session (?)
+% Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco   user profile (or get rid of it)
+% Profitto mensile del servizio                                                         admin side
+
+\subsection*{Visualizzare i piani creati e cancellati da un utente}
+
+\verb id_utente corrisponde all'ID dell'utente di cui visualizzare i piani. La prima query restituisce i piani creati, la seconda i piani cancellati.
+
+\begin{lstlisting}
+select *
+from Piano p
+where p.id_usr = id_utente;
+\end{lstlisting}
+
+\begin{lstlisting}
+select *
+from Piano p, PianoCancellato pc
+where p.id_usr = id_utente
+and p.id = pc.id;
+\end{lstlisting}
+
+\subsection*{Sottoscrivere un nuovo piano per un utente}
+
+\begin{lstlisting}
+select *
+from Piano p
+where p.id_usr = id_utente
+and datediff(now(), p.data_fine) < 0
+and p.id not in (select pc.id
+                 from PianoCancellato pc);
+\end{lstlisting}
+
+Se la query restituisce un risultato vuoto, si può procedere all'inserimento:
+
+\begin{lstlisting}
+insert into Piano(id, id_usr, tipologia, data_acquisto, ora_acquisto, data_fine) values(?, ?, ?, ?);
+\end{lstlisting}
+
+\subsection*{Registrare la cancellazione di un piano da parte di un utente}
+
+Questa query è simile all'ultima: si cerca l'ID del piano corrente dell'utente, e se esiste, si aggiornano i piani cancellati.
+
+\begin{lstlisting}
+select id
+if exists in (select p.id
+              from Piano p
+              where p.id_usr = id_utente
+              where datediff(now(), p.data_fine) < 0
+              and p.id not in (select pc.id
+                               from PianoCancellato pc))
+
+insert into PianoCancellato values (id, now(), now())
+\end{lstlisting}
+
+\subsection*{Ricerca di un videogioco nel catalogo}
+
+\begin{lstlisting}
+% select titolo, genere, anno, azienda, produttore, prezzo
+% from Videogioco
+% order by titolo;
+\end{lstlisting}
+
+\subsection*{Visualizzare il numero di copie fisiche disponibili di un videogioco}
+
+\begin{lstlisting}
+select count(*)
+from CopiaVideogioco cv
+where cv.id_vg = id_videogioco;
+\end{lstlisting}
+
+\subsection*{Registrare l'acquisto di una copia di un videogioco}
+
+La query deve prendere l'ID di una qualsiasi copia che non sia stata acquistata. Per semplicità, prendiamo sempre l'ID minore.
+
+\begin{lstlisting}
+select min(cv.id) as id
+from CopiaVideogioco cv
+where cv.id_vg = id_videogioco
+and cv.id not in (select a.id from Acquisto);
+\end{lstlisting}
+
+\subsection*{Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
+
+\begin{lstlisting}
+select count(p.ore_gioco) as ore_totali
+from Partita p
+where p.id_usr = id_utente;
+
+select avg(p.ore_gioco) as ore_giornaliere
+from Partita p
+where p.id_usr = id_utente
+group by p.data;
+\end{lstlisting}
+
+\subsection*{Visualizzare i giochi preferiti di un utente}
+
+\begin{lstlisting}
+select vg.titolo as nome_videogioco
+from Videogioco vg, Preferenza p
+where vg.id = p.id_vg and u.id = p.id_usr
+and u.nome = nome_utente;
+\end{lstlisting}
+
+\subsection*{Visualizzare i giochi più giocati e quelli più preferiti}
+\subsection*{Registrare la creazione di una nuova sessione di gioco}
+\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
+\subsection*{Profitto mensile del servizio}
 
 \chap{Progettazione dell'applicazione}
 
