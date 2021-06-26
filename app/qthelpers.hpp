@@ -6,7 +6,7 @@
 #include <QHBoxLayout>
 #include <QGridLayout>
 #include <QFont>
-#include <type_traits>
+#include <QMessageBox>
 
 template <typename TLayout> void add(TLayout *lt, QWidget *w) { lt->addWidget(w); }
 template <typename TLayout> void add(TLayout *lt, QLayout *l) { lt->addLayout(l); }
@@ -33,6 +33,13 @@ inline QFont make_font(const QString &family, QFont::StyleHint hint)
     QFont font(family);
     font.setStyleHint(hint);
     return font;
+}
+
+inline void msgbox(const QString &msg)
+{
+    QMessageBox box;
+    box.setText(msg);
+    box.exec();
 }
 
 #endif
