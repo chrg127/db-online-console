@@ -1,20 +1,21 @@
-#include "window.hpp"
+#include "gui.hpp"
 
-#include <optional>
+#include <QDebug>
 #include <QAction>
+#include <QComboBox>
 #include <QGroupBox>
-#include <QPushButton>
+#include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QMenuBar>
 #include <QPixmap>
+#include <QPushButton>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QSqlError>
 #include <QSizePolicy>
 #include <QTextEdit>
 #include <QTableView>
-#include <fmt/core.h>
 #include "qthelpers.hpp"
 #include "sqlhighlighter.hpp"
 #include "database.hpp"
@@ -95,37 +96,40 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     image->setPixmap(QPixmap("logo.png"));
     image->setAlignment(Qt::AlignCenter);
 
-    name_box = new QLineEdit;
-    pass_box = new QLineEdit;
+    auto *name_box = new QLineEdit;
+    auto *surname_box = new QLineEdit;
+    auto *pass_box = new QLineEdit;
     pass_box->setEchoMode(QLineEdit::EchoMode::Password);
-    auto *login_box = new QGroupBox("Login");
-    login_box->setLayout(make_grid_layout(
-        std::tuple{ new QLabel("Username: "), 0, 0 },
-        std::tuple{ name_box,   0, 1 },
-        std::tuple{ new QLabel("Password: "), 1, 0 },
-        std::tuple{ pass_box,   1, 1 }
-    ));
-    login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 
     auto *admin_button = new QPushButton("Login as admin");
     auto *user_button = new QPushButton("Login as user");
-    connect(admin_button, &QPushButton::released, [mainwnd]() { mainwnd->show_screen(Window::Screen::ADMIN); });
-    connect(user_button, &QPushButton::released,  [this, mainwnd]()
+
+    auto validate = [=](auto &&validate_fn, Window::Screen screen)
     {
-        if (validate_user(name_box->text(), pass_box->text()))
-            mainwnd->show_screen(Window::Screen::USER);
+        auto name = name_box->text(), surname = surname_box->text(), password = pass_box->text();
+        if (validate_fn(name, surname, password))
+            mainwnd->show_screen(screen);
         else {
-            msgbox(QString("Couldn't find validate user %1 %2 Make sure you've typed the right username and password.")
-                   .arg(name_box->text())
-                   .arg(pass_box->text()));
+            msgbox(QString("Couldn't validate user %1 %2. Make sure you've typed the right username and password.")
+                   .arg(name).arg(surname));
         }
-    });
+    };
+
+    connect(admin_button, &QPushButton::released, [=](){ validate(db::validate_admin, Window::Screen::ADMIN); });
+    connect(user_button,  &QPushButton::released, [=](){ validate(db::validate_user,  Window::Screen::USER); });
 
 #ifdef _CATPRISM
     auto *prism_button = new QPushButton("View the cat prism");
     connect(prism_button, &QPushButton::released, [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
 #endif
 
+    auto *login_box = new QGroupBox("Login");
+    login_box->setLayout(make_form_layout(
+        std::tuple{ "Nome:",     name_box },
+        std::tuple{ "Cognome:",  surname_box },
+        std::tuple{ "Password:", pass_box }
+    ));
+    login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     auto *mainlt = make_layout<QVBoxLayout>(
         image, login_box,
         make_layout<QHBoxLayout>(admin_button, user_button)
@@ -137,42 +141,175 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
 UserScreen::UserScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
-    exit_button = new QPushButton("Exit");
+    auto *exit_button = new QPushButton("Esci");
+    auto *tabs = new QTabWidget;
+
+    tabs->insertTab(0, make_game_tab(), "Videogiochi");
+    tabs->insertTab(1, make_user_tab(), "Utenti");
+
     connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
-    setLayout(make_layout<QVBoxLayout>(new QLabel("duke"), exit_button));
+
+    setLayout(make_layout<QVBoxLayout>(tabs, exit_button));
 }
 
-template <typename T>
-std::optional<QString> run_query(T &model, const QString &query)
+QWidget *UserScreen::make_game_tab()
 {
-    model.setQuery(query);
-    QSqlError error = model.lastError();
-    if (!error.isValid())
-        return std::nullopt;
-    return QString("Error found while executing the query:\n%1\n%2")
-            .arg(error.driverText())
-            .arg(error.databaseText());
+    auto *searchbar = new QLineEdit;
+    auto *category = make_comboxbox(
+        std::tuple{"Titolo", QVariant("titolo")},
+        std::tuple{"Genere", QVariant("genere")},
+        std::tuple{"Azienda", QVariant("azienda")}
+    );
+    auto *table = make_table(&gametabmodel);
+    auto *searchbt = new QPushButton("Cerca");
+    auto *profile = new VideogameProfile;
+    auto *bestbt = new QPushButton("Giochi più popolari");
+    auto *most_player_bt = new QPushButton("Giochi più giocati");
+
+    table->verticalHeader()->hide();
+    profile->hide();
+
+    auto search_games = [=]()
+    {
+        db::search_games(
+            gametabmodel,
+            searchbar->text(),
+            category->currentData().toString()
+        );
+        table->hideColumn(0);
+        table->resizeColumnsToContents();
+    };
+
+    connect(searchbt, &QPushButton::released, search_games);
+    connect(searchbar, &QLineEdit::returnPressed, search_games);
+    connect(table, &QTableView::clicked, [=](const auto &i)
+    {
+        profile->set_info(db::get_game_info(i.siblingAtColumn(0).data().toInt()));
+        profile->show();
+    });
+    connect(bestbt,         &QPushButton::released, [=]() { db::best_games(gametabmodel); });
+    connect(most_player_bt, &QPushButton::released, [=]() { db::most_played_games(gametabmodel); });
+
+    auto *container = layout_widget(make_layout<QVBoxLayout>(
+        make_layout<QHBoxLayout>(searchbar, searchbt),
+        make_layout<QHBoxLayout>(new QLabel("Filtra per:"), category),
+        make_layout<QHBoxLayout>(bestbt, most_player_bt),
+        table
+    ));
+    container->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    container->setMinimumWidth(400);
+    auto *lt = make_layout<QHBoxLayout>(container, profile);
+    lt->setAlignment(container, Qt::AlignLeft);
+    return layout_widget(lt);
+}
+
+QWidget *UserScreen::make_user_tab()
+{
+    auto *searchbar = new QLineEdit;
+    auto *table = make_table(&usertabmodel);
+    auto *searchbt = new QPushButton("Cerca");
+    auto *profile = new UserProfile;
+
+    table->verticalHeader()->hide();
+    profile->hide();
+
+    auto search = [=]()
+    {
+        db::search_users(usertabmodel, searchbar->text());
+        table->hideColumn(0);
+        table->resizeColumnsToContents();
+    };
+    connect(searchbt, &QPushButton::released, search);
+    connect(searchbar, &QLineEdit::returnPressed, search);
+    connect(table, &QTableView::clicked, [=](const auto &i)
+    {
+        profile->set_info(db::get_user_info(i.row()));
+        profile->show();
+    });
+
+    auto *userlt = make_layout<QHBoxLayout>(
+        make_layout<QVBoxLayout>(
+            make_layout<QHBoxLayout>(searchbar, searchbt),
+            table
+        ),
+        profile
+    );
+    return layout_widget(userlt);
+}
+
+
+VideogameProfile::VideogameProfile(QWidget *parent)
+    : QWidget(parent)
+{
+    title = new QLabel;
+    genre = new QLabel;
+    year = new QLabel;
+    company = new QLabel;
+    director = new QLabel;
+    price = new QLabel;
+    auto *playbt = new QPushButton("Gioca");
+    auto *buybt = new QPushButton("Compra copia fisica");
+
+    setLayout(make_layout<QVBoxLayout>(
+        make_form_layout(
+            std::tuple{ "Titolo: ",                 title },
+            std::tuple{ "Genere: ",                 genre },
+            std::tuple{ "Anno: ",                   year },
+            std::tuple{ "Azienda: ",                company },
+            std::tuple{ "Direttore principale: ",   director },
+            std::tuple{ "Prezzo copia fisica: ",    price }
+        ),
+        make_layout<QHBoxLayout>(playbt, buybt)
+    ));
+}
+
+void VideogameProfile::set_info(const db::GameInfo &info)
+{
+#define SET(name) name->setText(info.name)
+    SET(title), SET(genre), SET(year), SET(company), SET(director);
+#undef SET
+    price->setText(QString::number(info.price));
+}
+
+UserProfile::UserProfile(QWidget *parent)
+    : QWidget(parent)
+{
+    name = new QLabel;
+    surname = new QLabel;
+    setLayout(make_grid_layout(
+        std::tuple{ new QLabel("Nome: "),       0, 0 },
+        std::tuple{ new QLabel("Cognome: "),    1, 0 },
+        std::tuple{ name,       0, 1 },
+        std::tuple{ surname,    1, 0 }
+    ));
+}
+
+void UserProfile::set_info(const db::UserInfo &info)
+{
+#define SET(name) name->setText(info.name)
+    SET(name); SET(surname);
+#undef SET
 }
 
 AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
-    result_tab = new QTableView(this);
-    result_tab->setModel(&result_model);
+    auto *result_tab   = make_table(&result_model);
+    auto *query_editor = new QTextEdit;
+    auto *highlighter  = new SQLHighlighter(query_editor->document());
+    auto *query_button = new QPushButton("Execute a query");
+    auto *exit_button  = new QPushButton("Exit");
 
-    query_editor = new QTextEdit(this);
-    highlighter  = new SQLHighlighter(query_editor->document());
+    // connect(result_tab, &QTableView::clicked, [](const auto &i){ qDebug() << i.siblingAtColumn(2).data(); });
+    // result_tab->verticalHeader()->hide();
     query_editor->setFont(make_font("Monospace", QFont::TypeWriter));
 
-    query_button = new QPushButton("Execute a query", this);
-    connect(query_button, &QPushButton::released, this, [this]()
+    connect(query_button, &QPushButton::released, this, [=]()
     {
-        auto errmsg = run_query(result_model, query_editor->toPlainText());
+        auto errmsg = db::run_query(result_model, query_editor->toPlainText());
         if (errmsg)
             msgbox(errmsg.value());
     });
-
-    exit_button = new QPushButton("Exit", this);
     connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
 
     setLayout(

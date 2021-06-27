@@ -4,9 +4,12 @@
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
+#include <QFormLayout>
 #include <QGridLayout>
 #include <QFont>
 #include <QMessageBox>
+#include <QTableView>
+#include <QComboBox>
 
 template <typename TLayout> void add(TLayout *lt, QWidget *w) { lt->addWidget(w); }
 template <typename TLayout> void add(TLayout *lt, QLayout *l) { lt->addLayout(l); }
@@ -28,6 +31,13 @@ inline QGridLayout *make_grid_layout(auto... widget_tuples)
     return lt;
 }
 
+inline QFormLayout *make_form_layout(auto... tuples)
+{
+    auto *lt = new QFormLayout;
+    (lt->addRow(std::get<0>(tuples), std::get<1>(tuples)), ...);
+    return lt;
+}
+
 inline QFont make_font(const QString &family, QFont::StyleHint hint)
 {
     QFont font(family);
@@ -40,6 +50,28 @@ inline void msgbox(const QString &msg)
     QMessageBox box;
     box.setText(msg);
     box.exec();
+}
+
+inline QWidget *layout_widget(QLayout *lt)
+{
+    auto *w = new QWidget;
+    w->setLayout(lt);
+    return w;
+}
+
+template <typename T>
+inline QTableView *make_table(T *model)
+{
+    auto *tab = new QTableView;
+    tab->setModel(model);
+    return tab;
+}
+
+QComboBox *make_comboxbox(auto... items)
+{
+    auto *box = new QComboBox;
+    (box->addItem(std::get<0>(items), std::get<1>(items)), ...);
+    return box;
 }
 
 #endif

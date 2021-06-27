@@ -4,7 +4,7 @@
 #include <QScreen>
 #include <QSurfaceFormat>
 #include "qthelpers.hpp"
-#include "window.hpp"
+#include "gui.hpp"
 #include "database.hpp"
 
 int main(int argc, char *argv[])
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     window.move(QGuiApplication::primaryScreen()->availableGeometry().center() - window.rect().center());
     window.show();
 
-    if (!connect_db("OnlineConsole")) {
+    if (!db::connect("OnlineConsole")) {
         msgbox("Couldn't connect to the database. Quitting.");
         return 1;
     }

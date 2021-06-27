@@ -4,6 +4,10 @@
 #include <QMainWindow>
 #include <QWidget>
 #include <QSqlQueryModel>
+#include <QTabWidget>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QTableView>
 
 class QPushButton;
 class QStackedWidget;
@@ -13,6 +17,10 @@ class QTableView;
 class QTextEdit;
 class SQLHighlighter;
 class GLWidget;
+namespace db {
+class GameInfo;
+class UserInfo;
+}
 
 class Window : public QMainWindow {
     Q_OBJECT
@@ -41,20 +49,37 @@ public:
 
 class UserScreen : public QWidget {
     Q_OBJECT
-    QPushButton *exit_button;
-    QLabel *label;
+    QSqlQueryModel gametabmodel, usertabmodel;
+    QWidget *make_game_tab();
+    QWidget *make_user_tab();
 public:
     UserScreen(Window *wnd, QWidget *parent = nullptr);
 };
 
+class VideogameProfile : public QWidget {
+    Q_OBJECT
+    QLabel *title, *genre, *year, *company, *director, *price;
+public:
+    VideogameProfile(QWidget *parent = nullptr);
+    void set_info(const db::GameInfo &info);
+};
+
+class UserProfile : public QWidget {
+    Q_OBJECT
+    QLabel *name, *surname;
+public:
+    UserProfile(QWidget *parent = nullptr);
+    void set_info(const db::UserInfo &info);
+};
+
 class AdminScreen : public QWidget {
     Q_OBJECT
-    QPushButton *query_button;
-    QPushButton *exit_button;
-    QTableView *result_tab;
+    // QPushButton *query_button;
+    // QPushButton *exit_button;
+    // QTableView *result_tab;
     QSqlQueryModel result_model;
-    QTextEdit *query_editor;
-    SQLHighlighter *highlighter;
+    // QTextEdit *query_editor;
+    // SQLHighlighter *highlighter;
 public:
     explicit AdminScreen(Window *wnd, QWidget *parent = nullptr);
 };
