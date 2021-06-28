@@ -3,6 +3,7 @@
 
 #include <optional>
 #include <utility>
+#include <QDate>
 #include <QString>
 #include <QSqlError>
 #include <QSqlQueryModel>
@@ -18,6 +19,36 @@ struct UserInfo {
     QString name, surname;
 };
 
+enum class PlanType {
+    GRATIS, MONTH, YEAR,
+};
+
+struct PlanInfo {
+    bool has_plan;
+    PlanType type;
+    QDate start, end;
+};
+
+inline PlanType int_to_plan(int x)
+{
+    switch (x) {
+    case 0: return PlanType::GRATIS;
+    case 1: return PlanType::MONTH;
+    case 2: return PlanType::YEAR;
+    default: return PlanType::GRATIS;
+    }
+}
+
+inline QString plan_to_string(PlanType type)
+{
+    switch (type) {
+    case PlanType::GRATIS: return "Gratis";
+    case PlanType::MONTH:  return "Mensile";
+    case PlanType::YEAR:   return "Annuale";
+    default:               return "error";
+    }
+}
+
 bool connect(const QString &table);
 
 std::optional<QString> run_query(QSqlQueryModel &model, const QString &query);
@@ -31,9 +62,12 @@ int validate_user(const QString &name, const QString &surname, const QString &pa
 int validate_admin(const QString &name, const QString &surname, const QString &password);
 GameInfo get_game_info(int id);
 UserInfo get_user_info(int id);
+PlanInfo get_curr_plan_info(int uid);
 std::pair<int, int> get_copy_info(int id);
 bool buy_game(int id, int uid);
+bool create_plan(int id, PlanType type);
 void cancel_plan(int id);
+bool add_favorite(int uid, int vid);
 
 } // namespace db
 

@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <QTableView>
 #include <QBoxLayout>
+#include <QDialog>
+#include <QGroupBox>
 
 class QPushButton;
 class QStackedWidget;
@@ -23,6 +25,7 @@ class GLWidget;
 namespace db {
 class GameInfo;
 class UserInfo;
+class PlanInfo;
 }
 
 class Window : public QMainWindow {
@@ -50,11 +53,13 @@ signals:
 
 class VideogameProfile;
 class UserProfile;
+class PlanProfile;
 
 class UserScreen : public QWidget {
     Q_OBJECT
     int uid, vid;
     UserProfile *user_profile;
+    PlanProfile *plan_profile;
     QTableView *plans, *favorites;
     QSqlQueryModel plans_model, fav_model;
     QWidget *make_game_tab();
@@ -64,11 +69,12 @@ public:
     UserScreen(Window *wnd, QWidget *parent = nullptr);
     int getuid() const { return uid; }
     int getvid() const { return vid; }
+    void update_favorites();
 public slots:
     void on_login(int id);
 };
 
-class VideogameProfile : public QWidget {
+class VideogameProfile : public QGroupBox {
     Q_OBJECT
     QLabel *title, *genre, *year, *company, *director, *price, *ncopies;
     int id;
@@ -77,7 +83,7 @@ public:
     void set_info(int id, const db::GameInfo &info);
 };
 
-class UserProfile : public QWidget {
+class UserProfile : public QGroupBox {
     Q_OBJECT
     QLabel *name, *surname;
 public:
@@ -85,7 +91,16 @@ public:
     void set_info(const db::UserInfo &info);
 };
 
-class Searcher : public QWidget {
+class PlanProfile : public QWidget {
+    Q_OBJECT
+    QLabel *type, *start, *end, *noplan;
+    QWidget *plan_form;
+public:
+    PlanProfile(QWidget *parent = nullptr);
+    void set_info(const db::PlanInfo &info);
+};
+
+class Searcher : public QGroupBox {
     Q_OBJECT
 public:
     QLineEdit *bar;
@@ -94,7 +109,7 @@ public:
     QTableView *table;
     QBoxLayout *lt;
 
-    Searcher(QWidget *parent = nullptr);
+    Searcher(const QString &title, QWidget *parent = nullptr);
     void insert(int i, QLayout *lt) { this->lt->insertLayout(i, lt); }
     void after_search() { table->hideColumn(0); table->resizeColumnsToContents(); }
     void on_search(auto &&fn)

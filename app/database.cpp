@@ -81,7 +81,7 @@ and p.id not in (select pc.id
 )";
 
 static const QString get_fav_query = R"(
-select vg.titolo as nome_videogioco
+select vg.id, vg.titolo as Titolo
 from Videogioco vg, Preferenza p
 where vg.id = p.id_vg and p.id_usr = %1
 )";
@@ -168,6 +168,11 @@ UserInfo get_user_info(int id)
     };
 }
 
+PlanInfo get_curr_plan_info(int uid)
+{
+    return { .has_plan = true, .type = PlanType::YEAR, .start = QDate::currentDate(), .end = QDate::currentDate() };
+}
+
 std::pair<int, int> get_copy_info(int id)
 {
     QSqlQuery query(find_copy_query.arg(id));
@@ -184,6 +189,21 @@ bool buy_game(int id, int uid)
     qDebug() << s;
     // QSqlQuery buy_query(s);
     return true;
+}
+
+bool create_plan(int id, PlanType type)
+{
+
+}
+
+void cancel_plan(int id)
+{
+
+}
+
+bool add_favorite(int uid, int vid)
+{
+    return false;
 }
 
 } // namespace db
