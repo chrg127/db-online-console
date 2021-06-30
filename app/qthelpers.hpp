@@ -13,6 +13,7 @@
 #include <QComboBox>
 #include <QTabWidget>
 #include <QGroupBox>
+#include <QLabel>
 
 template <typename TLayout> void add(TLayout *lt, QWidget *w) { lt->addWidget(w); }
 template <typename TLayout> void add(TLayout *lt, QLayout *l) { lt->addLayout(l); }
@@ -71,16 +72,16 @@ inline QTableView *make_table(T *model)
     return tab;
 }
 
-QComboBox *make_comboxbox(auto... items)
+QComboBox *make_comboxbox(QWidget *parent, auto... items)
 {
-    auto *box = new QComboBox;
+    auto *box = new QComboBox(parent);
     (box->addItem(std::get<0>(items), std::get<1>(items)), ...);
     return box;
 }
 
-QTabWidget *make_tabs(auto... items)
+QTabWidget *make_tabs(QWidget *parent, auto... items)
 {
-    auto *tabs = new QTabWidget;
+    auto *tabs = new QTabWidget(parent);
     (tabs->addTab(std::get<0>(items), std::get<1>(items)), ...);
     return tabs;
 }
@@ -94,6 +95,13 @@ void add_to_group(QGroupBox *box, auto... widgets)
 void set_enabled(bool v, auto... widgets)
 {
     (widgets->setEnabled(v), ...);
+}
+
+inline QLabel *make_image_label(const QString &path, QWidget *parent = nullptr)
+{
+    QLabel *im = new QLabel(parent);
+    im->setPixmap(QPixmap(path));
+    return im;
 }
 
 #endif

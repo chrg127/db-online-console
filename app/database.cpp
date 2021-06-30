@@ -86,7 +86,6 @@ from Videogioco vg, Preferenza p
 where vg.id = p.id_vg and p.id_usr = %1
 )";
 
-
 namespace db {
 
 bool connect(const QString &table)
@@ -165,6 +164,10 @@ UserInfo get_user_info(int id)
     return {
         .name    = query.value(1).toString(),
         .surname = query.value(2).toString(),
+        .daily_hours = 0,
+        .total_hours = 0,
+        .session_part = 0,
+        .session_create = 0,
     };
 }
 
@@ -206,6 +209,17 @@ bool cancel_plan(int uid)
 bool add_favorite(int uid, int vid)
 {
     return false;
+}
+
+std::optional<QString> create_session(int vid, int uid, const std::vector<int> &uids, QDate date, int time)
+{
+    qDebug() << vid;
+    qDebug() << "creatore:" << uid;
+    for (auto x : uids)
+        qDebug() << "partecipatore:" << x;
+    qDebug() << date;
+    qDebug() << time;
+    return std::nullopt;
 }
 
 } // namespace db

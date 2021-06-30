@@ -79,17 +79,20 @@ class PlanProfile;
 
 class UserScreen : public QWidget {
     Q_OBJECT
-    int uid, vid;
+    int uid, vid, svid;
     UserProfile *user_profile;
     PlanProfile *plan_profile;
     DBTable *favorites;
-    DBTable *most_played;
     QTabWidget *tabs;
     QGroupBox *create_plan_group, *curr_plan_group;
+    QListWidget *session_users;
+    std::vector<int> session_users_ids;
 
-    QWidget *make_game_tab();
-    QWidget *make_user_tab();
     QWidget *make_profile_tab();
+    QWidget *make_game_tab();
+    QWidget *make_users_tab();
+    QWidget *make_session_tab();
+
 public:
     UserScreen(Window *wnd, QWidget *parent = nullptr);
     int getuid() const { return uid; }
@@ -99,7 +102,7 @@ public slots:
     void on_login(int id);
 };
 
-class VideogameProfile : public QWidget {
+class VideogameProfile : public QGroupBox {
     Q_OBJECT
     QLabel *title, *genre, *year, *company, *director, *price, *ncopies;
     QBoxLayout *lt;
@@ -111,9 +114,9 @@ public:
     void insert(int i, QLayout *lt) { this->lt->insertLayout(i, lt); }
 };
 
-class UserProfile : public QWidget {
+class UserProfile : public QGroupBox {
     Q_OBJECT
-    QLabel *name, *surname, *daily_hours, *total_hours, *sessions_part, *session_create;
+    QLabel *name, *surname, *daily_hours, *total_hours, *session_part, *session_create;
 public:
     UserProfile(QWidget *parent = nullptr);
     void set_info(const db::UserInfo &info);

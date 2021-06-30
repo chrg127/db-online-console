@@ -1,6 +1,7 @@
 #ifndef DATABASE_HPP_INCLUDED
 #define DATABASE_HPP_INCLUDED
 
+#include <vector>
 #include <optional>
 #include <utility>
 #include <QDate>
@@ -17,6 +18,7 @@ struct GameInfo {
 
 struct UserInfo {
     QString name, surname;
+    int daily_hours, total_hours, session_part, session_create;
 };
 
 enum class PlanType {
@@ -68,6 +70,7 @@ bool buy_game(int id, int uid);
 bool create_plan(int uid, PlanType type);
 bool cancel_plan(int uid);
 bool add_favorite(int uid, int vid);
+std::optional<QString> create_session(int vid, int uid, const std::vector<int> &uids, QDate date, int time);
 
 } // namespace db
 
