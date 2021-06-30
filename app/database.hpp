@@ -65,8 +65,8 @@ UserInfo get_user_info(int id);
 PlanInfo get_curr_plan_info(int uid);
 std::pair<int, int> get_copy_info(int id);
 bool buy_game(int id, int uid);
-bool create_plan(int id, PlanType type);
-void cancel_plan(int id);
+bool create_plan(int uid, PlanType type);
+bool cancel_plan(int uid);
 bool add_favorite(int uid, int vid);
 
 } // namespace db

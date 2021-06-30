@@ -28,17 +28,16 @@
 Window::Window(QWidget *parent)
     : QMainWindow(parent)
 {
-    setWindowTitle(QStringLiteral("Database project"));
     auto *status_label = new QLabel(this);
-    statusBar()->addPermanentWidget(status_label);
-    statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
     auto *center = new QWidget(this);
-    center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
-    setCentralWidget(center);
-
     auto *loginscreen = new LoginScreen(this, center);
     auto *userscreen = new UserScreen(this, center);
-    connect(loginscreen, &LoginScreen::logged, userscreen, &UserScreen::on_login);
+
+    setWindowTitle(QStringLiteral("Database project"));
+    statusBar()->addPermanentWidget(status_label);
+    statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
+    center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
+    setCentralWidget(center);
 
     stack_widget = make_layout<QStackedWidget>(
         loginscreen,
@@ -53,22 +52,9 @@ Window::Window(QWidget *parent)
         stack_widget
     );
     center->setLayout(lt);
-}
 
-// void Window::create_menu()
-// {
-    // enum MenuIndex { MENU_FILE, MENU_COUNT, };
-    // QMenu *menus[MENU_COUNT];
-    // const auto add_item = [&, this](MenuIndex idx, const QString &text, bool enable, auto &&func)
-    // {
-    //     auto *act = new QAction(text, this);
-    //     connect(act, &QAction::triggered, this, func);
-    //     menus[idx]->addAction(act);
-    //     act->setEnabled(enable);
-    // };
-    // menus[MENU_FILE] = menuBar()->addMenu("&File");
-    // add_item(MENU_FILE, "&Open", true, []() { fmt::print("dinosauri\n"); });
-// }
+    connect(loginscreen, &LoginScreen::logged, userscreen, &UserScreen::on_login);
+}
 
 void Window::show_screen(Screen screen)
 {
@@ -97,22 +83,6 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     auto *admin_button = new QPushButton("Login as admin");
     auto *user_button = new QPushButton("Login as user");
 
-    auto validate = [=](auto &&validate_fn, Window::Screen screen)
-    {
-        auto name = name_box->text(), surname = surname_box->text(), password = pass_box->text();
-        if (int id = validate_fn(name, surname, password); id != -1) {
-            // set_user_id(id);
-            mainwnd->show_screen(screen);
-            emit logged(id);
-        } else {
-            msgbox(QString("Couldn't validate user %1 %2. Make sure you've typed the right username and password.")
-                   .arg(name).arg(surname));
-        }
-    };
-
-    connect(admin_button, &QPushButton::released, [=](){ validate(db::validate_admin, Window::Screen::ADMIN); });
-    connect(user_button,  &QPushButton::released, [=](){ validate(db::validate_user,  Window::Screen::USER); });
-
 #ifdef _CATPRISM
     auto *prism_button = new QPushButton("View the cat prism");
     connect(prism_button, &QPushButton::released, [mainwnd]() { mainwnd->show_screen(Window::Screen::CATPRISM); });
@@ -131,21 +101,97 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     );
     mainlt->setContentsMargins(100, 10, 100, 10);
     this->setLayout(mainlt);
+
+    auto validate = [=](auto &&validate_fn, Window::Screen screen)
+    {
+        auto name = name_box->text(), surname = surname_box->text(), password = pass_box->text();
+        if (int id = validate_fn(name, surname, password); id != -1) {
+            // set_user_id(id);
+            mainwnd->show_screen(screen);
+            emit logged(id);
+        } else {
+            msgbox(QString("Couldn't validate user %1 %2. Make sure you've typed the right username and password.")
+                   .arg(name).arg(surname));
+        }
+    };
+
+    connect(admin_button, &QPushButton::released, [=](){ validate(db::validate_admin, Window::Screen::ADMIN); });
+    connect(user_button,  &QPushButton::released, [=](){ validate(db::validate_user,  Window::Screen::USER); });
 }
 
 UserScreen::UserScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
-    auto *exit_button = new QPushButton("Esci");
-    auto *tabs = make_tabs(
+    uid = 1;
+    vid = 1;
+    user_profile = new UserProfile;
+    plan_profile = new PlanProfile;
+    favorites = new DBTable;
+    most_played = new DBTable;
+    create_plan_group = new QGroupBox("Crea nuovo piano");
+    curr_plan_group = new QGroupBox("Piano corrente");
+
+    tabs = make_tabs(
         std::tuple{make_profile_tab(), "Il mio profilo"},
         std::tuple{make_game_tab(), "Videogiochi"},
         std::tuple{make_user_tab(), "Utenti"}
     );
+    auto *exit_button = new QPushButton("Esci");
+
     auto *lt = make_layout<QVBoxLayout>(tabs, exit_button);
     lt->setAlignment(exit_button, Qt::AlignLeft);
     setLayout(lt);
+
     connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
+}
+
+QWidget *UserScreen::make_profile_tab()
+{
+    create_plan_group = new QGroupBox("Crea nuovo piano");
+    curr_plan_group   = new QGroupBox("Piano corrente");
+    auto *box = make_comboxbox(
+        std::tuple{"Mensile", QVariant(1)},
+        std::tuple{"Annuale", QVariant(2)}
+    );
+    auto *enddate = new QLabel;
+    auto *createbt = new QPushButton("Crea piano");
+    auto *cancelbt = new QPushButton("Cancella piano corrente");
+
+    auto set_enddate = [=](int index)
+    {
+        auto date = QDate::currentDate();
+        date = index == 0 ? date.addMonths(1) : date.addYears(1);
+        enddate->setText(date.toString());
+    };
+    set_enddate(box->currentIndex());
+
+    add_to_group(create_plan_group,
+        box,
+        make_layout<QHBoxLayout>(new QLabel("Data di fine:"), enddate),
+        createbt
+    );
+    add_to_group(curr_plan_group, plan_profile, cancelbt);
+    auto *lt = make_layout<QHBoxLayout>(user_profile, create_plan_group, curr_plan_group);
+
+    connect(createbt, &QPushButton::released, [=]()
+    {
+        if (db::create_plan(uid, db::int_to_plan(box->currentData().toInt()))) {
+            msgbox("Piano creato con successo.");
+            this->on_plan_changed(/* created = */ true);
+        } else
+            msgbox("Hai già un piano in corso!");
+    });
+    connect(box, QOverload<int>::of(&QComboBox::currentIndexChanged), set_enddate);
+    connect(cancelbt, &QPushButton::released, [=]()
+    {
+        if (db::cancel_plan(uid)) {
+            msgbox("Piano cancellato con successo.");
+            this->on_plan_changed(/* created = */ false);
+        } else
+            msgbox("Non hai nessuno piano in corso!");
+    });
+
+    return layout_widget(lt);
 }
 
 QWidget *UserScreen::make_game_tab()
@@ -160,36 +206,56 @@ QWidget *UserScreen::make_game_tab()
     auto *bestbt = new QPushButton("Giochi più popolari");
     auto *most_player_bt = new QPushButton("Giochi più giocati");
     auto *profile = new VideogameProfile(this);
-    favorites = make_table(&fav_model);
+    auto *playbt = new QPushButton("Gioca");
+    auto *buybt = new QPushButton("Compra copia fisica");
+    auto *favbt = new QPushButton("Metti tra i preferiti");
 
     profile->hide();
-    searcher->setMinimumWidth(450);
+    searcher->setMinimumWidth(400);
     searcher->insert(1, make_form_layout(std::tuple{"Filtra per:", category}));
     searcher->insert(2, make_layout<QHBoxLayout>(bestbt, most_player_bt));
-    fav_group->setLayout(make_layout<QVBoxLayout>(favorites));
+    add_to_group(fav_group, favorites, most_played);
+    playbt->setEnabled(false);
+    profile->insert(1, make_layout<QHBoxLayout>(playbt, buybt));
+    profile->insert(2, make_layout<QVBoxLayout>(favbt));
+
     auto *lt = make_layout<QHBoxLayout>(searcher, fav_group, profile);
     lt->setAlignment(searcher, Qt::AlignLeft);
 
     auto tabclick = [=](const auto &i)
     {
-        int id = i.siblingAtColumn(0).data().toInt();
-        profile->set_info(id, db::get_game_info(id));
+        vid = i.siblingAtColumn(0).data().toInt();
+        profile->set_info(db::get_game_info(vid));
         profile->show();
     };
 
     searcher->on_search([=]()
     {
-        db::search_games(
-            searcher->model,
+        searcher->table->fill(
+            db::search_games,
             searcher->bar->text(),
             category->currentData().toString()
         );
-        searcher->after_search();
     });
     searcher->on_tab_click(tabclick);
-    connect(favorites, &QTableView::clicked, tabclick);
-    connect(bestbt,         &QPushButton::released, [=]() { db::best_games(searcher->model); searcher->after_search(); });
-    connect(most_player_bt, &QPushButton::released, [=]() { db::most_played_games(searcher->model); searcher->after_search(); });
+    connect(favorites,      &QTableView::clicked, tabclick);
+    connect(bestbt,         &QPushButton::released, [=]() { searcher->table->fill(db::best_games); });
+    connect(most_player_bt, &QPushButton::released, [=]() { searcher->table->fill(db::most_played_games); });
+    connect(buybt, &QPushButton::released, [=]()
+    {
+        if (db::buy_game(vid, uid)) {
+            msgbox("Il gioco è stato comprato.");
+            profile->update_copies(vid);
+        } else
+            msgbox("Questo gioco non ha più copie fisiche disponibili.");
+    });
+    connect(favbt, &QPushButton::released, [this]()
+    {
+        if (db::add_favorite(uid, vid))
+            favorites->fill(db::get_favorites, uid);
+        else
+            msgbox("Questo gioco è già tra i tuoi preferiti!");
+    });
 
     return layout_widget(lt);
 }
@@ -198,80 +264,38 @@ QWidget *UserScreen::make_user_tab()
 {
     auto *searcher = new Searcher("Cerca utenti");
     auto *profile = new UserProfile;
+    auto *fav_group = new QGroupBox("Giochi preferiti");
+    auto *fav = new DBTable;
+    auto *mostplayed = new DBTable;
+
     profile->hide();
+    fav_group->hide();
     searcher->setMinimumWidth(200);
-    auto *lt = make_layout<QHBoxLayout>(searcher, profile);
+    add_to_group(fav_group, fav, mostplayed);
+    auto *lt = make_layout<QHBoxLayout>(searcher, profile, fav_group);
     lt->setAlignment(searcher, Qt::AlignLeft);
 
-    searcher->on_search([=]()
-    {
-        db::search_users(searcher->model, searcher->bar->text());
-        searcher->after_search();
-    });
+    searcher->on_search([=]() { searcher->table->fill(db::search_users, searcher->bar->text()); });
     searcher->on_tab_click([=](const auto &i)
     {
-        profile->set_info(db::get_user_info(i.siblingAtColumn(0).data().toInt()));
+        int id = i.siblingAtColumn(0).data().toInt();
+        profile->set_info(db::get_user_info(id));
         profile->show();
+        fav->fill(db::get_favorites, id);
+        fav_group->show();
     });
 
     return layout_widget(lt);
 }
 
-QWidget *UserScreen::make_profile_tab()
+void UserScreen::on_plan_changed(bool created)
 {
-    auto *create_group = new QGroupBox("Crea nuovo piano");
-    auto *curr_group   = new QGroupBox("Piano corrente");
-
-    user_profile = new UserProfile;
-    plan_profile = new PlanProfile;
-
-    auto *box = make_comboxbox(
-        std::tuple{"Mensile", QVariant(1)},
-        std::tuple{"Annuale", QVariant(2)}
-    );
-    auto *enddate = new QLabel;
-    auto *createbt = new QPushButton("Crea piano");
-    auto *cancelbt = new QPushButton("Cancella piano corrente");
-
-    auto set_enddate = [=](int index)
-    {
-        auto date = QDate::currentDate();
-        if (index == 0)
-            date = date.addMonths(1);
-        else
-            date = date.addYears(1);
-        enddate->setText(date.toString());
-    };
-    set_enddate(box->currentIndex());
-
-    create_group->setLayout(make_layout<QVBoxLayout>(
-        box,
-        make_layout<QHBoxLayout>(new QLabel("Data di fine:"), enddate),
-        createbt
-    ));
-    curr_group->setLayout(make_layout<QVBoxLayout>(
-        plan_profile,
-        cancelbt
-    ));
-    auto *lt = make_layout<QHBoxLayout>(user_profile, create_group, curr_group);
-
-    connect(createbt, &QPushButton::released, [=]()
-    {
-        if (db::create_plan(uid, db::int_to_plan(box->currentData().toInt())))
-            msgbox("Piano creato con successo.");
-        else
-            msgbox("Hai già un piano in corso!");
-    });
-    connect(box, QOverload<int>::of(&QComboBox::currentIndexChanged), set_enddate);
-
-    return layout_widget(lt);
-}
-
-void UserScreen::update_favorites()
-{
-    db::get_favorites(fav_model, uid);
-    favorites->hideColumn(0);
-    favorites->resizeColumnsToContents();
+    set_enabled(created, tabs->widget(1), tabs->widget(2), curr_plan_group);
+    // tabs->widget(1)->setEnabled(created);
+    // tabs->widget(2)->setEnabled(created);
+    create_plan_group->setEnabled(!created);
+    // curr_plan_group->setEnabled(created);
+    favorites->fill(db::get_favorites, uid);
 }
 
 void UserScreen::on_login(int id)
@@ -280,12 +304,14 @@ void UserScreen::on_login(int id)
         return;
     uid = id;
     user_profile->set_info(db::get_user_info(uid));
-    plan_profile->set_info(db::get_curr_plan_info(uid));
-    update_favorites();
+    auto p_info = db::get_curr_plan_info(uid);
+    plan_profile->set_info(p_info);
+    on_plan_changed(p_info.has_plan);
+    favorites->fill(db::get_favorites, uid);
 }
 
 VideogameProfile::VideogameProfile(UserScreen *parent)
-    : QGroupBox("Profilo gioco", parent)
+    : QWidget(parent)//QGroupBox("Profilo gioco", parent)
 {
     title = new QLabel;
     genre = new QLabel;
@@ -294,12 +320,7 @@ VideogameProfile::VideogameProfile(UserScreen *parent)
     director = new QLabel;
     price = new QLabel;
     ncopies = new QLabel;
-    auto *playbt = new QPushButton("Gioca");
-    auto *buybt = new QPushButton("Compra copia fisica");
-    auto *favbt = new QPushButton("Metti tra i preferiti");
-
-    playbt->setEnabled(false);
-    setLayout(make_layout<QVBoxLayout>(
+    lt = make_layout<QVBoxLayout>(
         make_form_layout(
             std::tuple{ "Titolo: ",                 title },
             std::tuple{ "Genere: ",                 genre },
@@ -308,32 +329,18 @@ VideogameProfile::VideogameProfile(UserScreen *parent)
             std::tuple{ "Direttore principale: ",   director },
             std::tuple{ "Prezzo copia fisica: ",    price },
             std::tuple{ "Numero copie disponibili:", ncopies }
-        ),
-        make_layout<QHBoxLayout>(playbt, buybt),
-        favbt
-    ));
-
-    connect(buybt, &QPushButton::released, [this, parent]()
-    {
-        if (db::buy_game(parent->getvid(), parent->getuid())) {
-            msgbox("Il gioco è stato comprato.");
-            ncopies->setText(QString::number(db::get_copy_info(id).second));
-        } else
-            msgbox("Questo gioco non ha più copie fisiche disponibili.");
-    });
-    connect(favbt, &QPushButton::released, [this, parent]()
-    {
-        qDebug() << "hello";
-        if (db::add_favorite(parent->getuid(), parent->getvid()))
-            parent->update_favorites();
-        else
-            msgbox("Questo gioco è già tra i tuoi preferiti!");
-    });
+        )
+    );
+    setLayout(lt);
 }
 
-void VideogameProfile::set_info(int id, const db::GameInfo &info)
+void VideogameProfile::update_copies(int id)
 {
-    this->id = id;
+    ncopies->setText(QString::number(db::get_copy_info(id).second));
+}
+
+void VideogameProfile::set_info(const db::GameInfo &info)
+{
 #define SET(name) name->setText(info.name)
     SET(title), SET(genre), SET(year), SET(company), SET(director);
 #undef SET
@@ -342,10 +349,11 @@ void VideogameProfile::set_info(int id, const db::GameInfo &info)
 }
 
 UserProfile::UserProfile(QWidget *parent)
-    : QGroupBox("Profilo utente", parent)
+    : QWidget(parent)//QGroupBox("Profilo giocatore", parent)
 {
     name = new QLabel;
     surname = new QLabel;
+    setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     setLayout(make_form_layout(
         std::tuple{ new QLabel("Nome: "),    name },
         std::tuple{ new QLabel("Cognome: "), surname }
@@ -366,8 +374,9 @@ Searcher::Searcher(const QString &title, QWidget *parent)
     setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
     bar = new QLineEdit;
     bt = new QPushButton("Cerca");
-    table = make_table(&model);
+    table = new DBTable;
     table->verticalHeader()->hide();
+    table->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     lt = make_layout<QVBoxLayout>(
         make_layout<QHBoxLayout>(bar, bt),
         table
@@ -443,4 +452,5 @@ CatPrismScreen::CatPrismScreen(QWidget *parent)
     lt->addWidget(glwidget);
 }
 #endif
+
 

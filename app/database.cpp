@@ -131,7 +131,7 @@ void get_favorites(QSqlQueryModel &tofill, int uid) { RUNQUERY(tofill, get_fav_q
 
 int validate_user(const QString &name, const QString &surname, const QString &password)
 {
-    return 1;
+    return 2;
     // QSqlQuery query(login_query.arg(name).arg(surname).arg(password));
     // if (query.size() == 0)
     //     return -1;
@@ -170,7 +170,7 @@ UserInfo get_user_info(int id)
 
 PlanInfo get_curr_plan_info(int uid)
 {
-    return { .has_plan = true, .type = PlanType::YEAR, .start = QDate::currentDate(), .end = QDate::currentDate() };
+    return { .has_plan = false, .type = PlanType::YEAR, .start = QDate::currentDate(), .end = QDate::currentDate() };
 }
 
 std::pair<int, int> get_copy_info(int id)
@@ -191,14 +191,16 @@ bool buy_game(int id, int uid)
     return true;
 }
 
-bool create_plan(int id, PlanType type)
+bool create_plan(int uid, PlanType type)
 {
-
+    qDebug() << uid;
+    return true;
 }
 
-void cancel_plan(int id)
+bool cancel_plan(int uid)
 {
-
+    qDebug() << uid;
+    return true;
 }
 
 bool add_favorite(int uid, int vid)

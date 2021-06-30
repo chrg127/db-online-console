@@ -11,6 +11,7 @@
 #include <QBoxLayout>
 #include <QDialog>
 #include <QGroupBox>
+#include <QHeaderView>
 
 class QPushButton;
 class QStackedWidget;
@@ -51,6 +52,27 @@ signals:
     void logged(int id);
 };
 
+class DBTable : public QTableView {
+    Q_OBJECT
+    QSqlQueryModel m_model;
+public:
+    DBTable(QWidget *parent = nullptr)
+        : QTableView(parent)
+    {
+        setModel(&m_model);
+    }
+
+    void on_click(auto &&fn) { connect(this, &QTableView::clicked, fn); }
+    // QSqlQueryModel & model() const { return m_model; }
+    void fill(auto &&fn, auto&&... args)
+    {
+        std::invoke(fn, m_model, std::forward<decltype(args)>(args)...);
+        hideColumn(0);
+        resizeColumnsToContents();
+        horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    }
+};
+
 class VideogameProfile;
 class UserProfile;
 class PlanProfile;
@@ -60,8 +82,11 @@ class UserScreen : public QWidget {
     int uid, vid;
     UserProfile *user_profile;
     PlanProfile *plan_profile;
-    QTableView *plans, *favorites;
-    QSqlQueryModel plans_model, fav_model;
+    DBTable *favorites;
+    DBTable *most_played;
+    QTabWidget *tabs;
+    QGroupBox *create_plan_group, *curr_plan_group;
+
     QWidget *make_game_tab();
     QWidget *make_user_tab();
     QWidget *make_profile_tab();
@@ -69,23 +94,26 @@ public:
     UserScreen(Window *wnd, QWidget *parent = nullptr);
     int getuid() const { return uid; }
     int getvid() const { return vid; }
-    void update_favorites();
+    void on_plan_changed(bool created);
 public slots:
     void on_login(int id);
 };
 
-class VideogameProfile : public QGroupBox {
+class VideogameProfile : public QWidget {
     Q_OBJECT
     QLabel *title, *genre, *year, *company, *director, *price, *ncopies;
+    QBoxLayout *lt;
     int id;
 public:
     VideogameProfile(UserScreen *parent = nullptr);
-    void set_info(int id, const db::GameInfo &info);
+    void set_info(const db::GameInfo &info);
+    void update_copies(int id);
+    void insert(int i, QLayout *lt) { this->lt->insertLayout(i, lt); }
 };
 
-class UserProfile : public QGroupBox {
+class UserProfile : public QWidget {
     Q_OBJECT
-    QLabel *name, *surname;
+    QLabel *name, *surname, *daily_hours, *total_hours, *sessions_part, *session_create;
 public:
     UserProfile(QWidget *parent = nullptr);
     void set_info(const db::UserInfo &info);
@@ -105,13 +133,11 @@ class Searcher : public QGroupBox {
 public:
     QLineEdit *bar;
     QPushButton *bt;
-    QSqlQueryModel model;
-    QTableView *table;
+    DBTable *table;
     QBoxLayout *lt;
 
     Searcher(const QString &title, QWidget *parent = nullptr);
     void insert(int i, QLayout *lt) { this->lt->insertLayout(i, lt); }
-    void after_search() { table->hideColumn(0); table->resizeColumnsToContents(); }
     void on_search(auto &&fn)
     {
         connect(bt, &QPushButton::released, fn);
@@ -138,5 +164,6 @@ public:
     explicit CatPrismScreen(QWidget *parent = nullptr);
 };
 #endif
+
 
 #endif

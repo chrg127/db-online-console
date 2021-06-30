@@ -1,6 +1,7 @@
 #ifndef QTHELPERS_HPP_INCLUDED
 #define QTHELPERS_HPP_INCLUDED
 
+#include <utility>
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -11,6 +12,7 @@
 #include <QTableView>
 #include <QComboBox>
 #include <QTabWidget>
+#include <QGroupBox>
 
 template <typename TLayout> void add(TLayout *lt, QWidget *w) { lt->addWidget(w); }
 template <typename TLayout> void add(TLayout *lt, QLayout *l) { lt->addLayout(l); }
@@ -81,6 +83,17 @@ QTabWidget *make_tabs(auto... items)
     auto *tabs = new QTabWidget;
     (tabs->addTab(std::get<0>(items), std::get<1>(items)), ...);
     return tabs;
+}
+
+template <typename TLayout = QVBoxLayout>
+void add_to_group(QGroupBox *box, auto... widgets)
+{
+    box->setLayout(make_layout<TLayout>(widgets...));
+}
+
+void set_enabled(bool v, auto... widgets)
+{
+    (widgets->setEnabled(v), ...);
 }
 
 #endif
