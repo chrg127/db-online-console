@@ -296,7 +296,8 @@ QWidget *UserScreen::make_session_tab()
 
     add_to_group(session_group,
         session_users,
-        make_layout<QHBoxLayout>(new QLabel("Gioco scelto:"), game_chosen),
+        make_form_layout(std::tuple{"Gioco scelto", game_chosen}),
+        // make_layout<QHBoxLayout>(new QLabel("Gioco scelto:"), game_chosen),
         make_layout<QHBoxLayout>(create, remove)
     );
     auto *lt = make_layout<QHBoxLayout>(
@@ -334,7 +335,6 @@ QWidget *UserScreen::make_session_tab()
             svid,
             session_users_ids[0],
             session_users_ids,
-            QDate::currentDate(),
             QRandomGenerator::global()->bounded(1, 6)
         );
         if (err)
