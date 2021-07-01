@@ -1,4 +1,4 @@
-Makefile*
+app/Makefile*
 debug
 release
 pdf
@@ -11,3 +11,5 @@ relazione/*.pdf
 relazione/*.toc
 .qmake.stash
 _minted*
+generate.sql
+tmp.sql
