@@ -27,7 +27,6 @@ enum class PlanType {
 };
 
 struct PlanInfo {
-    bool has_plan;
     int id;
     PlanType type;
     QDate start, end;
@@ -78,9 +77,9 @@ std::optional<QString> run_query(QSqlQueryModel &model, const QString &query);
 int validate_user(const QString &name, const QString &surname, const QString &password);
 int validate_admin(const QString &name, const QString &surname, const QString &password);
 
-PlanInfo get_curr_plan_info(int uid);
+std::optional<PlanInfo> get_curr_plan_info(int uid);
 bool create_plan(int uid, PlanType type);
-bool cancel_plan(int uid);
+bool cancel_plan(int planid);
 
 void search_games(QSqlQueryModel &tofill, const QString &search_text, const QString &category);
 GameInfo get_game_info(int vid);

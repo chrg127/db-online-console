@@ -1,6 +1,7 @@
 #ifndef WINDOW_HPP_INCLUDED
 #define WINDOW_HPP_INCLUDED
 
+#include <optional>
 #include <QMainWindow>
 #include <QWidget>
 #include <QSqlQueryModel>
@@ -124,11 +125,13 @@ public:
 
 class PlanProfile : public QWidget {
     Q_OBJECT
+    int id = -1;
     QLabel *type, *start, *end, *noplan;
     QWidget *plan_form;
 public:
     PlanProfile(QWidget *parent = nullptr);
-    void set_info(const db::PlanInfo &info);
+    void set_info(const std::optional<db::PlanInfo> &info);
+    int planid() const { return id; }
 };
 
 class Searcher : public QGroupBox {

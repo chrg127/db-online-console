@@ -182,7 +182,7 @@ QWidget *UserScreen::make_profile_tab()
     connect(box, QOverload<int>::of(&QComboBox::currentIndexChanged), set_enddate);
     connect(cancelbt, &QPushButton::released, [=]()
     {
-        if (db::cancel_plan(uid)) {
+        if (db::cancel_plan(plan_profile->planid())) {
             msgbox("Piano cancellato con successo.");
             this->on_plan_changed(/* created = */ false);
         } else
@@ -355,6 +355,14 @@ QWidget *UserScreen::make_session_tab()
 
 void UserScreen::on_plan_changed(bool created)
 {
+    if (created) {
+        auto plan_info = db::get_curr_plan_info(uid);
+        if (plan_info)
+            plan_profile->set_info(plan_info.value());
+        else
+            created = false;
+    } else
+        plan_profile->set_info(std::nullopt);
     set_enabled(created, tabs->widget(1), tabs->widget(2), tabs->widget(3), curr_plan_group);
     create_plan_group->setEnabled(!created);
 }
@@ -366,10 +374,11 @@ void UserScreen::on_login(int id)
     uid = id;
     auto user_info = db::get_user_info(uid);
     user_profile->set_info(user_info);
-    auto p_info = db::get_curr_plan_info(uid);
-    plan_profile->set_info(p_info);
-    on_plan_changed(p_info.has_plan);
+
+    on_plan_changed(true);
+
     favorites->fill(db::get_favorites, uid);
+
     session_users->clear();
     while (session_users->count() > 0)
         session_users->takeItem(0);
@@ -481,12 +490,13 @@ PlanProfile::PlanProfile(QWidget *parent)
     ));
 }
 
-void PlanProfile::set_info(const db::PlanInfo &info)
+void PlanProfile::set_info(const std::optional<db::PlanInfo> &info)
 {
-    if (info.has_plan) {
-        type->setText(plan_to_string(info.type));
-        start->setText(info.start.toString());
-        end->setText(info.end.toString());
+    if (info) {
+        id = info->id;
+        type->setText(plan_to_string(info->type));
+        start->setText(info->start.toString());
+        end->setText(info->end.toString());
         noplan->hide();
         plan_form->show();
     } else {

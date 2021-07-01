@@ -17,8 +17,8 @@ and u.password = '%3';
 static const QString curr_plan_query = R"(
 select id, id_usr, tipologia, data_acquisto, ora_acquisto, data_fine
 from Piano p
-where p.id_usr = 1
-where datediff(now(), p.data_fine) < 0
+where p.id_usr = %1
+and datediff(now(), p.data_fine) < 0
 and p.id not in (
     select pc.id
     from PianoCancellato pc
@@ -26,11 +26,11 @@ and p.id not in (
 )";
 
 static const QString create_plan_query = R"(
-insert into Piano(id_usr, tipologia, data_acquisto, ora_acquisto, data_fine) values(%1, %2, now(), now(), %3);
+insert into Piano(id_usr, tipologia, data_acquisto, ora_acquisto, data_fine, ora_fine) values(%1, '%2', now(), now(), '%3', now());
 )";
 
 static const QString cancel_plan_query = R"(
-insert into PianoCancellato values(%1, %2, %3);
+insert into PianoCancellato(id, data_canc, ora_canc) values(%1, now(), now());
 )";
 
 static const QString search_game_query = R"(
@@ -85,6 +85,33 @@ static const QString user_id_query = R"(
 select *
 from Utente
 where id = %1
+)";
+
+static const QString daily_hours_query = R"(
+select avg(p.ore_gioco) as ore_giornaliere
+from Partita p
+where p.id_usr = %1
+group by p.data;
+)";
+
+static const QString total_hours_query = R"(
+select count(ore_gioco) as 'Ore totali'
+from Partita
+where id_usr = %1
+)";
+
+static const QString session_created_query = R"(
+select count(*) as numero_sessioni
+from Sessione s, Utente u
+where s.id_creatore = u.id
+and u.id = %1;
+)";
+
+static const QString session_part_query = R"(
+select count(*) as numero_partecipazioni
+from Partecipazione p, Utente u
+where p.id_usr = u.id
+and u.id = %1;
 )";
 
 static const QString get_fav_query = R"(
@@ -142,7 +169,7 @@ std::optional<QString> run_query(QSqlQueryModel &model, const QString &query)
 
 int validate_user(const QString &name, const QString &surname, const QString &password)
 {
-    return 1;
+    return 10;
     // QSqlQuery query(login_query.arg(name).arg(surname).arg(password));
     // if (query.size() == 0)
     //     return -1;
@@ -155,28 +182,19 @@ int validate_admin(const QString &name, const QString &surname, const QString &p
     return name == QString("admin") && surname == QString("admin") && password == QString("admin") ? 0 : -1;
 }
 
-PlanInfo get_curr_plan_info(int uid)
+std::optional<PlanInfo> get_curr_plan_info(int uid)
 {
-    return {
-        .has_plan = false,
-        .id = 1,
-        .type = PlanType::YEAR,
-        .start = QDate::currentDate(),
-        .end = QDate::currentDate(),
-        .start_time = QDateTime::currentDateTime(),
+    QSqlQuery query(curr_plan_query.arg(uid));
+    if (query.size() == 0)
+        return std::nullopt;
+    query.first();
+    return PlanInfo{
+        .id = query.value(0).toInt(),
+        .type = string_to_plan(query.value(2).toString()),
+        .start = query.value(3).toDate(),
+        .end = query.value(5).toDate(),
+        .start_time = query.value(4).toDateTime(),
     };
-    // QSqlQuery query(curr_plan_query.arg(uid));
-    // if (query.size() == 0)
-    //     return { .has_plan = false };
-    // query.first();
-    // return {
-    //     .id = query.value(0).toInt(),
-    //     .has_plan = true,
-    //     .type = string_to_plan(query.value(2).toString()),
-    //     .start = query.value(3).toDate(),
-    //     .start_time = query.value(4).toDateTime(),
-    //     .end = query.value(5).toDate(),
-    // };
 }
 
 bool create_plan(int uid, PlanType type)
@@ -187,23 +205,17 @@ bool create_plan(int uid, PlanType type)
     auto q = create_plan_query
                     .arg(uid)
                     .arg(plan_to_string(type))
-                    .arg(end.toString());
+                    .arg(end.toString(Qt::ISODate));
     qDebug() << q;
-    // QSqlQuery query();
+    QSqlQuery query(q);
     return true;
 }
 
-bool cancel_plan(int uid)
+bool cancel_plan(int planid)
 {
-    // PlanInfo info = get_curr_plan_info(uid);
-    // if (!info.has_plan)
-    //     return false;
-    auto q = cancel_plan_query
-                    .arg(1)//info.id)
-                    .arg(QDate::currentDate().toString())
-                    .arg(QTime::currentTime().toString());
+    auto q = cancel_plan_query.arg(planid);
     qDebug() << q;
-    // QSqlQuery query(q);
+    QSqlQuery query(q);
     return true;
 }
 
@@ -259,17 +271,25 @@ void search_users(QSqlQueryModel &tofill, const QString &search_text)
     RUNQUERY(tofill, search_user_query.arg(search_text));
 }
 
-UserInfo get_user_info(int id)
+UserInfo get_user_info(int uid)
 {
-    QSqlQuery query(user_id_query.arg(id));
-    query.first();
+    QSqlQuery info(user_id_query.arg(uid));
+    QSqlQuery daily(daily_hours_query.arg(uid));
+    QSqlQuery total(total_hours_query.arg(uid));
+    QSqlQuery session_created(session_created_query.arg(uid));
+    QSqlQuery session_part(session_part_query.arg(uid));
+    info.first();
+    daily.first();
+    total.first();
+    session_created.first();
+    session_part.first();
     return {
-        .name    = query.value(1).toString(),
-        .surname = query.value(2).toString(),
-        .daily_hours = 0,
-        .total_hours = 0,
-        .session_part = 0,
-        .session_create = 0,
+        .name    = info.value(1).toString(),
+        .surname = info.value(2).toString(),
+        .daily_hours = daily.value(0).toInt(),
+        .total_hours = total.value(0).toInt(),
+        .session_part = session_part.value(0).toInt(),
+        .session_create = session_created.value(0).toInt(),
     };
 }
 
