@@ -105,7 +105,7 @@ where vg.id = p.id_vg and p.id_usr = %1
 )";
 
 static const QString check_fav_query = "select * from Preferenza p where p.id_usr = %1 and p.id_vg = %2;";
-static const QString insert_fav_query = "insert into Preferenza(id_usr, id_vg) values(%1, %2);)";
+static const QString insert_fav_query = "insert into Preferenza(id_usr, id_vg) values(%1, %2);";
 
 static const QString check_session_query = "select * from VideogiocoMultiplayer where id_vg = %1 and min_giocatori <= %2 and max_giocatori >= %2;";
 static const QString create_session_query = "insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values(%1, %2, now(), now(), %3);";

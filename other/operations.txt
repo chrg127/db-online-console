@@ -1,21 +1,165 @@
-dato il nome di un videogioco, sapere la media giornaliera di ore sprecate
-a giocare (per tutti gli utenti/per un solo utente)
+============ Le operazioni ============
 
-dato un utente, sapere i suoi primi 10 giochi preferiti
+01. Login di un utente
 
-dato un utente, sapere la media giornaliera di ore sprecate a giocare
+    select *
+    from Utente u
+    where u.nome = nome_utente
+    and u.cognome = cognome_utente
+    and u.password = password_utente;
 
-dato un utente, sapere quante sessione ha creato
+02. Sottoscrizione di un piano
 
-sapere la proporzione tra creazione di una sessione e semplice partecipazione
+    select id as id_piano
+    from Piano p
+    where p.id_usr = id_utente
+    and datediff(now(), p.data_fine) < 0
+    and p.id not in (
+        select pc.id
+        from PianoCancellato pc
+    );
 
-sapere quanti utenti scelgono il piano mensile e quanti il piano annuale
+    insert into Piano(id_usr, tipologia, data_acquisto, ora_acquisto, data_fine, ora_fine) values(id_utente, ?, now(), now(), '%3', now());
 
-sapere la proporzione tra utenti che hanno scelto solo il piano gratis e
-quelli che hanno sborsato
+03. Cancellazione di un piano
 
-sapere quante copie di un gioco rimangono invendute
+    select id as id_piano
+    from Piano p
+    where p.id_usr = id_utente
+    and datediff(now(), p.data_fine) < 0
+    and p.id not in (
+        select pc.id
+        from PianoCancellato pc
+    );
 
-sapere qual'è il gioco con più copie vendute
+    insert into PianoCancellato(id, data_canc, ora_canc) values(id_piano, now(), now());
 
-sapere qual'è il gioco più giocato
+04. Cercare un gioco per titolo/genere/azienda e usando un filtro
+
+    select id, titolo as Titolo, genere as Genere, azienda as Azienda
+    from Videogioco vg
+    where vg.? like '%%?%%';
+
+05. Cercare i giochi più preferiti e i giochi più giocati
+
+    select id, vg.titolo as Titolo, vg.genere as Genere, vg.azienda as Azienda, count(id_usr) as Preferenza
+    from Preferenza p, Videogioco vg
+    where p.id_vg = vg.id
+    group by id_vg
+    order by Preferenza desc
+    limit 5;
+
+    select id, vg.titolo as Titolo, vg.genere as Genere, vg.azienda as Azienda, count(p.ore_gioco) as Ore
+    from Partita p, Videogioco vg
+    where vg.id = p.id_vg
+    group by id_vg
+    order by Ore desc
+    limit 5;
+
+06. Trovare le informazioni e le copie fisiche disponibili di un gioco
+
+    select id, titolo, genere, anno, azienda, produttore, prezzo from Videogioco where id = id_videogioco
+
+    select count(*) as 'Numero copie'
+    from CopiaVideogioco cv
+    where cv.id_vg = id_videogioco
+    and cv.id not in (
+        select id_copia
+        from Acquisto
+    );
+
+07. Comprare la copia fisica di un videogioco
+
+    select min(cv.id) as id_da_comprare
+    from CopiaVideogioco cv
+    where cv.id_vg = id_videogioco
+    and cv.id not in (
+        select id_copia
+        from Acquisto
+    );
+
+    insert into Acquisto(id_copia, id_usr, data_acquisto, ora_acquisto) values(id_da_comprare, id_utente, now(), now());
+
+08. Cercare un utente usando un filtro
+
+    select id, nome as Nome, cognome as Cognome
+    from Utente u
+    where u.nome like '%%nome_utente%%'
+    or u.cognome like '%%cognome_utente%%'
+
+09. Trovare le ore giornaliere e le ore totali di un utente
+
+    select avg(p.ore_gioco) as 'Ore giornaliere'
+    from Partita p
+    where p.id_usr = id_utente
+    group by p.data;
+
+    select count(ore_gioco) as 'Ore totali'
+    from Partita
+    where id_usr = id_utente
+
+10. Trovare il numero di sessioni create e il numero di sessioni partecipate di un utente
+
+    select count(*) as numero_sessioni
+    from Sessione s, Utente u
+    where s.id_creatore = u.id
+    and u.id = id_utente;
+
+    select count(*) as numero_partecipazioni
+    from Partecipazione p, Utente u
+    where p.id_usr = u.id
+    and u.id = id_utente;
+
+11. Trovare i giochi preferiti di un utente
+
+    select vg.id, vg.titolo as Titolo
+    from Videogioco vg, Preferenza p
+    where vg.id = p.id_vg
+    and p.id_usr = id_utente;
+
+12. Aggiungere un gioco tra i preferiti
+
+    select *
+    from Preferenza p
+    where p.id_usr = id_utente
+    and p.id_vg = id_videogioco
+
+    insert into Preferenza(id_usr, id_vg) values(id_utente, id_videogioco);
+
+13. Creare una sessione di gioco
+
+    select *
+    from VideogiocoMultiplayer
+    where id_vg = id_videogioco
+    and min_giocatori <= num_giocatori
+    and max_giocatori >= num_giocatori;
+
+    insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values(id_videogioco, id_utente, now(), now(), ?);
+
+    insert into Partecipazione(id_usr, id_session) values(id_utente, last_insert_id());
+
+14. Trovare il profitto mensile del servizio
+
+    select sum(profits) from (
+        select sum(vg.prezzo) as profits
+        from CopiaVideogioco cv, Acquisto a, Videogioco vg
+        where a.id_copia = cv.id and vg.id = cv.id_vg
+        and extract(year_month from a.data_acquisto) = 'anno_mese'
+
+        union
+
+        select sum(costo)
+        from Piano p, TipologiaPiano tp
+        where p.tipologia = tp.tipologia
+        and extract(year_month from p.data_acquisto) = 'anno_mese'
+    ) as tb;
+
+
+============ Altre idee ============
+
+- dato il nome di un videogioco, sapere la media giornaliera di ore sprecate a giocare (per tutti gli utenti/per un solo utente)
+- sapere la proporzione tra creazione di una sessione e semplice partecipazione
+- sapere quanti utenti scelgono il piano mensile e quanti il piano annuale
+- sapere la proporzione tra utenti che hanno scelto solo il piano gratis e quelli che hanno sborsato
+- sapere qual'è il gioco con più copie vendute
+- sapere qual'è il gioco più giocato
