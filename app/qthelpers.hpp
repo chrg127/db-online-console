@@ -68,7 +68,6 @@ inline QTableView *make_table(T *model)
 {
     auto *tab = new QTableView;
     tab->setModel(model);
-    tab->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
     return tab;
 }
 

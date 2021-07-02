@@ -2,11 +2,13 @@
 
 #include <QComboBox>
 #include <QDate>
+#include <QDateTimeEdit>
 #include <QGroupBox>
 #include <QHeaderView>
 #include <QLabel>
 #include <QLineEdit>
 #include <QListWidget>
+#include <QLocale>
 #include <QPixmap>
 #include <QPushButton>
 #include <QRandomGenerator>
@@ -206,7 +208,7 @@ QWidget *UserScreen::make_game_tab()
     auto *profile = new VideogameProfile(this);
     auto *playbt = new QPushButton("Gioca", this);
     auto *buybt = new QPushButton("Compra copia fisica", this);
-    auto *favbt = new QPushButton("Metti tra i preferiti", this);
+    auto *favbt = new QPushButton("Aggiungi ai preferiti", this);
 
     profile->hide();
     searcher->setMinimumWidth(400);
@@ -243,7 +245,7 @@ QWidget *UserScreen::make_game_tab()
     {
         if (db::buy_game(vid, uid)) {
             msgbox("Il gioco è stato comprato.");
-            profile->update_copies(vid);
+            profile->set_info(db::get_game_info(vid));
         } else
             msgbox("Questo gioco non ha più copie fisiche disponibili.");
     });
@@ -296,8 +298,7 @@ QWidget *UserScreen::make_session_tab()
 
     add_to_group(session_group,
         session_users,
-        make_form_layout(std::tuple{"Gioco scelto", game_chosen}),
-        // make_layout<QHBoxLayout>(new QLabel("Gioco scelto:"), game_chosen),
+        make_form_layout(std::tuple{"Gioco scelto:", game_chosen}),
         make_layout<QHBoxLayout>(create, remove)
     );
     auto *lt = make_layout<QHBoxLayout>(
@@ -508,17 +509,37 @@ void PlanProfile::set_info(const std::optional<db::PlanInfo> &info)
 AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     : QWidget(parent)
 {
-    auto *result_tab   = make_table(&result_model);
+    auto *query_group  = new QGroupBox("Scrivi una query", this);
     auto *query_editor = new QTextEdit(this);
+    auto *result_tab   = make_table(&result_model);
     auto *highlighter  = new SQLHighlighter(query_editor->document());
-    auto *query_button = new QPushButton("Execute query", this);
-    auto *exit_button  = new QPushButton("Exit", this);
+    auto *query_button = new QPushButton("Esegui", this);
 
+    auto *profit_group = new QGroupBox("Profitto mensile", this);
+    auto *month = new QComboBox(this);
+    auto *year = new QDateTimeEdit(this);
+    auto *profit = new QLabel(this);
+    auto *getprofit = new QPushButton("Guarda profitto", this);
+
+    auto *exit_button  = new QPushButton("Esci", this);
+
+    for (int i = 1; i <= 12; i++)
+        month->addItem(QLocale::system().monthName(i));
     query_editor->setFont(make_font("Monospace", QFont::TypeWriter));
+    year->setDisplayFormat("yyyy");
+    year->setDateRange(QDate(1753, 1, 1), QDate(8000, 1, 1));
+    add_to_group(profit_group,
+        make_form_layout(
+            std::tuple{ "Mese:", month },
+            std::tuple{ "Anno:", year },
+            std::tuple{ "Profitto:", profit }
+        ),
+        getprofit
+    );
+    add_to_group(query_group, query_editor, result_tab, query_button);
     setLayout(
         make_layout<QVBoxLayout>(
-            make_layout<QHBoxLayout>(query_editor, result_tab),
-            query_button,
+            make_layout<QHBoxLayout>(profit_group, query_group),
             exit_button
         )
     );
@@ -529,8 +550,16 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
         if (errmsg)
             msgbox(errmsg.value());
         result_tab->resizeColumnsToContents();
+        result_tab->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     });
     connect(exit_button, &QPushButton::released, [wnd]() { wnd->show_screen(Window::Screen::LOGIN); });
+    connect(getprofit, &QPushButton::released, [=]()
+    {
+        int yearnum  = year->date().year();
+        int monthnum = month->currentIndex() + 1;
+        int p = db::get_monthly_profit(yearnum, monthnum);
+        profit->setText(QString::number(p));
+    });
 }
 
 #ifdef _CATPRISM

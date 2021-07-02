@@ -29,31 +29,12 @@ static const QString create_plan_query = R"(
 insert into Piano(id_usr, tipologia, data_acquisto, ora_acquisto, data_fine, ora_fine) values(%1, '%2', now(), now(), '%3', now());
 )";
 
-static const QString cancel_plan_query = R"(
-insert into PianoCancellato(id, data_canc, ora_canc) values(%1, now(), now());
-)";
+static const QString cancel_plan_query = "insert into PianoCancellato(id, data_canc, ora_canc) values(%1, now(), now());";
 
 static const QString search_game_query = R"(
 select id, titolo as Titolo, genere as Genere, azienda as Azienda
 from Videogioco vg
 where vg.%1 like '%%%2%%';
-)";
-
-static const QString game_id_query = R"(
-select id, titolo, genere, anno, azienda, produttore, prezzo
-from Videogioco
-where id = %1
-)";
-
-static const QString find_copy_query = R"(
-select min(cv.id) as id, count(*) as count
-from CopiaVideogioco cv
-where cv.id_vg = %1
-and cv.id not in (select id_copia from Acquisto);
-)";
-
-static const QString buy_copy_query = R"(
-insert into Acquisto values(%1, %2, now());
 )";
 
 static const QString best_games_query = R"(
@@ -74,6 +55,17 @@ order by Ore desc
 limit 5;
 )";
 
+static const QString game_id_query = "select id, titolo, genere, anno, azienda, produttore, prezzo from Videogioco where id = %1";
+
+static const QString find_copy_query = R"(
+select min(cv.id) as id, count(*) as count
+from CopiaVideogioco cv
+where cv.id_vg = %1
+and cv.id not in (select id_copia from Acquisto);
+)";
+
+static const QString buy_copy_query = "insert into Acquisto(id_copia, id_usr, data_acquisto, ora_acquisto) values(%1, %2, now(), now());";
+
 static const QString search_user_query = R"(
 select id, nome as Nome, cognome as Cognome
 from Utente u
@@ -81,11 +73,7 @@ where u.nome like '%%%1%%'
 or u.cognome like '%%%1%%'
 )";
 
-static const QString user_id_query = R"(
-select *
-from Utente
-where id = %1
-)";
+static const QString user_id_query = "select id, nome, cognome, password, email, telefono from Utente where id = %1";
 
 static const QString daily_hours_query = R"(
 select avg(p.ore_gioco) as ore_giornaliere
@@ -94,11 +82,7 @@ where p.id_usr = %1
 group by p.data;
 )";
 
-static const QString total_hours_query = R"(
-select count(ore_gioco) as 'Ore totali'
-from Partita
-where id_usr = %1
-)";
+static const QString total_hours_query = "select count(ore_gioco) as 'Ore totali' from Partita where id_usr = %1";
 
 static const QString session_created_query = R"(
 select count(*) as numero_sessioni
@@ -123,16 +107,24 @@ where vg.id = p.id_vg and p.id_usr = %1
 static const QString check_fav_query = "select * from Preferenza p where p.id_usr = %1 and p.id_vg = %2;";
 static const QString insert_fav_query = "insert into Preferenza(id_usr, id_vg) values(%1, %2);)";
 
-static const QString check_session_query = R"(
+static const QString check_session_query = "select * from VideogiocoMultiplayer where id_vg = %1 and min_giocatori <= %2 and max_giocatori >= %2;";
+static const QString create_session_query = "insert into Sessione(id_vg, id_creatore, data, tempo_trascorso) values(%1, %2, now(), %3);";
+static const QString insert_partecipation_query = "insert into Partecipazione(id_usr, id_session) values(%1, %2);";
 
-)";
+static const QString monthly_profit_query = R"(
+select sum(profits) from (
+    select sum(vg.prezzo) as profits
+    from CopiaVideogioco cv, Acquisto a, Videogioco vg
+    where a.id_copia = cv.id and vg.id = cv.id_vg
+    and extract(year_month from a.data_acquisto) = '%1'
 
-static const QString create_session_query = R"(
-insert into Sessione(id_vg, id_creatore, data, tempo_trascorso) values(%1, %2, now(), %3);
-)";
+    union
 
-static const QString insert_partecipation_query = R"(
-insert into Partecipazione(id_usr, id_session) values(%1, %2);
+    select sum(costo)
+    from Piano p, TipologiaPiano tp
+    where p.tipologia = tp.tipologia
+    and extract(year_month from p.data_acquisto) = '%1'
+) as tb;
 )";
 
 namespace db {
@@ -199,14 +191,14 @@ std::optional<PlanInfo> get_curr_plan_info(int uid)
 
 bool create_plan(int uid, PlanType type)
 {
-    // if (get_curr_plan_info(uid).has_plan)
-    //     return false;
+    if (get_curr_plan_info(uid))
+        return false;
     QDate end = plan_date_end(QDate::currentDate(), type);
     auto q = create_plan_query
                     .arg(uid)
                     .arg(plan_to_string(type))
                     .arg(end.toString(Qt::ISODate));
-    qDebug() << q;
+    // qDebug() << q;
     QSqlQuery query(q);
     return true;
 }
@@ -214,7 +206,7 @@ bool create_plan(int uid, PlanType type)
 bool cancel_plan(int planid)
 {
     auto q = cancel_plan_query.arg(planid);
-    qDebug() << q;
+    // qDebug() << q;
     QSqlQuery query(q);
     return true;
 }
@@ -222,6 +214,23 @@ bool cancel_plan(int planid)
 void search_games(QSqlQueryModel &tofill, const QString &search_text, const QString &category)
 {
     RUNQUERY(tofill, search_game_query.arg(category).arg(search_text));
+}
+
+void best_games(QSqlQueryModel &tofill)
+{
+    RUNQUERY(tofill, best_games_query);
+}
+
+void most_played_games(QSqlQueryModel &tofill)
+{
+    RUNQUERY(tofill, most_played_query);
+}
+
+std::pair<int, int> get_copy_info(int id)
+{
+    QSqlQuery query(find_copy_query.arg(id));
+    query.first();
+    return std::make_pair(query.value(0).toInt(), query.value(1).toInt());
 }
 
 GameInfo get_game_info(int id)
@@ -238,32 +247,15 @@ GameInfo get_game_info(int id)
 #undef USE
 }
 
-std::pair<int, int> get_copy_info(int id)
-{
-    QSqlQuery query(find_copy_query.arg(id));
-    query.first();
-    return std::make_pair(query.value(0).toInt(), query.value(1).toInt());
-}
-
 bool buy_game(int id, int uid)
 {
     auto [id_copy, count] = get_copy_info(id);
     if (count == 0)
         return false;
     QString s = buy_copy_query.arg(id_copy).arg(uid);
-    qDebug() << s;
-    // QSqlQuery buy_query(s);
+    // qDebug() << s;
+    QSqlQuery buy_query(s);
     return true;
-}
-
-void best_games(QSqlQueryModel &tofill)
-{
-    RUNQUERY(tofill, best_games_query);
-}
-
-void most_played_games(QSqlQueryModel &tofill)
-{
-    RUNQUERY(tofill, most_played_query);
 }
 
 void search_users(QSqlQueryModel &tofill, const QString &search_text)
@@ -303,8 +295,8 @@ bool add_favorite(int uid, int vid)
     QSqlQuery check(check_fav_query.arg(uid).arg(vid));
     if (check.size() == 0) {
         auto s = insert_fav_query.arg(uid).arg(vid);
-        qDebug() << s;
-        // QSqlQuery query(s);
+        // qDebug() << s;
+        QSqlQuery query(s);
         return true;
     }
     return false;
@@ -312,20 +304,30 @@ bool add_favorite(int uid, int vid)
 
 std::optional<QString> create_session(int vid, int uid, const std::vector<int> &uids, int time)
 {
+    QSqlQuery check(check_session_query.arg(vid).arg(uids.size()));
+    if (check.size() == 0)
+        return "il gioco selezionato non è un gioco multiplayer, oppure non supporta il numero di giocatori";
     auto s = create_session_query.arg(vid).arg(uid).arg(time);
     qDebug() << s;
     // QSqlQuery create(s);
     for (auto id : uids) {
-        auto s = insert_partecipation_query.arg(id);
-        qDebug() << s;
+        auto t = insert_partecipation_query.arg(id);
+        qDebug() << t;
         // QSqlQuery part(s);
     }
     return std::nullopt;
 }
 
-int get_monthly_profit(QDate yearmonth)
+int get_monthly_profit(int year, int month)
 {
-    return 0;
+    QString yearstr  = QString::number(year);
+    QString monthstr = QString("%1").arg((int)month, 2, 10, QChar('0'));
+    auto s = monthly_profit_query.arg(yearstr+monthstr);
+    // qDebug() << s;
+    QSqlQuery query(s);
+    query.first();
+    return query.value(0).toInt();
 }
 
 } // namespace db
+

@@ -94,7 +94,7 @@ void get_favorites(QSqlQueryModel &tofill, int uid);
 bool add_favorite(int uid, int vid);
 
 std::optional<QString> create_session(int vid, int uid, const std::vector<int> &uids, int time);
-int get_monthly_profit(QDate yearmonth);
+int get_monthly_profit(int year, int month);
 
 } // namespace db
 
