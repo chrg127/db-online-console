@@ -340,6 +340,8 @@ QWidget *UserScreen::make_session_tab()
         );
         if (err)
             msgbox("Errore: " + err.value());
+        else
+            msgbox("Sessione creata correttamente.");
     });
     connect(remove, &QPushButton::released, [=]()
     {

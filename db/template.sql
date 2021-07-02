@@ -93,7 +93,7 @@ create table PianoCancellato (
 );
 
 create table Sessione (
-    id              int                 primary key,
+    id              int                 primary key auto_increment,
     id_vg           int                 not null references VideogiocoMultiplayer(id_vg),
     id_creatore     int                 not null references Utente(id),
     data            date,

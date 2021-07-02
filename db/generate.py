@@ -43,7 +43,7 @@ cv_query = "insert into CopiaVideogioco(id, id_vg, id_usr, data_acquisto) values
 part_query = "insert into Partita values"
 pref_query = "insert into Preferenza values"
 canc_query = "insert into PianoCancellato values"
-sess_query = "insert into Sessione(id, id_vg, id_creatore, data, ora, tempo_trascorso) values"
+sess_query = "insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values"
 partecip_query = "insert into Partecipazione(id_usr, id_session) values"
 copy_query = "insert into CopiaVideogioco values"
 acquisto_query = "insert into Acquisto values"
@@ -138,13 +138,15 @@ for u in range(1, NUM_USR+1):
         for session in good_sessions:
             session[4].append(u)
 
+sid = 1
 for s in sessions:
     l = len(s[4])
     num_players = mult_nums[s[1]]
     if l < 2 or l < num_players[0] or l > num_players[1]:
         continue
     creator = s[4][rand(0, len(s[4]))]
-    print("{}({}, {}, {}, '{}', '{}', {});".format(sess_query, s[0], s[1], creator, dt_date(s[2]), dt_hour(s[2]), s[3]))
+    print("{}({}, {}, '{}', '{}', {});".format(sess_query, s[1], creator, dt_date(s[2]), dt_hour(s[2]), s[3]))
     for usr in s[4]:
-        print("{}({}, {});".format(partecip_query, usr, s[0]))
+        print("{}({}, {});".format(partecip_query, usr, sid))
+    sid += 1
 

@@ -108,8 +108,8 @@ static const QString check_fav_query = "select * from Preferenza p where p.id_us
 static const QString insert_fav_query = "insert into Preferenza(id_usr, id_vg) values(%1, %2);)";
 
 static const QString check_session_query = "select * from VideogiocoMultiplayer where id_vg = %1 and min_giocatori <= %2 and max_giocatori >= %2;";
-static const QString create_session_query = "insert into Sessione(id_vg, id_creatore, data, tempo_trascorso) values(%1, %2, now(), %3);";
-static const QString insert_partecipation_query = "insert into Partecipazione(id_usr, id_session) values(%1, %2);";
+static const QString create_session_query = "insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values(%1, %2, now(), now(), %3);";
+static const QString insert_partecipation_query = "insert into Partecipazione(id_usr, id_session) values(%1, last_insert_id());";
 
 static const QString monthly_profit_query = R"(
 select sum(profits) from (
@@ -309,11 +309,11 @@ std::optional<QString> create_session(int vid, int uid, const std::vector<int> &
         return "il gioco selezionato non è un gioco multiplayer, oppure non supporta il numero di giocatori";
     auto s = create_session_query.arg(vid).arg(uid).arg(time);
     qDebug() << s;
-    // QSqlQuery create(s);
+    QSqlQuery create(s);
     for (auto id : uids) {
         auto t = insert_partecipation_query.arg(id);
         qDebug() << t;
-        // QSqlQuery part(s);
+        QSqlQuery part(t);
     }
     return std::nullopt;
 }
