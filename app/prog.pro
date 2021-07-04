@@ -18,6 +18,7 @@ HEADERS += gui.hpp sqlhighlighter.hpp database.hpp \
            qthelpers.hpp \
            opengl.hpp
 LIBS += -lfmt
+RESOURCES = images.qrc
 
 # Uncomment this to add a cat prism screen to the application.
 #DEFINES += _CATPRISM

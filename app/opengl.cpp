@@ -80,7 +80,7 @@ void GLWidget::initializeGL()
     view.translate(0.0f, 0.0f, -3.0f);
     projection.perspective(45.0f, 800.0f / 600.0f, 0.1f, 100.0f);
 
-    cattex = new QOpenGLTexture(QImage("cat.jpg").mirrored());
+    cattex = new QOpenGLTexture(QImage(":cat.jpg").mirrored());
     cattex->setMinificationFilter(QOpenGLTexture::Linear);
     cattex->setMagnificationFilter(QOpenGLTexture::Linear);
     cattex->setWrapMode(QOpenGLTexture::ClampToEdge);

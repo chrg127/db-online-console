@@ -68,7 +68,7 @@ void Window::show_screen(Screen screen)
 LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
 {
-    auto *image = make_image_label("logo.png");
+    auto *image = make_image_label(":logo.png");
     auto *name_box = new QLineEdit(this);
     auto *surname_box = new QLineEdit(this);
     auto *pass_box = new QLineEdit(this);
