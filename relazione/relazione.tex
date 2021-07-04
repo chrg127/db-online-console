@@ -919,4 +919,62 @@ La query restituisce il profitto per un singolo mese-anno scelto dall'utente.
 
 \sect{Descrizione dell'architettura dell'applicazione}
 
+L'applicazione da interfaccia al database è stata realizzata in linguaggio C++: l'applicazione è una semplice Qt App, che sfrutta le librerie di Qt per collegarsi ad un database in locale. Il DBMS usato è MariaDB, un DBMS compatibile con MySQL.
+
+L'architettura segue il Model-View-View-Model, un pattern molto seguito anche dalle librerie usate. Il model è composto da una serie di funzioni, che permettono di connettersi al database e di effettuare le operazioni basilari descritte in questa relazione. La view invece è rappresentata dalle classi che rappresentano la finestra e i widget dell'applicazione, che sfruttano il pattern Observer: all'arrivo di un evento, queste internamente chiamano una delle funzioni del model e gestiscono i dati in output dell'operazione.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_login.png}
+\caption{La schermata di login.}
+\label{img:screen_login}
+\end{figure}
+
+L'applicazione si presenta con una finestra di login: qui è possibile fare il login sia come utente, sia come admin. La validazione per gli utenti viene fatta tramite una query al database. Per semplicità, non è stato implementato alcun sistema di criptazione delle password: queste sono memorizzate in chiaro nel database.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_profile.png}
+\caption{Il profilo dell'utente.}
+\label{img:screen_login}
+\end{figure}
+
+Dopo che un utente ha fatto il login, viene presentata una schermata che mostra il profilo dell'utente e il suo piano in corso. Se non l'utente non ha ancora sottoscritto un piano, lo può fare tramite un form: basta scegliere la tipologia di piano e cliccare sul pulsante "Crea". Questo pulsante andrà subito ad inserire un nuovo piano nel database e renderà disponibile la visualizzazione delle altre schermate. Cliccando sul pulsante "Cancella", il piano in corso verrà subito cancellato e all'utente sarà privata la possibilità di visualizzare le altre schermate.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_games.png}
+\caption{La schermata relativa ai videogiochi.}
+\label{img:screen_login}
+\end{figure}
+
+Nella schermata videogiochi, l'utente può cercare videogiochi e visualizzare i suoi giochi preferiti. La ricerca avviene digitando del testo nella casella e filtrando per titolo, genere o azienda sviluppatrice. Si può anche ignorare la ricerca e visualizzare i giochi più giocati o i giochi più preferiti. Cliccando sul nome di un videogioco, sia nella tabella dei risultati di ricerca, sia nella tabella dei preferiti, viene mostrato un profilo sul videogioco, che contiene tutte le informazioni di base. Tramite i bottoni sul profilo, l'utente può giocare al videogioco e può metterlo tra i suoi preferiti o comprarne una copia fisica. Il bottone "gioca" è stato disabilitato, dato che in questa applicazione non c'è nessun sistema di gioco; inoltre, per semplicità non è stato inserito nessun sistema di pagamento: cliccando sul pulsante "compra", si procede subito all'acquisto.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_users.png}
+\caption{Ricerca e visualizzazione del profilo degli altri utenti.}
+\label{img:screen_login}
+\end{figure}
+
+Nella schermata relativa agli utenti, si possono cercare gli utenti e, cliccando sul nome di un utente, si può visualizzare il relativo profilo. Oltre alle informazioni basilari, vengono anche mostrate due tabelle contenenti i giochi preferiti dell'utente che si sta visualizzando e anche il numero di sessioni in cui ha partecipato/creato, organizzate per videogioco.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_sessions.png}
+\caption{La schermata relativa alle sessioni di gioco.}
+\label{img:screen_login}
+\end{figure}
+
+L'ultima schermata è relativa alle sessioni: è cui che si possono iniziare sessioni di gioco con altri utenti. Gli utenti si possono inserire cercando e cliccando sul nome di un utente; la scelta del videogioco viene in maniera analoga alla selezione degli utenti, e il nome del videogioco compare sotto la lista degli utenti selezionati. Il pulsante "Rimuovi utente" rimuove un utente dalla lista e non fa alcuna operazione; il pulsante "Crea" crea una nuova sessione di gioco con gli utenti e il gioco selezionato. Ancora una volta, per semplicità, non è stato inserito nessun sistema di gioco, e l'applicazione andrà subito ad inserire una nuova sessione nel database, con il tempo trascorso scelto in maniera casuale.
+
+\begin{figure}[H]
+\centering{}
+\includegraphics[width=12cm]{screen_admin.png}
+\caption{La schermata dell'amministratore.}
+\label{img:screen_login}
+\end{figure}
+
+Oltre alla schermate per l'utente esiste anche una schermata per il Database Administrator: questa è accessibile tramite il pulsante relativo nella schermata di login. La schermata di amministratore contiene principalmente un form per sapere il profitto del servizio in un certo mese, e un editor di query per fare delle query SQL generiche al database. Cliccando sul pulsante "Guarda profitto", dopo aver scelto mese e anno, comparira il valore del profitto in quel mese, mentre cliccando sul pulsante "Esegui", verrà eseguita la query scritta nell'editor.
+
 \end{document}
