@@ -542,12 +542,12 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
         getprofit
     );
     add_to_group(query_group, query_editor, result_tab, query_button);
-    setLayout(
-        make_layout<QVBoxLayout>(
-            make_layout<QHBoxLayout>(profit_group, query_group),
-            exit_button
-        )
+    auto *lt = make_layout<QVBoxLayout>(
+        make_layout<QHBoxLayout>(profit_group, query_group),
+        exit_button
     );
+    lt->setAlignment(exit_button, Qt::AlignLeft);
+    setLayout(lt);
 
     connect(query_button, &QPushButton::released, this, [=]()
     {
