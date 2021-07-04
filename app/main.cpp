@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     window.move(QGuiApplication::primaryScreen()->availableGeometry().center() - window.rect().center());
     window.show();
 
-    if (!db::connect("OnlineConsole")) {
+    if (!db::connect("OnlineConsole", "chris", "mypass")) {
         msgbox("Couldn't connect to the database. Quitting.");
         return 1;
     }

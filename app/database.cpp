@@ -132,13 +132,13 @@ select sum(profits) from (
 
 namespace db {
 
-bool connect(const QString &table)
+bool connect(const QString &table, const QString &name, const QString &password)
 {
     QSqlDatabase db = QSqlDatabase::addDatabase("QMYSQL");
     db.setHostName("");
     db.setDatabaseName(table);
-    db.setUserName("chris");
-    db.setPassword("mypass");
+    db.setUserName(name);
+    db.setPassword(password);
     bool ok = db.open();
     if (!ok)
         qDebug() << db.lastError().text();
@@ -164,12 +164,11 @@ std::optional<QString> run_query(QSqlQueryModel &model, const QString &query)
 
 int validate_user(const QString &name, const QString &surname, const QString &password)
 {
-    return 10;
-    // QSqlQuery query(login_query.arg(name).arg(surname).arg(password));
-    // if (query.size() == 0)
-    //     return -1;
-    // query.first();
-    // return query.value(0).toInt();
+    QSqlQuery query(login_query.arg(name).arg(surname).arg(password));
+    if (query.size() == 0)
+        return -1;
+    query.first();
+    return query.value(0).toInt();
 }
 
 int validate_admin(const QString &name, const QString &surname, const QString &password)

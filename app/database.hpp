@@ -71,7 +71,7 @@ inline QDate plan_date_end(QDate date_start, PlanType type)
     }
 }
 
-bool connect(const QString &table);
+bool connect(const QString &table, const QString &name, const QString &password);
 std::optional<QString> run_query(QSqlQueryModel &model, const QString &query);
 
 int validate_user(const QString &name, const QString &surname, const QString &password);

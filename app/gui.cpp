@@ -33,7 +33,7 @@ Window::Window(QWidget *parent)
     auto *loginscreen = new LoginScreen(this, center);
     auto *userscreen = new UserScreen(this, center);
 
-    setWindowTitle(QStringLiteral("Database project"));
+    setWindowTitle(QStringLiteral("Online console"));
     statusBar()->addPermanentWidget(status_label);
     statusBar()->setLayoutDirection(Qt::LayoutDirection::RightToLeft);
     center->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Maximum);
@@ -47,10 +47,7 @@ Window::Window(QWidget *parent)
         , new CatPrismScreen(center);
 #endif
     );
-    auto lt = make_layout<QVBoxLayout>(
-        new QLabel("java fa schifo!", center),
-        stack_widget
-    );
+    auto lt = make_layout<QVBoxLayout>(stack_widget);
     center->setLayout(lt);
 
     connect(loginscreen, &LoginScreen::logged, userscreen, &UserScreen::on_login);
@@ -72,12 +69,12 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     : QWidget(parent)
 {
     auto *image = make_image_label("logo.png");
-    auto *name_box = new QLineEdit;
-    auto *surname_box = new QLineEdit;
-    auto *pass_box = new QLineEdit;
-    auto *admin_button = new QPushButton("Login as admin");
-    auto *user_button = new QPushButton("Login as user");
-    auto *login_box = new QGroupBox("Login");
+    auto *name_box = new QLineEdit(this);
+    auto *surname_box = new QLineEdit(this);
+    auto *pass_box = new QLineEdit(this);
+    auto *admin_button = new QPushButton("Login admin", this);
+    auto *user_button = new QPushButton("Login utente", this);
+    auto *login_box = new QGroupBox("Login", this);
 
     image->setAlignment(Qt::AlignCenter);
     pass_box->setEchoMode(QLineEdit::EchoMode::Password);
@@ -95,9 +92,9 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     login_box->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     auto *mainlt = make_layout<QVBoxLayout>(
         image, login_box,
-        make_layout<QHBoxLayout>(admin_button, user_button)
+        make_layout<QHBoxLayout>(user_button, admin_button)
     );
-    mainlt->setContentsMargins(100, 10, 100, 10);
+    mainlt->setContentsMargins(100, 100, 100, 100);
     setLayout(mainlt);
 
     auto validate = [=](auto &&validate_fn, Window::Screen screen)
@@ -107,7 +104,7 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
             mainwnd->show_screen(screen);
             emit logged(id);
         } else {
-            msgbox(QString("Couldn't validate user %1 %2. Make sure you've typed the right username and password.")
+            msgbox(QString("Utente '%1 %2' non trovato. Hai digitato per bene la password?")
                    .arg(name).arg(surname));
         }
     };
@@ -446,12 +443,14 @@ UserProfile::UserProfile(QWidget *parent)
     daily_hours = new QLabel(this);
     total_hours = new QLabel(this);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
-    setLayout(make_form_layout(
+    auto *lt = make_form_layout(
         std::tuple{ "Nome:",    name },
         std::tuple{ "Cognome:", surname },
         std::tuple{ "Ore giornaliere:", daily_hours },
         std::tuple{ "Ore totali:", total_hours }
-    ));
+    );
+    lt->setContentsMargins(80, 0, 80, 0);
+    setLayout(lt);
 }
 
 void UserProfile::set_info(const db::UserInfo &info)
