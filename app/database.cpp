@@ -84,20 +84,6 @@ group by p.data;
 
 static const QString total_hours_query = "select count(ore_gioco) as 'Ore totali' from Partita where id_usr = %1";
 
-static const QString session_created_query = R"(
-select count(*) as numero_sessioni
-from Sessione s, Utente u
-where s.id_creatore = u.id
-and u.id = %1;
-)";
-
-static const QString session_part_query = R"(
-select count(*) as numero_partecipazioni
-from Partecipazione p, Utente u
-where p.id_usr = u.id
-and u.id = %1;
-)";
-
 static const QString get_fav_query = R"(
 select vg.id, vg.titolo as Titolo
 from Videogioco vg, Preferenza p
@@ -110,6 +96,23 @@ static const QString insert_fav_query = "insert into Preferenza(id_usr, id_vg) v
 static const QString check_session_query = "select * from VideogiocoMultiplayer where id_vg = %1 and min_giocatori <= %2 and max_giocatori >= %2;";
 static const QString create_session_query = "insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values(%1, %2, now(), now(), %3);";
 static const QString insert_partecipation_query = "insert into Partecipazione(id_usr, id_session) values(%1, last_insert_id());";
+
+static const QString session_statistic_query = R"(
+    select tb2.vg2, tb2.Titolo, ifnull(tb1.creat, 0) as Creazioni, tb2.part as Partecipazioni from (
+        select vg.id as vg1, vg.titolo, count(s.id) as creat
+        from Videogioco vg, Sessione s
+        where vg.id = s.id_vg
+        and s.id_creatore = %1
+        group by vg.id
+    ) as tb1 right join (
+        select vg.id as vg2, vg.titolo as titolo, count(s.id) as part
+        from Partecipazione p, Sessione s, Videogioco vg
+        where p.id_session = s.id
+        and s.id_vg = vg.id
+        and p.id_usr = %1
+        group by vg.id
+    ) as tb2 on vg1 = vg2
+)";
 
 static const QString monthly_profit_query = R"(
 select sum(profits) from (
@@ -268,20 +271,16 @@ UserInfo get_user_info(int uid)
     QSqlQuery info(user_id_query.arg(uid));
     QSqlQuery daily(daily_hours_query.arg(uid));
     QSqlQuery total(total_hours_query.arg(uid));
-    QSqlQuery session_created(session_created_query.arg(uid));
-    QSqlQuery session_part(session_part_query.arg(uid));
     info.first();
     daily.first();
     total.first();
-    session_created.first();
-    session_part.first();
     return {
         .name    = info.value(1).toString(),
         .surname = info.value(2).toString(),
         .daily_hours = daily.value(0).toInt(),
         .total_hours = total.value(0).toInt(),
-        .session_part = session_part.value(0).toInt(),
-        .session_create = session_created.value(0).toInt(),
+        .session_part = 0,
+        .session_create = 0,
     };
 }
 
@@ -316,6 +315,11 @@ std::optional<QString> create_session(int vid, int uid, const std::vector<int> &
         QSqlQuery part(t);
     }
     return std::nullopt;
+}
+
+void get_session_statistics(QSqlQueryModel &tofill, int uid)
+{
+    RUNQUERY(tofill, session_statistic_query.arg(uid));
 }
 
 int get_monthly_profit(int year, int month)

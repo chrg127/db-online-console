@@ -265,13 +265,21 @@ QWidget *UserScreen::make_users_tab()
     auto *searcher = new Searcher("Cerca utenti", this);
     auto *profile = new UserProfile(this);
     auto *fav_group = new QGroupBox("Giochi preferiti", this);
-    auto *fav = new DBTable(this);
+    auto *favtab = new DBTable(this);
+    auto *session_group = new QGroupBox("Statistiche sessioni", this);
+    auto *stattab = new DBTable(this);
 
     profile->hide();
     fav_group->hide();
+    session_group->hide();
     searcher->setMinimumWidth(200);
-    add_to_group(fav_group, fav);
-    auto *lt = make_layout<QHBoxLayout>(searcher, profile, fav_group);
+    add_to_group(fav_group, favtab);
+    add_to_group(session_group, stattab);
+    auto *lt = make_layout<QHBoxLayout>(
+        searcher,
+        profile,
+        make_layout<QVBoxLayout>(fav_group, session_group)
+    );
     lt->setAlignment(searcher, Qt::AlignLeft);
 
     searcher->on_search([=]() { searcher->table->fill(db::search_users, searcher->bar->text()); });
@@ -279,9 +287,11 @@ QWidget *UserScreen::make_users_tab()
     {
         int id = i.siblingAtColumn(0).data().toInt();
         profile->set_info(db::get_user_info(id));
+        favtab->fill(db::get_favorites, id);
+        stattab->fill(db::get_session_statistics, id);
         profile->show();
-        fav->fill(db::get_favorites, id);
         fav_group->show();
+        session_group->show();
     });
 
     return layout_widget(lt);
@@ -435,27 +445,21 @@ UserProfile::UserProfile(QWidget *parent)
     surname = new QLabel(this);
     daily_hours = new QLabel(this);
     total_hours = new QLabel(this);
-    session_part = new QLabel(this);
-    session_create = new QLabel(this);
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Minimum);
     setLayout(make_form_layout(
         std::tuple{ "Nome:",    name },
         std::tuple{ "Cognome:", surname },
         std::tuple{ "Ore giornaliere:", daily_hours },
-        std::tuple{ "Ore totali:", total_hours },
-        std::tuple{ "Numero sessioni create:", session_create },
-        std::tuple{ "Numero sessioni partecipate:", session_part }
+        std::tuple{ "Ore totali:", total_hours }
     ));
 }
 
 void UserProfile::set_info(const db::UserInfo &info)
 {
-#define SET(name) name->setText(info.name)
-    SET(name); SET(surname);
-#undef SET
-#define SET(name) name->setText(QString::number(info.name))
-    SET(daily_hours); SET(total_hours); SET(session_part); SET(session_create);
-#undef SET
+    name->setText(info.name);
+    surname->setText(info.surname);
+    daily_hours->setText(QString::number(info.daily_hours));
+    total_hours->setText(QString::number(info.total_hours));
 }
 
 Searcher::Searcher(const QString &title, QWidget *parent)

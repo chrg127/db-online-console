@@ -11,7 +11,6 @@
 \usepackage[italian]{cleveref}	% ^
 \usepackage[section]{placeins}
 \usepackage{float}
-\usepackage{minted}
 \usepackage{listings}
 \usepackage{color}
 
@@ -68,6 +67,14 @@
 christian.ricci3@studio.unibo.it \\
 0000915693}
 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Document begin
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
 \begin{document}
 
 \maketitle
@@ -103,10 +110,9 @@ I concetti principali sono riassunti in questa tabella.
 	\begin{tabular}{ | m{4cm} m{8cm} m{5cm} | }
 	\rowcolor{rowc}
 	\textbf{Termine} & \textbf{Breve descrizione} & \textbf{Eventuali sinonimi} \\
-	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo \\ \hline
+	Utente & Colui che accede al servizio. Può sottoscrivere nuovi piani, iniziare nuove partite con i videogiochi presenti, creare o partecipare a sezioni, comprare copie fisiche di un gioco. & Account, Profilo utente, Profilo giocatore \\ \hline
 	Videogioco & Indica un videogioco del catalogo. & Titolo \\ \hline
-	Copia Videogioco & Indica una copia fisica di un videogioco. Ogni videogioco può avere più copie fisiche. & Copia \\ \hline
-	Statistiche & Le statistiche riguardanti un utente e un videogioco. Ce ne sono due principali: le ore di gioco e la preferenza. & \\ \hline
+	Copia & Indica una copia fisica di un videogioco. Ogni videogioco può avere più copie fisiche. & Copia videogioco, Copia fisica \\ \hline
 	Piano & Ogni utente deve sottoscrivere un piano per accedere al servizio. & Abbonamento, Iscrizione\\ \hline
 	Sessione di gioco & Una partita di un videogioco multiplayer, creata inizialmente da un utente. & Sessione \\ \hline
 	\end{tabular}
@@ -121,11 +127,9 @@ meglio fruibile per la realizzazione della base di dati.\\\\
 \begin{addmargin}[4em]{4em}
 Per ogni \textbf{\textit{utente}} si memorizza nome, cognome, password, email, età e opzionalmente numero di telefono. Ogni utente deve avere un codice univoco, fornito al momento della registrazione.
 
-Un utente può stipulare più \textbf{\textit{piani}}: un piano gratuito è attivato al momento della registrazione. Per ogni tipo di piano c'è una durata e un prezzo e ogni piano viene mantenuto in uno storico, in cui si memorizza anche la data d'inizio (non c'è bisogno della data di scadenza, dato che si può evincere dal tipo di piano). Ogni utente può avere un solo piano attivo alla volta.
+Un utente può sottoscrivere più \textbf{\textit{piani}}: un piano gratuito è attivato al momento della registrazione. Per ogni tipo di piano c'è una durata e un prezzo e ogni piano viene mantenuto in uno storico, in cui si memorizza anche la data d'inizio (non c'è bisogno della data di scadenza, dato che si può evincere dal tipo di piano). Ogni utente può avere un solo piano attivo alla volta.
 
 Per ogni \textbf{\textit{videogioco}} si deve memorizzare titolo, genere, anno di rilascio, azienda sviluppatrice e produttore esecutivo. Si devono anche memorizzare prezzo e quantità di copie per ogni videogioco. Per ogni copia, invece, si deve memorizzare la data di acquisto.
-
-% Occorre memorizzare in qualche modo le ore di gioco di un utente.
 
 Infine, per ogni \textbf{\textit{sessione}} occorre memorizzare gli utenti partecipanti e il gioco scelto. Dato che non tutti i giochi permettono di giocare in multiplayer, bisogna fare una distinzione tra \textbf{\textit{gioco single player}} e \textbf{\textit{gioco multiplayer}}. Si suppone, inoltre, che un videogioco multiplayer abbia un numero minimo e massimo di giocatori. \\\\
 
@@ -133,19 +137,21 @@ Infine, per ogni \textbf{\textit{sessione}} occorre memorizzare gli utenti parte
 
 Da questo testo si può anche evincere le principali azioni richieste:
 
-\begin{itemize}
-\item Sottoscrivere un nuovo piano per un utente;
-\item Visualizzare i piani creati da un utente;
-\item Registrare la cancellazione di un piano da parte di un utente;
-\item Visualizzare i giochi disponibili nel catalogo;
-\item Visualizzare il numero di copie fisiche disponibili di un videogioco;
-\item Registrare l'acquisto di una copia di un videogioco;
-\item Visualizzare il numero di ore di gioco giornaliero e totale di un utente;
-\item Visualizzare i giochi preferiti di un utente;
-\item Visualizzare i giochi più giocati e quelli più preferiti;
-\item Registrare la creazione di una nuova sessione di gioco;
-\item Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco;
-\end{itemize}
+\begin{enumerate}
+\item Login di un utente
+\item Registrare la sottoscrizione di un piano
+\item Registrare la cancellazione di un piano
+\item Cercare un gioco per titolo/genere/azienda e usando un filtro
+\item Visualizzare i giochi più giocati e quelli più preferiti
+\item Registrare l'acquisto di una copia di un videogioco
+\item Cercare un utente usando un filtro
+\item Visualizzare il numero di ore di gioco giornaliero e totale di un utente
+\item Visualizzare i giochi preferiti di un utente
+\item Aggiungere un gioco tra i preferiti
+\item Registrare la creazione di una sessione di gioco
+\item Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco
+\item Visualizzare il profitto mensile del servizio
+\end{enumerate}
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -259,17 +265,19 @@ Le operazioni principali sono elencate nella fase di analisi. Segue una tabella 
 	\rowcolor{rowc}
 	\hline
 	\textbf{Codice} & \textbf{Operazione} & \textbf{Frequenza} \\
-	1 & Sottoscrivere un nuovo piano per un utente & 10 al mese \\ \hline
-	1 & Visualizzare i piani creati da un utente & 100 al mese \\ \hline
-	1 & Registrare la cancellazione di un piano da parte di un utente & 5 al mese \\ \hline
-	1 & Visualizzare i giochi disponibili nel catalogo & 1000 al giorno \\ \hline
-	1 & Visualizzare il numero di copie fisiche disponibili di un videogioco & 100 al giorno \\ \hline
-	1 & Registrare l'acquisto di una copia di un videogioco & 100 al giorno \\ \hline
-	1 & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 5000 al giorno \\ \hline
-	1 & Visualizzare i giochi preferiti di un utente & 5000 al giorno \\ \hline
-	1 & Visualizzare i giochi più giocati e quelli più preferiti & 5000 al giorno \\ \hline
-	1 & Registrare la creazione di una nuova sessione di gioco & 50 al giorno \\ \hline
-	1 & Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco & 500 al giorno \\ \hline
+	1  & Login di un utente & 1000 al giorno \\ \hline
+    2  & Registrare la sottoscrizione di un piano & 200 al mese \\ \hline
+    3  & Registrare la cancellazione di un piano & 50 al mese \\ \hline
+    4  & Cercare un gioco per titolo/genere/azienda e usando un filtro & 3000 al giorno \\ \hline
+    5  & Visualizzare i giochi più giocati e quelli più preferiti & 2000 al giorno \\ \hline
+    6  & Registrare l'acquisto di una copia di un videogioco & 5 al giorno \\ \hline
+    7  & Cercare un utente usando un filtro & 1000 al giorno \\ \hline
+    8  & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 1000 al giorno \\ \hline
+    9  & Visualizzare i giochi preferiti di un utente & 1000 al giorno \\ \hline
+    10 & Aggiungere un gioco tra i preferiti & 5 al giorno \\ \hline
+    11 & Registrare la creazione di una sessione di gioco & 100 al giorno \\ \hline
+    12 & Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco & 1000 al giorno \\ \hline
+    13 & Visualizzare il profitto mensile del servizio & 1 al mese \\ \hline
 	\end{tabular}
 \end{center}
 \caption{Tabella delle stime delle frequenze.}
@@ -279,262 +287,218 @@ Le operazioni principali sono elencate nella fase di analisi. Segue una tabella 
 
 \sect{Schemi di navigazione e tabelle degli accessi}
 
-\subsection*{Login e ricerca di un utente}
+In questa sezione sono riportate le tabelle degli accessi delle operazioni sopra descritte. Al fine del calcolo, si considerano gli accessi in scrittura di peso doppio rispetto a quelli in lettura.
+
+\subsection*{1. Login di un utente}
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente         & E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 1L - 9000 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente         & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Sottoscrivere un nuovo piano per un utente}
+\subsection*{2. Registrare la sottoscrizione di un piano}
 
-Per aggiungere un nuovo piano per l'utente, controllare se questi non abbia già un piano in corso (leggendo da Piano e Tipologia piano), poi scriverlo.
-
-\begin{table}[!htb]
-\begin{center}
-	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente         & E & 1 & L \\ \hline
-	Sottoscrittura & R & 1 & L \\ \hline
-	Piano          & E & 1 & L \\ \hline
-	Tipologia      & R & 1 & L \\ \hline
-	Sottoscrittura & R & 1 & S \\ \hline
-	Piano          & E & 1 & S \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 2L + 1S - 10 al mese & & & \\
-	\hline
-	\end{tabular}
-\end{center}
-\end{table}
-
-\subsection*{Visualizzare i piani creati e cancellati da un utente}
-
-Per questa operazione basta prelevare l'ID dell'utente e andare a controllare i piani creati.
+% per registrare la sottoscrizione, prima bisogna guardare se l'utente ha già un piano in corso.
+Per permettere la registrazione di un nuovo piano, prima bisogna cercare se l'utente ha già un piano in corso: questo comporta anche accessi in lettura dei piani e delle tipologie.
+In questa operazione, così come in molte altre, si suppone di avere già l'ID dell'utente che effettua l'operazione.
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente         & E & 1 & L \\ \hline
-	Sottoscrittura & E & 1 & L \\ \hline
-	Piano 		 & E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 2 L - 100 al mese & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Sottoscrittura  & R & ? & L \\ \hline
+	Piano           & E & ? & L \\ \hline
+	Tipologia       & R & ? & L \\ \hline
+	Tipologia piano & E & ? & L \\ \hline
+	Sottoscrittura  & R & 1 & S \\ \hline
+	Piano           & E & 1 & S \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
 
-\subsection*{Registrare la cancellazione di un piano da parte di un utente}
+\subsection*{3. Registrare la cancellazione di un piano}
 
-Prima bisogna guardare il piano in corso di un utente, poi si registra la cancellazione.
+In maniera analoga all'ultima operazione, bisogna trovare il piano in corso dell'utente prima di poterlo cancellare.
 
 \begin{table}[!htb]
 \begin{center}
 	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente           & E & 1 & L \\ \hline
-	Piano    		   & E & 1 & L \\ \hline
-	Tipologia		   & R & 1 & L \\ \hline
-	Tipologia piano  & E & 1 & L \\ \hline
-	Sottoscrittura   & R & 1 & L \\ \hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Piano    		 & E & ? & L \\ \hline
+	Tipologia		 & R & ? & L \\ \hline
+	Tipologia piano  & E & ? & L \\ \hline
+	Sottoscrittura   & R & ? & L \\ \hline
 	Piano Cancellato & E & 1 & S \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 2L + 1S - 5 al mese & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare i giochi disponibili nel catalogo}
 
-Un utente, per poter visualizzare il catalogo, deve avere almeno un piano in corso.
+\subsection*{4. Cercare un gioco per titolo/genere/azienda e usando un filtro}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente 		   & E & 1 & L \\ \hline
-	Sottoscrittura   & R & 1 & L \\ \hline
-	Piano 		   & E & 1 & L \\ \hline
-	Tipologia		   & R & 1 & L \\ \hline
-	Tipologia piano  & E & 1 & L \\ \hline
-	Videogioco       & E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 1L - 1000 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco       & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare il numero di copie fisiche disponibili di un videogioco}
-
-L'input è il nome di un videogioco. Per vedere se una copia è disponibile, bisogna guardare anche gli acquisti.
+\subsection*{5. Visualizzare i giochi più giocati e quelli più preferiti}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco       & E & 1 & L \\ \hline
-	Copia		   & R & 1 & L \\ \hline
-	Copia Videogioco & E & 1 & L \\ \hline
-	Acquisto 		   & R & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 2L - 100 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco & E & ? & L \\ \hline
+	Riguarda	   & R & ? & L \\ \hline
+	Partita    & E & ? & L \\ \hline
+	Preferenza & R & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
 
-\subsection*{Registrare l'acquisto di una copia di un videogioco}
+\subsection*{6. Registrare l'acquisto di una copia di un videogioco}
 
-Basta aggiungere un nuovo acquisto.
+Per registrare un acquisto, prima bisogna trovare se il videogioco in questione ha ancora copie disponibili: questo comporta anche l'accesso in lettura degli acquisti. Inoltre, per un eventuale sistema di pagamento, bisognerà anche cercare il prezzo del videogioco in questione (memorizzato per l'intero videogioco, non per ogni singola copia).
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Acquisto & R & 1 & S \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 1L + 1S - 100 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco		 & E & ? & L \\ \hline
+	Copia			 & R & ? & L \\ \hline	
+	Copia Videogioco & E & ? & L \\ \hline
+	Acquisto 		 & R & ? & L \\ \hline
+	Acquisto 		 & R & 1 & S \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
-
-Basta guardare solo partita.
+\subsection*{7. Cercare un utente usando un filtro}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente  & E & 1 & L \\ \hline
-	Gioca   & R & 2 & L \\ \hline
-	Partita & E & 2 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 4L - 5000 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
 
-\subsection*{Visualizzare i giochi preferiti di un utente}
+\subsection*{8. Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente     & E & 1 & L \\ \hline
-	Preferenza & R & 1 & L \\ \hline
-	Videogioco & E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 3L - 5000 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Utente  & E & ? & L \\ \hline
+	Gioca   & R & ? & L \\ \hline
+	Partita & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare i giochi più giocati e quelli più preferiti}
-
-Per visualizzare quelli più giocati, occorre guardare Partita. Per visualizzare quelli preferiti, occorre guardare Preferenza.
+\subsection*{9. Visualizzare i giochi preferiti di un utente}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & 1 & L \\ \hline
-	Riguarda	  & R & 1 & L \\ \hline
-	Partita    & E & 1 & L \\ \hline
-	Preferenza & R & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 4L - 5000 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Preferenza & R & ? & L \\ \hline
+	Videogioco & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{10. Aggiungere un gioco tra i preferiti}
+
+% si suppone che il db prevenga coppie duplicate.
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Preferenza & R & 1 & S \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
 
-\subsection*{Registrare la creazione di una nuova sessione di gioco}
+\subsection*{11. Registrare la creazione di una sessione di gioco}
 
-Questo comporta avere l'utente creatore, gli utenti partecipanti e il videogioco scelto e comporta anche aggiornare la creazione e la partecipazione da parte di un utente. Si suppone che in media avremo 5 partecipanti.
-Prima di registrare bisogna vedere il numero massimo e minimo di utenti.
-Questa query registra solo l'inizio di una sessione, quindi il tempo trascorso bisognerà metterlo in un secondo momento.
+Si suppone di avere l'ID del videogioco scelto, l'ID dell'utente creatore e gli ID degli utenti partecipanti. Per registrare una sessione, bisogna cercare se il videogioco scelto è effettivamente un gioco giocabile in multiplayer (alternativamente, a lato software si possono filtrare i videogiochi non multiplayer) e che il videogioco supporti il numero di giocatori. Al momento della registrazione, si aggiornano opportunamente sia l'entità Sessione, sia le relazioni Creazione e Partecipazione.
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Sessione		         & E & 1 & S \\ \hline
-	Scelta		         & R & 2 & S \\ \hline
-	Videogioco multiplayer & E & 2 & L \\ \hline
-	Creazione              & R & 1 & S \\ \hline
-	Partecipazione         & R & 5 & S \\ \hline
-	Utente                 & E & 6 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: - 50 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco multiplayer  	& E & ? & L \\ \hline
+	Sessione					& E & 1 & S \\ \hline
+	Scelta					& R & 1 & S \\ \hline
+	Creazione				& R & 1 & S \\ \hline
+	Partecipazione			& R & ? & S \\ \hline 
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
+\subsection*{12. Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente         & E & 1 & L \\ \hline
-	Partecipazione & R & 1 & L \\ \hline
-	Creazione      & R & 1 & L \\ \hline
-	Sessione       & E & 1 & L \\ \hline
-	Scelta		   & R & 1 & L \\ \hline
-	Videogioco     & E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 500 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Partecipazione & R & ? & L \\ \hline
+	Creazione      & R & ? & L \\ \hline
+	Sessione       & E & ? & L \\ \hline
+	Scelta		   & R & ? & L \\ \hline
+	Videogioco     & E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
-\subsection*{Profitto mensile del servizio}
+\newpage
+
+\subsection*{13. Visualizzare il profitto mensile del servizio}
+
+Il profitto viene calcolando cercando i piani sottoscritti e cercando gli acquisti fatti in nel mese richiesto.
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc}
-	\textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Piano		& E & 1 & L \\ \hline
-	\rowcolor{rowc}
-	\textbf{Totale}: 500 al giorno & & & \\
-	\hline
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Videogioco			& E & ? & L \\ \hline
+	Copia				& R & ? 	& L \\ \hline
+	Copia videogioco 	& E & ? & L \\ \hline
+	Acquisto				& R & ? & L \\ \hline
+	Piano				& E & ? & L \\ \hline
+	Tipologia			& R & ? & L \\ \hline
+	Tipologia piano		& E & ? & L \\ \hline
+	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
@@ -592,6 +556,13 @@ Nel passaggio da schema ER a schema logico, sono state eliminate le seguenti rel
 
 \sect{Analisi delle ridondanze}
 
+È stata aggiunta una ridondanza tramite un nuovo attributo di Piano, la data di scadenza, che permette di semplificare alcune query relative ai piani, dato che non c'è più bisogno di leggere i dati relativi alla tipologia per risalire alla data di scadenza.
+
+\subsection*{2. Registrare la sottoscrizione di un piano}
+
+\subsection*{3. Registrare la cancellazione di un piano}
+
+
 \sect{Traduzione di entità e associazioni in relazioni}
 
 \begin{itemize}
@@ -641,7 +612,6 @@ FK: ID sessione REFERENCES \textbf{Sessione}
 
 \sect{Costruzione delle tabelle in linguaggio SQL}
 
-\usemintedstyle{borland}
 \begin{lstlisting}
 
 create table Utente (
@@ -671,16 +641,18 @@ create table CopiaVideogioco (
 create table Acquisto (
     id_copia        int                 not null references CopiaVideogioco(id),
     id_usr          int                 not null references Utente(id),
-    data_acquisto   datetime,
+    data_acquisto   date,
+    ora_acquisto    time,
     unique (id_copia, id_usr)
 );
 
 create table Partita (
     id_usr          int                 not null references Utente(id),
     id_vg           int                 not null references Videogioco(id),
-    data            datetime            not null,
+    data            date                not null,
+    ora             time                not null,
     ore_gioco       int,
-    unique (id_usr, id_vg, data)
+    unique (id_usr, id_vg, data, ora)
 );
 
 create table Preferenza (
@@ -709,7 +681,9 @@ create table Piano (
                          'Mensile',
                          'Annuale')     not null references TipologiaPiano(tipologia),
     data_acquisto   date                not null,
-    ora_acquisto    time                not null
+    ora_acquisto    time                not null,
+    data_fine       date                not null,
+    ora_fine        time                not null
 );
 
 create table PianoCancellato (
@@ -719,10 +693,11 @@ create table PianoCancellato (
 );
 
 create table Sessione (
-    id              int                 primary key,
+    id              int                 primary key auto_increment,
     id_vg           int                 not null references VideogiocoMultiplayer(id_vg),
     id_creatore     int                 not null references Utente(id),
     data            date,
+    ora             time,
     tempo_trascorso int
 );
 
@@ -736,131 +711,209 @@ create table Partecipazione (
 
 \sect{Traduzione delle operazioni in query SQL}
 
-% used when user clicks on 'login as user' button
-\subsection*{Login e ricerca di un utente}
-\begin{lstlisting}
-select *
-from Utente u
-where u.nome = nome_utente and u.password = password
-\end{lstlisting}
+\subsection*{1. Login di un utente}
 
-% Login e ricerca di un utente                                                          login button, or searching for user
-% Sottoscrivere un nuovo piano per un utente                                            create new plan button
-% Visualizzare i piani creati e cancellati da un utente admin side                      admin side
-% Registrare la cancellazione di un piano da parte di un utente                         delete plan button
-% Visualizzare i giochi disponibili nel catalogo                                        obvious
-% Visualizzare il numero di copie fisiche disponibili di un videogioco                  when clicking on a videogame
-% Registrare l'acquisto di una copia di un videogioco                                   buy copy button
-% Visualizzare il numero di ore di gioco giornaliero e totale di un utente              user profile
-% Visualizzare i giochi preferiti di un utente                                          user profile
-% Visualizzare i giochi più giocati e quelli più preferiti                              user/admin side
-% Registrare la creazione di una nuova sessione di gioco                                starting session (?)
-% Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco   user profile (or get rid of it)
-% Profitto mensile del servizio                                                         admin side
+    \begin{lstlisting}
+    select *
+    from Utente u
+    where u.nome = nome_utente
+    and u.cognome = cognome_utente
+    and u.password = password_utente;
+    \end{lstlisting}
 
-\subsection*{Visualizzare i piani creati e cancellati da un utente}
+\subsection*{2. Registrare la sottoscrizione di un piano}
 
-\verb id_utente corrisponde all'ID dell'utente di cui visualizzare i piani. La prima query restituisce i piani creati, la seconda i piani cancellati.
+Per verificare se l'utente ha già un piano, la seguente query non deve restituire nessun record. Il risultato di questa query è l'ID del piano corrente dell'utente, che dovrà inoltre essere l'unico valido se l'utente ha già sottoscritto un piano (la certezza di ciò si ottiene per come si gestisce l'aggiunta e cancellazione dei piani).
 
-\begin{lstlisting}
-select *
-from Piano p
-where p.id_usr = id_utente;
-\end{lstlisting}
+    \begin{lstlisting}
+    select id as id_piano
+    from Piano p
+    where p.id_usr = id_utente
+    and datediff(now(), p.data_fine) < 0
+    and p.id not in (
+        select pc.id
+        from PianoCancellato pc
+    );
+    \end{lstlisting}
 
-\begin{lstlisting}
-select *
-from Piano p, PianoCancellato pc
-where p.id_usr = id_utente
-and p.id = pc.id;
-\end{lstlisting}
+Se tale condizione risulta soddisfatta (nessun ID trovato), allora si procede con l'inserimento di un nuovo piano.
 
-\subsection*{Sottoscrivere un nuovo piano per un utente}
+	\begin{lstlisting}
+    insert into Piano(id_usr, tipologia, data_acquisto, ora_acquisto, data_fine, ora_fine) values(id_utente, ?, now(), now(), ?, now());
+    \end{lstlisting}
 
-\begin{lstlisting}
-select *
-from Piano p
-where p.id_usr = id_utente
-and datediff(now(), p.data_fine) < 0
-and p.id not in (select pc.id
-                 from PianoCancellato pc);
-\end{lstlisting}
+\subsection*{3. Registrare la cancellazione di un piano}
 
-Se la query restituisce un risultato vuoto, si può procedere all'inserimento:
+L'operazione riutilizza la query di condizione descritta per l'operazione sopra: in questo caso, la query deve restituire l'ID del piano (invece di nulla), che poi sarà memorizzato per essere utilizzato nell'inserimento.
+Dopo aver effettivamente trovato e memorizzato l'ID, si può procedere nell'inserimento.
 
-\begin{lstlisting}
-insert into Piano(id, id_usr, tipologia, data_acquisto, ora_acquisto, data_fine) values(?, ?, ?, ?);
-\end{lstlisting}
+    \begin{lstlisting}
+    insert into PianoCancellato(id, data_canc, ora_canc) values(id_piano, now(), now());
+    \end{lstlisting}
 
-\subsection*{Registrare la cancellazione di un piano da parte di un utente}
+\subsection*{4. Cercare un gioco per titolo/genere/azienda e usando un filtro}
 
-Questa query è simile all'ultima: si cerca l'ID del piano corrente dell'utente, e se esiste, si aggiornano i piani cancellati.
+Si presuppone che la scelta della colonna su cui avvenga il filtraggio venga fatto a lato software.
 
-\begin{lstlisting}
-select id
-if exists in (select p.id
-              from Piano p
-              where p.id_usr = id_utente
-              where datediff(now(), p.data_fine) < 0
-              and p.id not in (select pc.id
-                               from PianoCancellato pc))
+    \begin{lstlisting}
+    select id, titolo as Titolo, genere as Genere, azienda as Azienda
+    from Videogioco vg
+    where vg.? like '%%?%%';
+    \end{lstlisting}
 
-insert into PianoCancellato values (id, now(), now())
-\end{lstlisting}
+\subsection*{5. Visualizzare i giochi più giocati e quelli più preferiti}
 
-\subsection*{Ricerca di un videogioco nel catalogo}
+    \begin{lstlisting}
+    select id, vg.titolo as Titolo, vg.genere as Genere, vg.azienda as Azienda, count(id_usr) as Preferenza
+    from Preferenza p, Videogioco vg
+    where p.id_vg = vg.id
+    group by id_vg
+    order by Preferenza desc
+    limit 5;
+    \end{lstlisting}
 
-\begin{lstlisting}
-% select titolo, genere, anno, azienda, produttore, prezzo
-% from Videogioco
-% order by titolo;
-\end{lstlisting}
+	\begin{lstlisting}
+    select id, vg.titolo as Titolo, vg.genere as Genere, vg.azienda as Azienda, count(p.ore_gioco) as Ore
+    from Partita p, Videogioco vg
+    where vg.id = p.id_vg
+    group by id_vg
+    order by Ore desc
+    limit 5;
+    \end{lstlisting}
 
-\subsection*{Visualizzare il numero di copie fisiche disponibili di un videogioco}
+\subsection*{6. Registrare l'acquisto di una copia di un videogioco}
 
-\begin{lstlisting}
-select count(*)
-from CopiaVideogioco cv
-where cv.id_vg = id_videogioco;
-\end{lstlisting}
+La seguente query trova il numero di copie disponibili per il videogioco scelto: per controllare se si può effettuare un acquisto, basta controllare che num\_disponibili != 0. La query inoltre sceglie, in caso di copie disponibili, l'ID di una copia da comprare: questa viene scelta in base all'ID più basso tra le copie disponibili. La query restituisce anche il prezzo del videogioco, usabile per un eventuale sistema di pagamento dentro l'applicazione.
 
-\subsection*{Registrare l'acquisto di una copia di un videogioco}
+    \begin{lstlisting}
+    select min(cv.id) as id_da_comprare, count(*) as numero_copie, vg.prezzo as prezzo
+    from CopiaVideogioco cv, Videogioco vg
+    where vg.id = id_videogioco
+    and cv.id_vg = vg.id
+    and cv.id not in (
+    		select id_copia
+    		from Acquisto
+    	);
+    \end{lstlisting}
 
-La query deve prendere l'ID di una qualsiasi copia che non sia stata acquistata. Per semplicità, prendiamo sempre l'ID minore.
+Dopo essersi accertato della condizione e aver estratto l'ID della copia da compare, si può procedere con l'acquisto.
 
-\begin{lstlisting}
-select min(cv.id) as id
-from CopiaVideogioco cv
-where cv.id_vg = id_videogioco
-and cv.id not in (select a.id from Acquisto);
-\end{lstlisting}
+    \begin{lstlisting}    
+    insert into Acquisto(id_copia, id_usr, data_acquisto, ora_acquisto) values(id_da_comprare, id_utente, now(), now());
+    \end{lstlisting}
 
-\subsection*{Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
+\subsection*{7. Cercare un utente usando un filtro}
 
-\begin{lstlisting}
-select count(p.ore_gioco) as ore_totali
-from Partita p
-where p.id_usr = id_utente;
+    \begin{lstlisting}
+    select id, nome as Nome, cognome as Cognome
+    from Utente u
+    where u.nome like '%%nome_utente%%'
+    or u.cognome like '%%cognome_utente%%'
+    \end{lstlisting}
 
-select avg(p.ore_gioco) as ore_giornaliere
-from Partita p
-where p.id_usr = id_utente
-group by p.data;
-\end{lstlisting}
+\subsection*{8. Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
 
-\subsection*{Visualizzare i giochi preferiti di un utente}
+La seguente query restituisce la media delle ore per ogni giorno.
 
-\begin{lstlisting}
-select vg.titolo as nome_videogioco
-from Videogioco vg, Preferenza p
-where vg.id = p.id_vg and u.id = p.id_usr
-and u.nome = nome_utente;
-\end{lstlisting}
+    \begin{lstlisting}
+    select avg(p.ore_gioco) as 'Ore giornaliere'
+    from Partita p
+    where p.id_usr = id_utente
+    group by p.data;
+    \end{lstlisting}
 
-\subsection*{Visualizzare i giochi più giocati e quelli più preferiti}
-\subsection*{Registrare la creazione di una nuova sessione di gioco}
-\subsection*{Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
-\subsection*{Profitto mensile del servizio}
+La seguente query invece restituisce le ore totali.
+
+    \begin{lstlisting}
+    select count(ore_gioco) as 'Ore totali'
+    from Partita
+    where id_usr = id_utente
+    \end{lstlisting}
+
+\subsection*{9. Visualizzare i giochi preferiti di un utente}
+
+    \begin{lstlisting}
+    select vg.id, vg.titolo as Titolo
+    from Videogioco vg, Preferenza p
+    where vg.id = p.id_vg
+    and p.id_usr = id_utente;
+    \end{lstlisting}
+
+\subsection*{10. Aggiungere un gioco tra i preferiti}
+
+Non dovrebbe essere necessario dover fare un controllo, dato che per costruzione del database, la tabella Preferenza non ammette coppie utente-videogioco uguali.
+
+    %\begin{lstlisting}
+    %select *
+    %from Preferenza p
+    %where p.id_usr = id_utente
+    %and p.id_vg = id_videogioco
+	%\end{lstlisting}
+
+    \begin{lstlisting}
+    insert into Preferenza(id_usr, id_vg) values(id_utente, id_videogioco);
+    \end{lstlisting}
+
+\subsection*{11. Registrare la creazione di una sessione di gioco}
+
+La seguente query esegue il controllo descritto quando è stata descritta l'operazione nella sezione delle tabelle degli accessi: controlla se il videogioco è multiplayer e se supporta il numero di giocatori che vogliono partecipare.
+
+    \begin{lstlisting}
+    select *
+    from VideogiocoMultiplayer
+    where id_vg = id_videogioco
+    and min_giocatori <= num_giocatori
+    and max_giocatori >= num_giocatori;
+    \end{lstlisting}
+
+Dopo aver fatto il controllo, si può procedere con l'inserimento: dato che per l'inserimento in Partecipazione ci serve sapere l'ID della sessione, bisogna prima inserire dentro Sessione, poi dentro Partecipazione.
+
+    \begin{lstlisting}
+    insert into Sessione(id_vg, id_creatore, data, ora, tempo_trascorso) values(id_videogioco, id_utente, now(), now(), ?);
+    \end{lstlisting}
+    
+    \begin{lstlisting}
+    insert into Partecipazione(id_usr, id_session) values(id_utente, last_insert_id());
+    \end{lstlisting}
+    
+\subsection*{12. Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
+
+    \begin{lstlisting}
+    select tb2.vg2, tb2.Titolo, ifnull(tb1.creat, 0) as Creazioni, tb2.part as Partecipazioni from (
+        select vg.id as vg1, vg.titolo, count(s.id) as creat
+        from Videogioco vg, Sessione s
+        where vg.id = s.id_vg
+        and s.id_creatore = %1
+        group by vg.id
+    ) as tb1 right join (
+        select vg.id as vg2, vg.titolo as titolo, count(s.id) as part
+        from Partecipazione p, Sessione s, Videogioco vg
+        where p.id_session = s.id
+        and s.id_vg = vg.id
+        and p.id_usr = %1
+        group by vg.id
+    ) as tb2 on vg1 = vg2
+    \end{lstlisting}
+
+\subsection*{13. Visualizzare il profitto mensile del servizio}
+
+La query restituisce il profitto per un singolo mese-anno scelto dall'utente.
+
+    \begin{lstlisting}
+    select sum(profits) from (
+        select sum(vg.prezzo) as profits
+        from CopiaVideogioco cv, Acquisto a, Videogioco vg
+        where a.id_copia = cv.id and vg.id = cv.id_vg
+        and extract(year_month from a.data_acquisto) = 'anno_mese'
+
+        union
+
+        select sum(costo)
+        from Piano p, TipologiaPiano tp
+        where p.tipologia = tp.tipologia
+        and extract(year_month from p.data_acquisto) = 'anno_mese'
+    ) as tb;
+    \end{lstlisting}
 
 \chap{Progettazione dell'applicazione}
 

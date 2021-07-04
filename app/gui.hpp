@@ -117,7 +117,7 @@ public:
 
 class UserProfile : public QGroupBox {
     Q_OBJECT
-    QLabel *name, *surname, *daily_hours, *total_hours, *session_part, *session_create;
+    QLabel *name, *surname, *daily_hours, *total_hours;
 public:
     UserProfile(QWidget *parent = nullptr);
     void set_info(const db::UserInfo &info);
