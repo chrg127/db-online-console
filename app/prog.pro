@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = prog
 CONFIG += debug_and_release
 CONFIG += c++20
-QMAKE_CXXFLAGS += -fconcepts-ts
+QMAKE_CXXFLAGS += -fconcepts-ts -std=c++20
 QT = core gui sql
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 

@@ -97,7 +97,7 @@ LoginScreen::LoginScreen(Window *mainwnd, QWidget *parent)
     mainlt->setContentsMargins(100, 100, 100, 100);
     setLayout(mainlt);
 
-    auto validate = [=](auto &&validate_fn, Window::Screen screen)
+    auto validate = [=, this](auto &&validate_fn, Window::Screen screen)
     {
         auto name = name_box->text(), surname = surname_box->text(), password = pass_box->text();
         if (int id = validate_fn(name, surname, password); id != -1) {
@@ -170,7 +170,7 @@ QWidget *UserScreen::make_profile_tab()
         make_layout<QVBoxLayout>(create_plan_group, curr_plan_group)
     );
 
-    connect(createbt, &QPushButton::released, [=]()
+    connect(createbt, &QPushButton::released, [=, this]()
     {
         if (db::create_plan(uid, db::int_to_plan(box->currentData().toInt()))) {
             msgbox("Piano creato con successo.");
@@ -179,7 +179,7 @@ QWidget *UserScreen::make_profile_tab()
             msgbox("Hai già un piano in corso!");
     });
     connect(box, QOverload<int>::of(&QComboBox::currentIndexChanged), set_enddate);
-    connect(cancelbt, &QPushButton::released, [=]()
+    connect(cancelbt, &QPushButton::released, [=, this]()
     {
         if (db::cancel_plan(plan_profile->planid())) {
             msgbox("Piano cancellato con successo.");
@@ -219,7 +219,7 @@ QWidget *UserScreen::make_game_tab()
     auto *lt = make_layout<QHBoxLayout>(searcher, fav_group, profile);
     lt->setAlignment(searcher, Qt::AlignLeft);
 
-    auto tabclick = [=](const auto &i)
+    auto tabclick = [=, this](const auto &i)
     {
         vid = i.siblingAtColumn(0).data().toInt();
         profile->set_info(db::get_game_info(vid));
@@ -238,7 +238,7 @@ QWidget *UserScreen::make_game_tab()
     connect(favorites,      &QTableView::clicked, tabclick);
     connect(bestbt,         &QPushButton::released, [=]() { searcher->table->fill(db::best_games); });
     connect(most_player_bt, &QPushButton::released, [=]() { searcher->table->fill(db::most_played_games); });
-    connect(buybt, &QPushButton::released, [=]()
+    connect(buybt, &QPushButton::released, [=, this]()
     {
         if (db::buy_game(vid, uid)) {
             msgbox("Il gioco è stato comprato.");
@@ -317,7 +317,7 @@ QWidget *UserScreen::make_session_tab()
     );
 
     user_searcher->on_search([=]() { user_searcher->table->fill(db::search_users, user_searcher->bar->text()); });
-    user_searcher->on_tab_click([=](const auto &i)
+    user_searcher->on_tab_click([=, this](const auto &i)
     {
         int id = i.siblingAtColumn(0).data().toInt();
         QString name = i.siblingAtColumn(1).data().toString();
@@ -328,7 +328,7 @@ QWidget *UserScreen::make_session_tab()
         }
     });
     game_searcher->on_search([=]() { game_searcher->table->fill(db::search_games, game_searcher->bar->text(), "titolo"); });
-    game_searcher->on_tab_click([=](const auto &i)
+    game_searcher->on_tab_click([=, this](const auto &i)
     {
         svid = i.siblingAtColumn(0).data().toInt();
         game_chosen->setText(i.siblingAtColumn(1).data().toString());
@@ -350,7 +350,7 @@ QWidget *UserScreen::make_session_tab()
         else
             msgbox("Sessione creata correttamente.");
     });
-    connect(remove, &QPushButton::released, [=]()
+    connect(remove, &QPushButton::released, [=, this]()
     {
         int row = session_users->currentRow();
         if (row > 0) {
@@ -549,7 +549,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     lt->setAlignment(exit_button, Qt::AlignLeft);
     setLayout(lt);
 
-    connect(query_button, &QPushButton::released, this, [=]()
+    connect(query_button, &QPushButton::released, this, [=, this]()
     {
         auto errmsg = db::run_query(result_model, query_editor->toPlainText());
         if (errmsg)
