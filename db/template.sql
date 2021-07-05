@@ -1,5 +1,5 @@
-create database if not exists OnlineConsole;
-use OnlineConsole;
+create database if not exists onlineconsole;
+use onlineconsole;
 
 drop table if exists Acquisto;
 drop table if exists CopiaVideogioco;

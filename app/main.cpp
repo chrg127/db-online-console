@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
     QString namestr = filestream.readLine();
     QString passstr = filestream.readLine();
 
-    if (!db::connect("OnlineConsole", namestr, passstr)) {
+    if (!db::connect("onlineconsole", namestr, passstr)) {
         msgbox("Impossibile collegarsi al database, verifica di aver scritto correttamente nome e password nel file DBINFO.txt.");
         return 1;
     }
