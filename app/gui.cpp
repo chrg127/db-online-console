@@ -517,7 +517,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
     auto *query_group  = new QGroupBox("Scrivi una query", this);
     auto *query_editor = new QTextEdit(this);
     auto *result_tab   = make_table(&result_model);
-    auto *highlighter  = new SQLHighlighter(query_editor->document());
+    //auto *highlighter  = new SQLHighlighter(query_editor->document());
     auto *query_button = new QPushButton("Esegui", this);
 
     auto *profit_group = new QGroupBox("Profitto mensile", this);
@@ -530,7 +530,7 @@ AdminScreen::AdminScreen(Window *wnd, QWidget *parent)
 
     for (int i = 1; i <= 12; i++)
         month->addItem(QLocale::system().monthName(i));
-    query_editor->setFont(make_font("Monospace", QFont::TypeWriter));
+    //query_editor->setFont(make_font("Monospace", QFont::TypeWriter));
     year->setDisplayFormat("yyyy");
     year->setDateRange(QDate(1753, 1, 1), QDate(8000, 1, 1));
     add_to_group(profit_group,

@@ -7,7 +7,7 @@
 #include <QHBoxLayout>
 #include <QFormLayout>
 #include <QGridLayout>
-#include <QFont>
+//#include <QFont>
 #include <QMessageBox>
 #include <QTableView>
 #include <QComboBox>
@@ -42,12 +42,14 @@ inline QFormLayout *make_form_layout(auto... tuples)
     return lt;
 }
 
+/*
 inline QFont make_font(const QString &family, QFont::StyleHint hint)
 {
     QFont font(family);
     font.setStyleHint(hint);
     return font;
 }
+*/
 
 inline void msgbox(const QString &msg)
 {
