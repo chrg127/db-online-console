@@ -3,6 +3,9 @@
 #include <QApplication>
 #include <QScreen>
 #include <QSurfaceFormat>
+#include <QFile>
+#include <QTextStream>
+#include <QDebug>
 #include "qthelpers.hpp"
 #include "gui.hpp"
 #include "database.hpp"
@@ -21,8 +24,20 @@ int main(int argc, char *argv[])
     window.move(QGuiApplication::primaryScreen()->availableGeometry().center() - window.rect().center());
     window.show();
 
-    if (!db::connect("OnlineConsole", "chris", "mypass")) {
-        msgbox("Couldn't connect to the database. Quitting.");
+    QFile file{"DBINFO.txt"};
+    if (!file.exists() || !file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        msgbox("Prima di usare l'applicazione bisogna che un file chiamato \"DBINFO.txt\" esista. "
+               "Questo file deve avere il nome utente e la password per connettersi al database, rispettivamente, "
+               "nella prima e seconda riga");
+        return 1;
+    }
+
+    QTextStream filestream{&file};
+    QString namestr = filestream.readLine();
+    QString passstr = filestream.readLine();
+
+    if (!db::connect("OnlineConsole", namestr, passstr)) {
+        msgbox("Impossibile collegarsi al database, verifica di aver scritto correttamente nome e password nel file DBINFO.txt.");
         return 1;
     }
 
