@@ -136,7 +136,7 @@ insert into Utente(nome, cognome, password, email) values('Edoardo', 'Savini', '
 insert into Utente(nome, cognome, password, email) values('Giacomo', 'Cavalieri', 'mno', 'giaccava@mail.com');
 insert into Utente(nome, cognome, password, email) values('Chad', 'Smith', 'pqr', 'chad@mail.com');
 insert into Utente(nome, cognome, password, email) values('Federico', 'Orazio', 'stu', 'orazio@mail.com');
-insert into Utente(nome, cognome, password, email) values('Dario', 'Ketchup', 'vwx', 'ketchup@mail.com');
+insert into Utente(nome, cognome, password, email) values('Dario', 'Verdi', 'vwx', 'dario@mail.com');
 insert into Utente(nome, cognome, password, email) values('Gianluca', 'Migliarini', 'yz', 'gianlu@mail.com');
 insert into Utente(nome, cognome, password, email) values('Simone', 'Rega', 'abcdef', 'rega@mail.com');
 insert into Utente(nome, cognome, password, email) values('Francesco', 'Tappi', 'ghijk', 'tappi@mail.com');
