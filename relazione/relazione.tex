@@ -244,7 +244,7 @@ Per sottolineare il fatto che un solo utente può dare inizio ad una sessione, m
 	Partita & E & 300.000 \\ \hline
 	Gioca & R & 300.000 \\ \hline
 	Riguarda & R & 300.000 \\ \hline
-	Preferenza & R & 7000 \\ \hline
+	Preferenza & R & 50.000 \\ \hline
 	Videogioco Multiplayer & E & 600 \\ \hline
 	Sessione di gioco & E & 100.000 \\ \hline
 	Scelta & R & 100.000 \\ \hline
@@ -265,18 +265,18 @@ Le operazioni principali sono elencate nella fase di analisi. Segue una tabella 
 	\rowcolor{rowc}
 	\hline
 	\textbf{Codice} & \textbf{Operazione} & \textbf{Frequenza} \\
-	1  & Login di un utente & 1000 al giorno \\ \hline
-    2  & Registrare la sottoscrizione di un piano & 200 al mese \\ \hline
-    3  & Registrare la cancellazione di un piano & 50 al mese \\ \hline
-    4  & Cercare un gioco per titolo/genere/azienda e usando un filtro & 3000 al giorno \\ \hline
-    5  & Visualizzare i giochi più giocati e quelli più preferiti & 2000 al giorno \\ \hline
-    6  & Registrare l'acquisto di una copia di un videogioco & 5 al giorno \\ \hline
-    7  & Cercare un utente usando un filtro & 1000 al giorno \\ \hline
-    8  & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 1000 al giorno \\ \hline
-    9  & Visualizzare i giochi preferiti di un utente & 1000 al giorno \\ \hline
-    10 & Aggiungere un gioco tra i preferiti & 5 al giorno \\ \hline
-    11 & Registrare la creazione di una sessione di gioco & 100 al giorno \\ \hline
-    12 & Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco & 1000 al giorno \\ \hline
+	1  & Login di un utente & 100 al giorno \\ \hline
+    2  & Registrare la sottoscrizione di un piano & 20 al mese \\ \hline
+    3  & Registrare la cancellazione di un piano & 5 al mese \\ \hline
+    4  & Cercare un gioco per titolo/genere/azienda e usando un filtro & 300 al giorno \\ \hline
+    5  & Visualizzare i giochi più giocati e quelli più preferiti & 200 al giorno \\ \hline
+    6  & Registrare l'acquisto di una copia di un videogioco & 2 al giorno \\ \hline
+    7  & Cercare un utente usando un filtro & 100 al giorno \\ \hline
+    8  & Visualizzare il numero di ore di gioco giornaliero e totale di un utente & 100 al giorno \\ \hline
+    9  & Visualizzare i giochi preferiti di un utente & 100 al giorno \\ \hline
+    10 & Aggiungere un gioco tra i preferiti & 10 al giorno \\ \hline
+    11 & Registrare la creazione di una sessione di gioco & 10 al giorno \\ \hline
+    12 & Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco & 100 al giorno \\ \hline
     13 & Visualizzare il profitto mensile del servizio & 1 al mese \\ \hline
 	\end{tabular}
 \end{center}
@@ -291,53 +291,53 @@ In questa sezione sono riportate le tabelle degli accessi delle operazioni sopra
 
 \subsection*{1. Login di un utente}
 
+Il caso migliore è trovare subito l'utente; il caso peggiore è non trovarlo. In media sono 5000 letture.
+
 \begin{table}[!htb]
 \begin{center}
-	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente         & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Utente         & E & 5000 & L \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 5000L, 500.000 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \subsection*{2. Registrare la sottoscrizione di un piano}
 
-% per registrare la sottoscrizione, prima bisogna guardare se l'utente ha già un piano in corso.
-Per permettere la registrazione di un nuovo piano, prima bisogna cercare se l'utente ha già un piano in corso: questo comporta anche accessi in lettura dei piani e delle tipologie.
-In questa operazione, così come in molte altre, si suppone di avere già l'ID dell'utente che effettua l'operazione.
+Per permettere la registrazione di un nuovo piano, prima bisogna cercare se l'utente ha già un piano in corso: questo comporta anche accessi in lettura dei piani e delle tipologie. In media abbiamo 30.000 / 10.000 = 3 piani per utente.
 
 \begin{table}[!htb]
 \begin{center}
-	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Sottoscrittura  & R & ? & L \\ \hline
-	Piano           & E & ? & L \\ \hline
-	Tipologia       & R & ? & L \\ \hline
-	Tipologia piano & E & ? & L \\ \hline
+	Sottoscrittura  & R & 3 & L \\ \hline
+	Piano           & E & 3 & L \\ \hline
+	Tipologia       & R & 3 & L \\ \hline
+	Tipologia piano & E & 3 & L \\ \hline
 	Sottoscrittura  & R & 1 & S \\ \hline
 	Piano           & E & 1 & S \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 12L + 2S, 320 al mese} \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
-
-\newpage
 
 \subsection*{3. Registrare la cancellazione di un piano}
 
 In maniera analoga all'ultima operazione, bisogna trovare il piano in corso dell'utente prima di poterlo cancellare.
 
+\newpage
+
 \begin{table}[!htb]
 \begin{center}
-	\begin{tabular}{ | m{5cm} P{4cm} P{4cm} P{4cm} | }
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Piano    		 & E & ? & L \\ \hline
-	Tipologia		 & R & ? & L \\ \hline
-	Tipologia piano  & E & ? & L \\ \hline
-	Sottoscrittura   & R & ? & L \\ \hline
+	Piano    		 & E & 3 & L \\ \hline
+	Tipologia		 & R & 3 & L \\ \hline
+	Tipologia piano  & E & 3 & L \\ \hline
+	Sottoscrittura   & R & 3 & L \\ \hline
 	Piano Cancellato & E & 1 & S \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 12L + 1S, 70 al mese} \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
@@ -345,27 +345,31 @@ In maniera analoga all'ultima operazione, bisogna trovare il piano in corso dell
 
 \subsection*{4. Cercare un gioco per titolo/genere/azienda e usando un filtro}
 
+Dato che la ricerca avviene attraverso un filtro, bisogna sempre leggere i dati di ogni videogioco per vedere se sia corrispondenza con il filtro.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco       & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Videogioco       & E & 1000 & L \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 1000L, 300.000 al giorno} \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \subsection*{5. Visualizzare i giochi più giocati e quelli più preferiti}
 
+Per ogni videogioco devo andare a considerare sia le partite che lo riguardano, sia le preferenze. In media, avremo 300 partite per ogni videogioco e 50 preferenze per ogni videogioco.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco & E & ? & L \\ \hline
-	Riguarda	   & R & ? & L \\ \hline
-	Partita    & E & ? & L \\ \hline
-	Preferenza & R & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Videogioco & E & 1000 & L \\ \hline
+	Riguarda	   & R & 300 & L \\ \hline
+	Partita    & E & 300 & L \\ \hline
+	Preferenza & R & 50 & L \\ \hline
+        \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 1650L, 330.000 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
@@ -376,112 +380,121 @@ In maniera analoga all'ultima operazione, bisogna trovare il piano in corso dell
 
 Per registrare un acquisto, prima bisogna trovare se il videogioco in questione ha ancora copie disponibili: questo comporta anche l'accesso in lettura degli acquisti. Inoltre, per un eventuale sistema di pagamento, bisognerà anche cercare il prezzo del videogioco in questione (memorizzato per l'intero videogioco, non per ogni singola copia).
 
+Abbiamo, in media, 10 copie per ogni videogioco e si fà un accesso alla relazione Acquisto per ogni copia.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco		 & E & ? & L \\ \hline
-	Copia			 & R & ? & L \\ \hline	
-	Copia Videogioco & E & ? & L \\ \hline
-	Acquisto 		 & R & ? & L \\ \hline
-	Acquisto 		 & R & 1 & S \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Videogioco		 & E & 500 & L \\ \hline
+	Copia			 & R & 10  & L \\ \hline	
+	Copia Videogioco & E & 10  & L \\ \hline
+	Acquisto 		 & R & 10  & L \\ \hline
+	Acquisto 		 & R & 1   & S \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 530L + 1S, 1064 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \subsection*{7. Cercare un utente usando un filtro}
 
+Gli accessi vengono calcolati in maniera analoga alla ricerca dei videogiochi.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Utente & E & 10.000 & L \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 10.000L, 1.000.000 al giorno } \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\subsection*{8. Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
+
+In media, un utente gioca a 300 partite.
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Gioca   & R & 300 & L \\ \hline
+	Partita & E & 300 & L \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 600L, 60.000 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
 
-\subsection*{8. Visualizzare il numero di ore di gioco giornaliero e totale di un utente}
-
-\begin{table}[h!]
-\begin{center}
-	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Utente  & E & ? & L \\ \hline
-	Gioca   & R & ? & L \\ \hline
-	Partita & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
-	\end{tabular}
-\end{center}
-\end{table}
-
 \subsection*{9. Visualizzare i giochi preferiti di un utente}
 
+In media, un utente ha 5 preferenze registrate.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Preferenza & R & ? & L \\ \hline
-	Videogioco & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Preferenza & R & 5 & L \\ \hline
+	Videogioco & E & 5 & L \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 10L, 1000 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \subsection*{10. Aggiungere un gioco tra i preferiti}
 
-% si suppone che il db prevenga coppie duplicate.
+Per costruzione, è impossibile inserire una coppia duplicata nella relazione Preferenza, quindi non c'è bisogno di fare controlli.
 
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
 	Preferenza & R & 1 & S \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 1S, 20 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
-
-\newpage
 
 \subsection*{11. Registrare la creazione di una sessione di gioco}
 
 Si suppone di avere l'ID del videogioco scelto, l'ID dell'utente creatore e gli ID degli utenti partecipanti. Per registrare una sessione, bisogna cercare se il videogioco scelto è effettivamente un gioco giocabile in multiplayer (alternativamente, a lato software si possono filtrare i videogiochi non multiplayer) e che il videogioco supporti il numero di giocatori. Al momento della registrazione, si aggiornano opportunamente sia l'entità Sessione, sia le relazioni Creazione e Partecipazione.
 
+In media, avremmo 5 giocatori per ogni sessione, che corrispondono a 5 partecipazioni.
+
 \begin{table}[h!]
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco multiplayer  	& E & ? & L \\ \hline
+	Videogioco multiplayer  	& E & 300 & L \\ \hline
 	Sessione					& E & 1 & S \\ \hline
 	Scelta					& R & 1 & S \\ \hline
 	Creazione				& R & 1 & S \\ \hline
-	Partecipazione			& R & ? & S \\ \hline 
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
-	\end{tabular}
-\end{center}
-\end{table}
-
-\subsection*{12. Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
-
-\begin{table}[h!]
-\begin{center}
-	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
-	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Partecipazione & R & ? & L \\ \hline
-	Creazione      & R & ? & L \\ \hline
-	Sessione       & E & ? & L \\ \hline
-	Scelta		   & R & ? & L \\ \hline
-	Videogioco     & E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Partecipazione			& R & 5 & S \\ \hline 
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 300L + 8S, 3160 al giorno } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
 \newpage
+
+\subsection*{12. Visualizzare quante sessioni un utente ha creato o ha partecipato per un videogioco}
+
+In media, un singolo utente partecipa a 50 sessioni e ne crea 10.
+
+\begin{table}[h!]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Partecipazione & R & 50 & L \\ \hline
+	Creazione      & R & 10 & L \\ \hline
+	Sessione       & E & 60 & L \\ \hline
+	Scelta		   & R & 60 & L \\ \hline
+	Videogioco     & E & 60 & L \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 240L, 24.000 al giorno } \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
 
 \subsection*{13. Visualizzare il profitto mensile del servizio}
 
@@ -491,18 +504,19 @@ Il profitto viene calcolando cercando i piani sottoscritti e cercando gli acquis
 \begin{center}
 	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
 	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
-	Videogioco			& E & ? & L \\ \hline
-	Copia				& R & ? 	& L \\ \hline
-	Copia videogioco 	& E & ? & L \\ \hline
-	Acquisto				& R & ? & L \\ \hline
-	Piano				& E & ? & L \\ \hline
-	Tipologia			& R & ? & L \\ \hline
-	Tipologia piano		& E & ? & L \\ \hline
-	\rowcolor{rowc} \textbf{Totale}: & & & \\ \hline
+	Videogioco			& E & 1 			& L \\ \hline
+	Copia				& R & 1		 	& L \\ \hline
+	Copia videogioco 	& E & 1 			& L \\ \hline
+	Acquisto				& R & 5000 		& L \\ \hline
+	Piano				& E & 30.000		& L \\ \hline
+	Tipologia			& R & 1 			& L \\ \hline
+	Tipologia piano		& E & 1 			& L \\ \hline
+    \rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 35.005L, 35.005 al mese } \\ \hline
 	\end{tabular}
 \end{center}
 \end{table}
 
+\newpage
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % schema logico
@@ -560,8 +574,67 @@ Nel passaggio da schema ER a schema logico, sono state eliminate le seguenti rel
 
 \subsection*{2. Registrare la sottoscrizione di un piano}
 
+In questo caso, l'avere la ridondanza permette di fare metà delle letture.
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Sottoscrittura  & R & 3 & L \\ \hline
+	Piano           & E & 3 & L \\ \hline
+	Sottoscrittura  & R & 1 & S \\ \hline
+	Piano           & E & 1 & S \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 6L + 2S, 200 al mese} \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+Si può vedere che, confrontando con la tabella degli accessi iniziale, si può avere un piccolo vantaggio.
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Sottoscrittura  & R & 3 & L \\ \hline
+	Piano           & E & 3 & L \\ \hline
+	Tipologia       & R & 3 & L \\ \hline
+	Tipologia piano & E & 3 & L \\ \hline
+	Sottoscrittura  & R & 1 & S \\ \hline
+	Piano           & E & 1 & S \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 12L + 2S, 320 al mese} \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
+
 \subsection*{3. Registrare la cancellazione di un piano}
 
+Anche qui si ha un taglio delle letture, in maniera analoga all'operazione 2. Sono qui riportate la tabella aggiornata e la tabella originale.
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Piano    		 & E & 3 & L \\ \hline
+	Sottoscrittura   & R & 3 & L \\ \hline
+	Piano Cancellato & E & 1 & S \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 6L + 1S, 40 al mese} \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
+
+\begin{table}[!htb]
+\begin{center}
+	\begin{tabular}{ | m{4cm} P{4cm} P{4cm} P{4cm} | }
+	\rowcolor{rowc} \textbf{Concetto} & \textbf{Costrutto} & \textbf{Accessi} & \textbf{Tipo} \\
+	Piano    		 & E & 3 & L \\ \hline
+	Tipologia		 & R & 3 & L \\ \hline
+	Tipologia piano  & E & 3 & L \\ \hline
+	Sottoscrittura   & R & 3 & L \\ \hline
+	Piano Cancellato & E & 1 & S \\ \hline
+	\rowcolor{rowc} \multicolumn{4}{|c|}{\textbf{Totale}: 12L + 1S, 70 al mese} \\ \hline
+	\end{tabular}
+\end{center}
+\end{table}
 
 \sect{Traduzione di entità e associazioni in relazioni}
 
